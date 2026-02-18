@@ -140,7 +140,7 @@ export function GlobalChatNotifications({ isAdmin, companyId }: GlobalChatNotifi
     // Initial check
     checkForNewMessages();
 
-    const interval = setInterval(checkForNewMessages, 4000);
+    const interval = setInterval(checkForNewMessages, 30000);
     return () => clearInterval(interval);
   }, [checkForNewMessages]);
 

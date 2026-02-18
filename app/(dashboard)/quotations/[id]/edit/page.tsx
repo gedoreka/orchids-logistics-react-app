@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { EditQuotationClient } from "./edit-quotation-client";
 
 interface Customer {
@@ -23,14 +23,14 @@ interface QuotationItem {
 
 async function getQuotation(id: string, companyId: number) {
   try {
-    const quotations = await query<any>(
+    const quotations = await cachedQuery<any>(
       `SELECT * FROM quotations WHERE id = ? AND company_id = ?`,
       [id, companyId]
     );
 
     if (quotations.length === 0) return null;
 
-    const items = await query<QuotationItem>(
+    const items = await cachedQuery<QuotationItem>(
       `SELECT * FROM quotation_items WHERE quotation_id = ?`,
       [id]
     );
@@ -44,7 +44,7 @@ async function getQuotation(id: string, companyId: number) {
 
 async function getCustomers(companyId: number) {
   try {
-    const customers = await query<Customer>(
+    const customers = await cachedQuery<Customer>(
       `SELECT id, customer_name, company_name, vat_number FROM customers WHERE company_id = ? ORDER BY id DESC`,
       [companyId]
     );

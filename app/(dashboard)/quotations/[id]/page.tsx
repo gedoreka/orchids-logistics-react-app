@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { QuotationViewClient } from "./quotation-view-client";
 
 interface QuotationItem {
@@ -16,7 +16,7 @@ interface QuotationItem {
 
 async function getQuotation(id: string) {
   try {
-    const quotations = await query<any>(
+    const quotations = await cachedQuery<any>(
       `SELECT q.*, c.customer_name, c.company_name as client_company, c.vat_number as client_vat_full,
               c.short_address, c.email as client_email, c.phone as client_phone
        FROM quotations q
@@ -27,7 +27,7 @@ async function getQuotation(id: string) {
 
     if (quotations.length === 0) return null;
 
-    const items = await query<QuotationItem>(
+    const items = await cachedQuery<QuotationItem>(
       `SELECT * FROM quotation_items WHERE quotation_id = ?`,
       [id]
     );
@@ -41,7 +41,7 @@ async function getQuotation(id: string) {
 
 async function getCompany(companyId: number) {
   try {
-    const companies = await query<any>(
+    const companies = await cachedQuery<any>(
       `SELECT * FROM companies WHERE id = ?`,
       [companyId]
     );

@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { createClient } from "@supabase/supabase-js";
 import { SettingsContent } from "./SettingsContent";
 
@@ -16,7 +16,7 @@ export default async function SettingsPage() {
   const userId = session.user_id;
 
   // Fetch company info
-  const companies = await query<any>(
+  const companies = await cachedQuery<any>(
     "SELECT name, currency, region, created_at, access_token FROM companies WHERE id = ?",
     [companyId]
   );
@@ -35,14 +35,14 @@ export default async function SettingsPage() {
     .single();
 
   // Fetch user email
-  const users = await query<any>(
+  const users = await cachedQuery<any>(
     "SELECT email FROM users WHERE id = ?",
     [userId]
   );
   const userEmail = users[0]?.email || "";
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-8">
+    <div className="p-6 w-[90%] mx-auto space-y-8">
       <SettingsContent 
         company={company} 
         taxSettings={taxSettings || {}} 

@@ -1,10 +1,10 @@
 import { cookies } from "next/headers";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { NewPayrollClient } from "./new-payroll-client";
 
 async function getPackages(companyId: number) {
   try {
-    const packages = await query<any>(
+    const packages = await cachedQuery<any>(
       `SELECT * FROM employee_packages WHERE company_id = ? ORDER BY id DESC`,
       [companyId]
     );
@@ -17,7 +17,7 @@ async function getPackages(companyId: number) {
 
 async function getDebts(companyId: number) {
   try {
-    const debts = await query<any>(
+    const debts = await cachedQuery<any>(
       `SELECT * FROM salary_debts WHERE company_id = ? AND resolved = 0`,
       [companyId]
     );

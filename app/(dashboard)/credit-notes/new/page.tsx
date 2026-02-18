@@ -1,15 +1,15 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { NewCreditNoteClient } from "./new-credit-note-client";
 
 async function getCompanyId(userId: number) {
-  const users = await query<any>("SELECT company_id FROM users WHERE id = ?", [userId]);
+  const users = await cachedQuery<any>("SELECT company_id FROM users WHERE id = ?", [userId]);
   return users[0]?.company_id;
 }
 
 async function getInvoices(companyId: number) {
-  const invoices = await query<any>(`
+  const invoices = await cachedQuery<any>(`
     SELECT 
       si.id,
       si.invoice_number,

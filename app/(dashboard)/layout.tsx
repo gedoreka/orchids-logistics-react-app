@@ -2,7 +2,7 @@ import React from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { DashboardLayoutWrapper } from "@/components/layout/dashboard-layout-wrapper";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 
 export default async function Layout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies();
@@ -19,9 +19,9 @@ export default async function Layout({ children }: { children: React.ReactNode }
     let subscriptionData = { isActive: false, endDate: null as string | null, daysRemaining: 0 };
     
       if (userType === "sub_user" && session.sub_user_id) {
-        const subUsers = await query<{ id: number; name: string; email: string }>(
+        const subUsers = await cachedQuery<{ id: number; name: string; email: string }>(
           "SELECT id, name, email FROM company_sub_users WHERE id = ?",
-          [session.sub_user_id]
+          [session.sub_user_id], 30000
         );
         
         if (!subUsers || subUsers.length === 0) {
@@ -35,9 +35,9 @@ export default async function Layout({ children }: { children: React.ReactNode }
           company_id: session.company_id
         };
       } else {
-        const users = await query<{ id: number; name: string; email: string; role: string; company_id: number }>(
+        const users = await cachedQuery<{ id: number; name: string; email: string; role: string; company_id: number }>(
           "SELECT id, name, email, role, company_id FROM users WHERE id = ?",
-          [session.user_id]
+          [session.user_id], 30000
         );
         
         if (!users || users.length === 0) {
@@ -53,9 +53,9 @@ export default async function Layout({ children }: { children: React.ReactNode }
 
     // Fetch subscription data
     if (user.role !== 'admin' && user.company_id) {
-      const companies = await query<any>(
+      const companies = await cachedQuery<any>(
         "SELECT is_subscription_active, subscription_end_date FROM companies WHERE id = ?",
-        [user.company_id]
+        [user.company_id], 60000
       );
 
       if (companies && companies.length > 0) {

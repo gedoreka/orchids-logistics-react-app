@@ -806,14 +806,22 @@ export default function SubscriptionsClient({ initialPlans, initialBankAccounts,
                              payment.status === 'approved' ? <CheckCircle2 size={24} className="text-emerald-600" /> :
                              <XCircle size={24} className="text-red-600" />}
                           </div>
-                          <div>
-                            <h4 className="font-bold text-slate-900 dark:text-white">{payment.company_name}</h4>
-                            <p className="text-sm text-slate-500">{payment.plan_name} - {payment.amount} ر.س</p>
-                            <p className="text-xs text-slate-400 mt-1">
-                              {new Date(payment.created_at).toLocaleDateString( 'en-US' )}
-                              {payment.bank_name && ` • ${payment.bank_name}`}
-                            </p>
-                          </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <h4 className="font-bold text-slate-900 dark:text-white">{payment.company_name}</h4>
+                                {payment.receipt_image?.startsWith('stripe_session:') && (
+                                  <span className="px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-full text-[10px] font-bold flex items-center gap-1">
+                                    <CreditCard size={10} />
+                                    Stripe
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-sm text-slate-500">{payment.plan_name} - {payment.amount} ر.س</p>
+                              <p className="text-xs text-slate-400 mt-1">
+                                {new Date(payment.created_at).toLocaleDateString( 'en-US' )}
+                                {payment.bank_name && ` • ${payment.bank_name}`}
+                              </p>
+                            </div>
                         </div>
                         <div className="flex items-center gap-2">
                           {payment.receipt_image && (

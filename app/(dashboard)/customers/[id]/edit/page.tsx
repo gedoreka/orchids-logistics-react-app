@@ -1,6 +1,6 @@
 import React from "react";
 import { cookies } from "next/headers";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { EditCustomerClient } from "./edit-customer-client";
 import { notFound } from "next/navigation";
 
@@ -50,7 +50,7 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
     notFound();
   }
 
-  const customers = await query<Customer>(
+  const customers = await cachedQuery<Customer>(
     "SELECT * FROM customers WHERE id = ? AND company_id = ?",
     [id, companyId]
   );
@@ -59,7 +59,7 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
     notFound();
   }
 
-  const accounts = await query<Account>(
+  const accounts = await cachedQuery<Account>(
     `SELECT id, account_code, account_name, account_type, parent_id 
      FROM accounts 
      WHERE company_id = ? 
@@ -67,7 +67,7 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
     [companyId]
   );
 
-  const costCenters = await query<CostCenter>(
+  const costCenters = await cachedQuery<CostCenter>(
     "SELECT id, center_code, center_name, center_type, parent_id FROM cost_centers WHERE company_id = ? ORDER BY center_code",
     [companyId]
   );

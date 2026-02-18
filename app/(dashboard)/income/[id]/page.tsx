@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { IncomeViewClient } from "./income-view-client";
 import { notFound } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 
 export const metadata = {
   title: "عرض سند الإيراد - Logistics Systems Pro",
@@ -27,7 +27,7 @@ async function getIncomeData(id: string) {
     }
 
     // Fetch company data based on the income record's company_id
-    const companyData = await query<any>(
+    const companyData = await cachedQuery<any>(
       `SELECT id, name, commercial_number, vat_number, country, region, district, street, postal_code, short_address, logo_path, stamp_path, digital_seal_path FROM companies WHERE id = ?`,
       [income.company_id]
     );

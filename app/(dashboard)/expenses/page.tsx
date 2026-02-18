@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { ExpensesClient } from "./expenses-client";
 
 export default async function ExpensesPage({
@@ -26,24 +26,24 @@ export default async function ExpensesPage({
   const currentMonth = month || new Date().toISOString().slice(0, 7);
 
   // Fetch Company Info
-  const companies = await query<any>(
+  const companies = await cachedQuery<any>(
     "SELECT name, logo_path FROM companies WHERE id = ?",
     [companyId]
   );
   const companyInfo = companies[0] || { name: "اسم الشركة", logo_path: null };
 
   // Fetch Stats
-  const expensesStats = await query<any>(
+  const expensesStats = await cachedQuery<any>(
     "SELECT COALESCE(SUM(amount), 0) as total FROM monthly_expenses WHERE company_id = ? AND month_reference = ?",
     [companyId, currentMonth]
   );
 
-  const deductionsStats = await query<any>(
+  const deductionsStats = await cachedQuery<any>(
     "SELECT COALESCE(SUM(amount), 0) as total FROM monthly_deductions WHERE company_id = ? AND month_reference = ?",
     [companyId, currentMonth]
   );
 
-  const payrollsStats = await query<any>(
+  const payrollsStats = await cachedQuery<any>(
     "SELECT COALESCE(SUM(total_amount), 0) as total FROM salary_payrolls WHERE company_id = ? AND payroll_month = ? AND is_draft = 0",
     [companyId, currentMonth]
   );
@@ -58,7 +58,7 @@ export default async function ExpensesPage({
   };
 
   // Fetch Recent Activity
-  const recentActivity = await query<any>(
+  const recentActivity = await cachedQuery<any>(
     "SELECT expense_type, amount, expense_date, employee_name FROM monthly_expenses WHERE company_id = ? ORDER BY expense_date DESC, id DESC LIMIT 5",
     [companyId]
   );

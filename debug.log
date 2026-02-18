@@ -387,3 +387,62 @@ Import trace:
     ./app/(dashboard)/expenses/deductions/page.tsx
 2026-02-14T23:16:11.618Z [console][error] Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
 2026-02-14T23:16:12.392Z [console][error] Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+2026-02-15T20:01:38.882Z [console][warn] [Fast Refresh] rebuilding
+2026-02-15T20:01:38.979Z [console][warn] [Fast Refresh] done in 197ms
+2026-02-15T20:01:38.882Z [console][log] [Fast Refresh] rebuilding
+2026-02-15T20:01:38.979Z [console][log] [Fast Refresh] done in 197ms
+2026-02-15T20:03:35.475Z [network][POST 200] /login
+  request: {}
+  response: :N1771185815441.961
+0:{"a":"$@1","f":"","b":"development"}
+1:{"success":false,"error":"خطأ في الاتصال بقاعدة البيانات."}
+
+2026-02-15T20:03:49.621Z [network][POST 200] /login
+  request: {}
+  response: :N1771185829594.4514
+0:{"a":"$@1","f":"","b":"development"}
+1:{"success":false,"error":"خطأ في الاتصال بقاعدة البيانات."}
+
+2026-02-15T20:58:37.852Z [console][warn] [Fast Refresh] done in 476ms
+2026-02-15T20:58:37.467Z [console][log] [Fast Refresh] rebuilding
+2026-02-15T20:58:37.852Z [console][log] [Fast Refresh] done in 476ms
+2026-02-16T11:25:10.117Z [console][error] Network error fetching chat: Failed to fetch
+2026-02-16T11:25:40.127Z [console][error] Network error fetching chat: Failed to fetch
+2026-02-16T11:26:10.117Z [console][error] Network error fetching chat: Failed to fetch
+2026-02-16T11:26:40.127Z [console][error] Network error fetching chat: Failed to fetch
+2026-02-16T11:27:10.116Z [console][error] Network error fetching chat: Failed to fetch
+2026-02-16T11:27:40.125Z [console][error] Network error fetching chat: Failed to fetch
+2026-02-16T11:28:10.116Z [console][error] Network error fetching chat: Failed to fetch
+2026-02-16T11:28:40.124Z [console][error] Network error fetching chat: Failed to fetch
+2026-02-16T11:29:10.116Z [console][error] Network error fetching chat: Failed to fetch
+2026-02-16T18:19:46.077Z [console][warn] [Fast Refresh] rebuilding
+2026-02-16T18:19:46.123Z [console][warn] [Fast Refresh] done in 147ms
+2026-02-16T18:19:46.076Z [console][log] [Fast Refresh] rebuilding
+2026-02-16T18:19:46.122Z [console][log] [Fast Refresh] done in 147ms
+2026-02-16T18:19:56.516Z [network][POST 200] /login
+  request: {}
+  response: :N1771265996494.7769
+0:{"a":"$@1","f":"","b":"development"}
+1:{"success":false,"error":"خطأ في الاتصال بقاعدة البيانات."}
+
+2026-02-16T18:20:03.310Z [network][POST 200] /login
+  request: {}
+  response: :N1771266003296.6282
+0:{"a":"$@1","f":"","b":"development"}
+1:{"success":false,"error":"خطأ في الاتصال بقاعدة البيانات."}
+
+2026-02-16T18:20:04.632Z [network][POST 200] /login
+  request: {}
+  response: :N1771266004617.2122
+0:{"a":"$@1","f":"","b":"development"}
+1:{"success":false,"error":"خطأ في الاتصال بقاعدة البيانات."}
+
+2026-02-16T22:34:15.972Z [console][error] Uncaught ReferenceError: query is not defined
+2026-02-16T22:34:15.972Z [console][error] Uncaught ReferenceError: query is not defined
+2026-02-16T23:18:06.264Z [console][log] [Fast Refresh] rebuilding
+2026-02-16T23:18:06.269Z [console][log] [Fast Refresh] done in 106ms
+2026-02-17T11:59:08.440Z [console][debug] __ORCHIDS_VISUALEDIT_CLICK__ {"tagName":"h3","id":null,"className":"text-xl font-black text-slate-900 dark:text-white","textContent":"إدارة الباقات","attributes":{"class":"text-xl font-black text-slate-900 dark:text-white"},"position":{"x":1826,"y":689},"boundingRect":{"top":682.9344482421875,"left":1747.5093994140625,"width":108.1031265258789,"height":27.993751525878906},"computedStyles":{"display":"block","position":"static","verticalAlign":"baseline","width":"108.103px","height":"27.9938px","boxSizing":"border-box","fontFamily":"Cairo, Tajawal, sans-serif, Tajawal, \"Segoe UI\", system-ui, sans-serif","fontSize":"20px","fontWeight":"700","fontVariant":"lining-nums tabular-nums","lineHeight":"28px","letterSpacing":"0.16px","textAlign":"start","textDecoration":"none solid rgb(255, 255, 255)","textOverflow":"clip","color":"rgb(255, 255, 255)","opacity":"1","border":"0px solid rgb(255, 255, 255)","borderTop":"0px solid rgb(255, 255, 255)","borderRight":"0px solid rgb(255, 255, 255)","borderBottom":"0px solid rgb(255, 255, 255)","borderLeft":"0px solid rgb(255, 255, 255)","borderStyle":"solid","borderColor":"rgb(255, 255, 255)","outline":"rgb(255, 255, 255) none 0px","outlineColor":"rgb(255, 255, 255)","transformOrigin":"54.0516px 13.9969px","perspectiveOrigin":"54.0469px 13.9969px","transition":"all","transitionProperty":"all","transitionDuration":"0s","transitionTimingFunction":"ease","transitionDelay":"0s","animation":"none 0s ease 0s 1 normal none running","animationDuration":"0s","animationTimingFunction":"ease","animationDelay":"0s","animationIterationCount":"1","overflow":"visible","overflowX":"visible","overflowY":"visible","flex":"0 1 auto","flexDirection":"row","flexWrap":"nowrap","flexFlow":"row nowrap","flexGrow":"0","flexShrink":"1","grid":"none / none / none / row / auto / auto","gridAutoFlow":"row","background":"rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box","backgroundImage":"none","backgroundPosition":"0% 0%","backgroundRepea...
+2026-02-17T12:10:52.853Z [console][log] [Fast Refresh] rebuilding
+2026-02-17T12:10:53.791Z [console][log] [Fast Refresh] done in 1016ms
+2026-02-17T12:11:19.562Z [console][log] [Fast Refresh] rebuilding
+2026-02-17T12:11:19.656Z [console][log] [Fast Refresh] done in 194ms

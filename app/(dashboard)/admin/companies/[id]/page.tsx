@@ -1,5 +1,5 @@
 import React from "react";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { Company } from "@/lib/types";
 import { CompanyDetailsClient } from "./company-details-client";
 import { notFound } from "next/navigation";
@@ -13,7 +13,7 @@ export default async function CompanyDetailsPage({
 }) {
   const { id } = await params;
   
-  const companies = await query<Company>(
+  const companies = await cachedQuery<Company>(
     "SELECT * FROM companies WHERE id = ?",
     [id]
   );

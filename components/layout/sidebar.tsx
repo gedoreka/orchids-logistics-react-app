@@ -31,7 +31,7 @@ import {
   FileEdit,
   CreditCard,
   Landmark,
-  FileSpreadsheet,
+
   Calculator,
   Coins,
   Sparkles,
@@ -60,14 +60,15 @@ interface NavItem {
 const navItems: NavItem[] = [
     { titleKey: "home", href: "/dashboard", icon: Home, gradient: "from-blue-500 to-cyan-500", iconColor: "text-blue-400" },
     
-    { titleKey: "companyRequests", href: "/admin/companies", icon: Building2, adminOnly: true, gradient: "from-violet-500 to-purple-500", iconColor: "text-violet-400" },
-  { titleKey: "addNewCompany", href: "/admin/companies/new", icon: PlusCircle, adminOnly: true, gradient: "from-emerald-500 to-green-500", iconColor: "text-emerald-400" },
-  { titleKey: "generateToken", href: "/admin/generate-token", icon: Key, adminOnly: true, gradient: "from-amber-500 to-yellow-500", iconColor: "text-amber-400" },
-  { titleKey: "searchToken", href: "/admin/search-token", icon: Search, adminOnly: true, gradient: "from-sky-500 to-blue-500", iconColor: "text-sky-400" },
-  { titleKey: "technicalSupport", href: "/admin/chat", icon: MessageSquare, adminOnly: true, gradient: "from-indigo-500 to-violet-500", iconColor: "text-indigo-400" },
-  { titleKey: "adminNotifications", href: "/admin/notifications", icon: Bell, adminOnly: true, gradient: "from-rose-500 to-pink-500", iconColor: "text-rose-400" },
-  { titleKey: "subscriptionPlans", href: "/admin/subscriptions", icon: Package, adminOnly: true, gradient: "from-violet-500 to-purple-500", iconColor: "text-violet-400" },
-  { titleKey: "specialSalaries", href: "/admin/special-salaries", icon: Coins, adminOnly: true, dividerAfter: true, gradient: "from-yellow-500 to-orange-500", iconColor: "text-yellow-400" },
+    { titleKey: "companyRequests", href: "/admin/companies", icon: Building2, adminOnly: true, permission: "admin_requests", gradient: "from-violet-500 to-purple-500", iconColor: "text-violet-400" },
+  { titleKey: "addNewCompany", href: "/admin/companies/new", icon: PlusCircle, adminOnly: true, permission: "admin_create_company", gradient: "from-emerald-500 to-green-500", iconColor: "text-emerald-400" },
+  { titleKey: "generateToken", href: "/admin/generate-token", icon: Key, adminOnly: true, permission: "admin_generate_token", gradient: "from-amber-500 to-yellow-500", iconColor: "text-amber-400" },
+  { titleKey: "searchToken", href: "/admin/search-token", icon: Search, adminOnly: true, permission: "admin_search_token", gradient: "from-sky-500 to-blue-500", iconColor: "text-sky-400" },
+  { titleKey: "technicalSupport", href: "/admin/chat", icon: MessageSquare, adminOnly: true, permission: "admin_chat", gradient: "from-indigo-500 to-violet-500", iconColor: "text-indigo-400" },
+  { titleKey: "adminNotifications", href: "/admin/notifications", icon: Bell, adminOnly: true, permission: "admin_notifications", gradient: "from-rose-500 to-pink-500", iconColor: "text-rose-400" },
+  { titleKey: "subscriptionPlans", href: "/admin/subscriptions", icon: Package, adminOnly: true, permission: "admin_subscriptions", gradient: "from-violet-500 to-purple-500", iconColor: "text-violet-400" },
+  { titleKey: "specialSalaries", href: "/admin/special-salaries", icon: Coins, adminOnly: true, permission: "special_salaries", gradient: "from-yellow-500 to-orange-500", iconColor: "text-yellow-400" },
+  { titleKey: "systemSettings", href: "/admin/system-settings", icon: Settings, adminOnly: true, permission: "admin_system_settings", dividerAfter: true, gradient: "from-slate-500 to-zinc-500", iconColor: "text-slate-400" },
   
   { titleKey: "hrManagement", href: "/hr", icon: Users, permission: "employees_module", gradient: "from-blue-500 to-indigo-500", iconColor: "text-blue-400" },
   
@@ -75,9 +76,10 @@ const navItems: NavItem[] = [
   
   { titleKey: "financialVouchers", href: "/financial-vouchers", icon: Receipt, permission: "receipts_module", gradient: "from-indigo-500 to-purple-500", iconColor: "text-indigo-400" },
   { titleKey: "salaryPayrolls", href: "/salary-payrolls", icon: BadgeDollarSign, permission: "salary_payrolls_module", gradient: "from-teal-500 to-emerald-500", iconColor: "text-teal-400" },
+
   { titleKey: "taxInvoices", href: "/sales-invoices", icon: FileText, permission: "sales_module", gradient: "from-blue-500 to-sky-500", iconColor: "text-blue-400" },
   { titleKey: "creditNotes", href: "/credit-notes", icon: CreditCard, permission: "credit_notes_module", gradient: "from-red-500 to-rose-500", iconColor: "text-red-400" },
-  { titleKey: "fleetManagement", href: "/fleet", icon: Car, permission: "sales_module", gradient: "from-yellow-500 to-amber-500", iconColor: "text-yellow-400" },
+  { titleKey: "fleetManagement", href: "/fleet", icon: Car, permission: "vehicles_list", gradient: "from-yellow-500 to-amber-500", iconColor: "text-yellow-400" },
     
       { titleKey: "ecommerce", href: "/ecommerce", icon: Store, permission: "ecommerce_orders_module", gradient: "from-emerald-500 to-teal-500", iconColor: "text-emerald-400" },
       
@@ -95,8 +97,9 @@ const navItems: NavItem[] = [
   { titleKey: "balanceSheet", href: "/balance-sheet", icon: FileText, permission: "balance_sheet_module", gradient: "from-blue-500 to-cyan-500", iconColor: "text-blue-400" },
   
     { titleKey: "subUsersManagement", href: "/sub-users", icon: Users, permission: "sub_users_module", gradient: "from-violet-500 to-purple-500", iconColor: "text-violet-400" },
-    { titleKey: "taxDeclarations", href: "/tax-declarations", icon: FileCheck, permission: "balance_sheet_module", gradient: "from-blue-600 to-indigo-600", iconColor: "text-blue-400" },
-    { titleKey: "taxSettings", href: "/tax-settings", icon: Calculator, permission: "balance_sheet_module", gradient: "from-rose-500 to-pink-500", iconColor: "text-rose-400" },
+    { titleKey: "taxDeclarations", href: "/tax-declarations", icon: FileCheck, permission: "tax_settings_module", gradient: "from-blue-600 to-indigo-600", iconColor: "text-blue-400" },
+    { titleKey: "taxSettings", href: "/tax-settings", icon: Calculator, permission: "tax_settings_module", gradient: "from-rose-500 to-pink-500", iconColor: "text-rose-400" },
+    { titleKey: "virtualAccounts", href: "/virtual-accounts", icon: Landmark, permission: "virtual_accounts_module", gradient: "from-emerald-500 to-teal-500", iconColor: "text-emerald-400" },
   ];
 
 interface SidebarProps {
@@ -123,7 +126,7 @@ export function Sidebar({ userRole, permissions = {}, userType }: SidebarProps) 
 
     const filteredItems = navItems.filter(item => {
       if (item.adminOnly && !isAdmin) return false;
-      if (item.permission && !isAdmin && permissions[item.permission] !== 1) return false;
+      if (item.permission && permissions[item.permission] !== 1) return false;
       return true;
     });
 
@@ -175,6 +178,9 @@ export function Sidebar({ userRole, permissions = {}, userType }: SidebarProps) 
       "from-gray-500 to-slate-500": { from: "#6b7280", to: "#64748b" },
       "from-yellow-500 to-orange-500": { from: "#eab308", to: "#f97316" },
       "from-blue-600 to-indigo-600": { from: "#2563eb", to: "#4f46e5" },
+      "from-slate-500 to-zinc-500": { from: "#64748b", to: "#71717a" },
+      "from-green-600 to-emerald-600": { from: "#16a34a", to: "#059669" },
+      "from-emerald-600 to-teal-600": { from: "#059669", to: "#0d9488" },
     };
     return colorMap[gradient || ""] || { from: "#6366f1", to: "#8b5cf6" };
   };

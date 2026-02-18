@@ -1,6 +1,6 @@
 import React from "react";
 import { cookies } from "next/headers";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { EmployeeDetailsClient } from "./employee-details-client";
 import { notFound } from "next/navigation";
 
@@ -19,7 +19,7 @@ export default async function EmployeeDetailsPage({
   const companyId = session.company_id;
 
   // 1. Fetch Employee Data
-  const employeeRes = await query(
+  const employeeRes = await cachedQuery(
     `SELECT e.*, ep.group_name 
      FROM employees e 
      LEFT JOIN employee_packages ep ON e.package_id = ep.id 
@@ -33,7 +33,7 @@ export default async function EmployeeDetailsPage({
   }
 
   // 2. Fetch all employees in same package for navigation
-  const allEmployees = await query(
+  const allEmployees = await cachedQuery(
     `SELECT id, name, user_code, iqama_number, is_active
      FROM employees 
      WHERE package_id = ? AND company_id = ?
@@ -42,7 +42,7 @@ export default async function EmployeeDetailsPage({
   );
 
   // 3. Fetch Violations (Merging from employee_violations and monthly_expenses for comprehensive display)
-  const violations = await query(
+  const violations = await cachedQuery(
     `SELECT 
         id, 
         violation_type, 
@@ -80,13 +80,13 @@ export default async function EmployeeDetailsPage({
   );
 
   // 4. Fetch Letters
-  const letters = await query(
+  const letters = await cachedQuery(
     "SELECT * FROM employee_letters WHERE employee_id = ? ORDER BY created_at DESC",
     [employeeId]
   );
 
   // 5. Fetch Stats (Orders/Salary)
-  const statsRes = await query(
+  const statsRes = await cachedQuery(
     `SELECT 
         COUNT(DISTINCT sp.id) as total_months,
         COALESCE(SUM(spi.successful_orders), 0) as total_orders,
@@ -101,7 +101,7 @@ export default async function EmployeeDetailsPage({
   const stats = statsRes[0];
 
   // 6. Fetch Monthly Data
-  const monthlyData = await query(
+  const monthlyData = await cachedQuery(
     `SELECT 
         sp.payroll_month,
         spi.successful_orders,
@@ -117,18 +117,18 @@ export default async function EmployeeDetailsPage({
   );
 
   // 7. Fetch Bank Accounts
-  const bankAccounts = await query(
+  const bankAccounts = await cachedQuery(
     "SELECT * FROM employee_bank_accounts WHERE employee_id = ? ORDER BY is_primary DESC, created_at DESC",
     [employeeId]
   );
 
   // 8. Fetch Custom Document Types (system-level)
-  const customDocTypes = await query(
+  const customDocTypes = await cachedQuery(
     "SELECT * FROM custom_document_types ORDER BY created_at ASC"
   );
 
   // 9. Fetch Employee Custom Documents
-  const customDocuments = await query(
+  const customDocuments = await cachedQuery(
     "SELECT * FROM employee_custom_documents WHERE employee_id = ? ORDER BY created_at ASC",
     [employeeId]
   );

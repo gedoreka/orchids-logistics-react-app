@@ -1,12 +1,12 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { CreditNotesListClient } from "./credit-notes-list-client";
 
 export const dynamic = "force-dynamic";
 
 async function getCompanyId(userId: number) {
-  const users = await query<any>("SELECT company_id FROM users WHERE id = ?", [userId]);
+  const users = await cachedQuery<any>("SELECT company_id FROM users WHERE id = ?", [userId]);
   return users[0]?.company_id;
 }
 
@@ -21,7 +21,7 @@ function safeDate(val: any): string | null {
 }
 
 async function getCreditNotes(companyId: number) {
-  const creditNotes = await query<any>(`
+  const creditNotes = await cachedQuery<any>(`
     SELECT 
       cn.*,
       si.invoice_number,

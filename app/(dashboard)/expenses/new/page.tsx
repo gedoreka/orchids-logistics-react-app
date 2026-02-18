@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { User } from "@/lib/types";
 import ExpenseFormClient from "./expense-form-client";
 
@@ -13,7 +13,7 @@ export default async function NewExpensePage() {
   }
 
   const session = JSON.parse(sessionCookie.value);
-  const users = await query<User>(
+  const users = await cachedQuery<User>(
     "SELECT id, name, email, role, company_id FROM users WHERE id = ?",
     [session.user_id]
   );

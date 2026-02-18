@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import SubscriptionsClient from "./subscriptions-client";
 
 export default async function AdminSubscriptionsPage() {
@@ -28,11 +28,11 @@ export default async function AdminSubscriptionsPage() {
   let stats = { totalPlans: 0, activePlans: 0, totalPayments: 0, pendingPayments: 0 };
 
   try {
-    plans = await query(`SELECT * FROM subscription_plans ORDER BY sort_order ASC, id ASC`);
+    plans = await cachedQuery(`SELECT * FROM subscription_plans ORDER BY sort_order ASC, id ASC`);
     
-    bankAccounts = await query(`SELECT * FROM admin_bank_accounts ORDER BY sort_order ASC, id ASC`);
+    bankAccounts = await cachedQuery(`SELECT * FROM admin_bank_accounts ORDER BY sort_order ASC, id ASC`);
     
-    payments = await query(`
+    payments = await cachedQuery(`
       SELECT 
         pr.*,
         c.name as company_name,
@@ -47,14 +47,14 @@ export default async function AdminSubscriptionsPage() {
       LIMIT 100
     `);
 
-    const planStats = await query<any>(`
+    const planStats = await cachedQuery<any>(`
       SELECT 
         COUNT(*) as total,
         SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END) as active
       FROM subscription_plans
     `);
     
-    const paymentStats = await query<any>(`
+    const paymentStats = await cachedQuery<any>(`
       SELECT 
         COUNT(*) as total,
         SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending

@@ -114,7 +114,7 @@ export function EmployeeDetailsClient({
     status: { icon: ShieldCheck, label: "حالة الهوية", bg: "from-purple-600 to-violet-600", color: "purple", light: "bg-purple-500/10", text: "text-purple-400", glow: "shadow-purple-500/20" },
     documents: { icon: FileText, label: "المستندات والملفات", bg: "from-indigo-600 to-blue-600", color: "indigo", light: "bg-indigo-500/10", text: "text-indigo-400", glow: "shadow-indigo-500/20" },
     violations: { icon: AlertOctagon, label: "المخالفات المرورية", bg: "from-red-600 to-rose-600", color: "red", light: "bg-red-500/10", text: "text-red-400", glow: "shadow-red-500/20" },
-    stats: { icon: BarChart3, label: "الإحصائيات والأداء", bg: "from-slate-700 to-slate-800", color: "slate", light: "bg-slate-500/10", text: "text-slate-400", glow: "shadow-slate-500/20" },
+      stats: { icon: BarChart3, label: "الإحصائيات والأداء", bg: "from-violet-600 to-purple-700", color: "violet", light: "bg-violet-500/10", text: "text-violet-400", glow: "shadow-violet-500/20" },
     letters: { icon: Mail, label: "الخطابات والإجازات", bg: "from-rose-600 to-pink-600", color: "rose", light: "bg-rose-500/10", text: "text-rose-400", glow: "shadow-rose-500/20" },
   };
 
@@ -599,31 +599,29 @@ export function EmployeeDetailsClient({
                   transition={{ delay: 0.1 * index }}
                   whileHover={{ scale: 1.02, x: 3 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => setActiveTab(id)}
-                  className={`w-full flex items-center gap-4 px-5 py-4 rounded-xl transition-all text-right ${
-                    activeTab === id 
-                      ? `bg-gradient-to-r ${config.bg} text-white shadow-lg ${config.glow}` 
-                      : 'bg-slate-100/50 dark:bg-white/5 hover:bg-slate-200/50 dark:hover:bg-white/10 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-slate-200/50 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10'
-                  }`}
-                >
-                  <div className={`p-2.5 rounded-xl ${activeTab === id ? 'bg-white/20' : config.light}`}>
-                    <config.icon size={18} className={activeTab === id ? 'text-white' : config.text} />
-                  </div>
-                  <span className="text-sm font-black flex-1">{config.label}</span>
-                  {id === 'status' && (
-                    <span className={`text-[9px] font-black px-2 py-1 rounded-full ${
-                      iqamaStatus.color === 'red' ? 'bg-red-500/20 text-red-400' :
-                      iqamaStatus.color === 'orange' ? 'bg-orange-500/20 text-orange-400' : 'bg-emerald-500/20 text-emerald-400'
-                    }`}>
-                      {iqamaStatus.color === 'green' ? 'سارية' : iqamaStatus.color === 'orange' ? 'على وشك' : 'منتهية'}
-                    </span>
-                  )}
-                  {activeTab === id && (
+                    onClick={() => setActiveTab(id)}
+                    className={`w-full flex items-center gap-4 px-5 py-4 rounded-xl transition-all text-right bg-gradient-to-r ${config.bg} text-white shadow-lg ${config.glow}`}
+                    style={activeTab !== id ? {
+                      filter: 'brightness(0.88) saturate(0.8)',
+                      boxShadow: 'none'
+                    } : {}}
+                  >
+                    <div className="p-2.5 rounded-xl bg-white/20">
+                      <config.icon size={18} className="text-white" />
+                    </div>
+                    <span className="text-sm font-black flex-1">{config.label}</span>
+                    {id === 'status' && (
+                      <span style={{
+                        fontSize: '9px', fontWeight: 900, padding: '2px 8px', borderRadius: '9999px',
+                        backgroundColor: 'rgba(255,255,255,0.25)', color: '#fff'
+                      }}>
+                        {iqamaStatus.color === 'green' ? 'سارية' : iqamaStatus.color === 'orange' ? 'على وشك' : 'منتهية'}
+                      </span>
+                    )}
                     <motion.div 
-                      layoutId="activeIndicator"
-                      className="h-2.5 w-2.5 rounded-full bg-white shadow-lg shadow-white/50"
+                      layoutId={activeTab === id ? "activeIndicator" : undefined}
+                      className={`h-2.5 w-2.5 rounded-full shadow-lg shadow-white/50 ${activeTab === id ? 'bg-white' : 'bg-white/40'}`}
                     />
-                  )}
                 </motion.button>
               ))}
             </div>

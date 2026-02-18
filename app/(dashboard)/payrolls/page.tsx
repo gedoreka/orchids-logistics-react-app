@@ -1,10 +1,10 @@
 import { cookies } from "next/headers";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { PayrollsListClient } from "./payrolls-list-client";
 
 async function getPayrolls(companyId: number) {
   try {
-    const payrolls = await query<any>(
+    const payrolls = await cachedQuery<any>(
       `SELECT p.id, p.payroll_month, p.package_id, p.saved_by, p.created_at, p.is_draft, p.total_amount,
               COUNT(i.id) AS employee_count,
               pkg.group_name as package_name, pkg.work_type
@@ -25,7 +25,7 @@ async function getPayrolls(companyId: number) {
 
 async function getStats(companyId: number) {
   try {
-    const stats = await query<any>(
+    const stats = await cachedQuery<any>(
       `SELECT 
         COUNT(*) as total,
         COALESCE(SUM(total_amount), 0) as total_amount,

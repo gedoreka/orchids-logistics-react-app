@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { NewSalesReceiptClient } from "./new-sales-receipt-client";
 
 interface Customer {
@@ -14,7 +14,7 @@ interface Invoice {
 
 async function getCustomers(companyId: number) {
   try {
-    const customers = await query<Customer>(
+    const customers = await cachedQuery<Customer>(
       `SELECT id, customer_name FROM customers WHERE company_id = ? AND is_active = 1 ORDER BY id DESC`,
       [companyId]
     );
@@ -27,7 +27,7 @@ async function getCustomers(companyId: number) {
 
 async function getInvoices(companyId: number) {
   try {
-    const invoices = await query<Invoice>(
+    const invoices = await cachedQuery<Invoice>(
       `SELECT id, invoice_number FROM sales_invoices WHERE company_id = ? ORDER BY id DESC`,
       [companyId]
     );

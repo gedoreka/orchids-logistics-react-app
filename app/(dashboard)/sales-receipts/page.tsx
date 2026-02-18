@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { Loader2 } from "lucide-react";
 import { SalesReceiptsClient } from "./sales-receipts-client";
 
@@ -19,7 +19,7 @@ interface SalesReceipt {
 
 async function getSalesReceipts(companyId: number) {
   try {
-    const receipts = await query<SalesReceipt>(
+    const receipts = await cachedQuery<SalesReceipt>(
       `SELECT sr.id, sr.receipt_number, sr.client_id, sr.client_name, sr.invoice_number,
               sr.receipt_date, sr.amount, sr.notes, sr.created_by, sr.created_at,
               COALESCE(sr.client_name, c.customer_name) as client_name
@@ -38,7 +38,7 @@ async function getSalesReceipts(companyId: number) {
 
 async function getStats(companyId: number) {
   try {
-    const stats = await query<any>(
+    const stats = await cachedQuery<any>(
       `SELECT 
         COUNT(*) as total,
         COALESCE(SUM(amount), 0) as total_amount,

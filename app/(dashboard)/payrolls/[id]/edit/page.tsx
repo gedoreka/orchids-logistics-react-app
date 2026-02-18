@@ -1,16 +1,16 @@
 import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { PayrollEditClient } from "./payroll-edit-client";
 
 async function getCompanyId(userId: number) {
-  const users = await query<any>("SELECT company_id FROM users WHERE id = ?", [userId]);
+  const users = await cachedQuery<any>("SELECT company_id FROM users WHERE id = ?", [userId]);
   return users[0]?.company_id;
 }
 
 async function getPayroll(id: string, companyId: number) {
   try {
-    const payrolls = await query<any>(
+    const payrolls = await cachedQuery<any>(
       `SELECT p.*, pkg.group_name as package_name, pkg.work_type, pkg.monthly_target, pkg.bonus_after_target
        FROM salary_payrolls p
        LEFT JOIN employee_packages pkg ON p.package_id = pkg.id
@@ -20,7 +20,7 @@ async function getPayroll(id: string, companyId: number) {
 
     if (payrolls.length === 0) return null;
 
-    const items = await query<any>(
+    const items = await cachedQuery<any>(
       `SELECT * FROM salary_payroll_items WHERE payroll_id = ?`,
       [id]
     );

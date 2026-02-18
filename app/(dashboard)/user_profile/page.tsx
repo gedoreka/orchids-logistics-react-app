@@ -1,6 +1,6 @@
 import React from "react";
 import { cookies } from "next/headers";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { UserProfileClient } from "./user-profile-client";
 import { notFound } from "next/navigation";
 
@@ -16,7 +16,7 @@ export default async function UserProfilePage() {
   const userId = session.user_id;
   const companyId = session.company_id;
 
-  const userRes = await query("SELECT * FROM users WHERE id = ?", [userId]);
+  const userRes = await cachedQuery("SELECT * FROM users WHERE id = ?", [userId]);
   const user = userRes[0];
 
   if (!user) {
@@ -25,13 +25,13 @@ export default async function UserProfilePage() {
 
   let company = null;
   if (companyId) {
-    const companyRes = await query("SELECT * FROM companies WHERE id = ?", [companyId]);
+    const companyRes = await cachedQuery("SELECT * FROM companies WHERE id = ?", [companyId]);
     company = companyRes[0];
   }
 
   let bankAccounts: any[] = [];
   if (companyId) {
-    bankAccounts = await query(
+    bankAccounts = await cachedQuery(
       "SELECT * FROM company_bank_accounts WHERE company_id = ? ORDER BY id DESC",
       [companyId]
     );
@@ -39,7 +39,7 @@ export default async function UserProfilePage() {
 
   let licenses: any[] = [];
   if (companyId) {
-    licenses = await query(
+    licenses = await cachedQuery(
       "SELECT * FROM company_licenses WHERE company_id = ? ORDER BY id DESC",
       [companyId]
     );

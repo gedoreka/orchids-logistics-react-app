@@ -1,7 +1,8 @@
 {
-  "projectId": "4e2fb570-0228-46c5-8194-91553be5fb1f",
+  "projectId": "c2896fb5-655f-4d0f-80fb-38d5e6fdadb4",
   "createdAt": 1739347200,
   "startupCommands": [
-    "bun install; bun run dev"
-  ]
+    "npm install; npx next dev --turbopack --hostname 0.0.0.0 --port 3006"
+  ],
+  "templateId": "any"
 }

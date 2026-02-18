@@ -1,6 +1,6 @@
 import React from "react";
 import { cookies } from "next/headers";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { CustomersClient } from "./customers-client";
 
 interface Customer {
@@ -30,7 +30,7 @@ export default async function CustomersPage() {
     );
   }
 
-  const customers = await query<Customer>(
+  const customers = await cachedQuery<Customer>(
     `SELECT c.*, 
             a.account_name,
             cc.center_name as cost_center_name

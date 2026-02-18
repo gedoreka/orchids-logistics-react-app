@@ -1,6 +1,6 @@
 import React from "react";
 import { cookies } from "next/headers";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { ChatClient } from "./chat-client";
 
 export default async function ChatPage() {
@@ -11,7 +11,7 @@ export default async function ChatPage() {
 
   let initialMessages: any[] = [];
   try {
-    initialMessages = await query(
+    initialMessages = await cachedQuery(
       `SELECT * FROM chat_messages WHERE company_id = ? ORDER BY created_at ASC`,
       [companyId]
     );
@@ -22,7 +22,7 @@ export default async function ChatPage() {
     let companyToken = "";
     let companyName = "";
     try {
-      const companyData = await query<{ access_token: string; name: string }>(
+      const companyData = await cachedQuery<{ access_token: string; name: string }>(
         `SELECT access_token, name FROM companies WHERE id = ? LIMIT 1`,
         [companyId]
       );

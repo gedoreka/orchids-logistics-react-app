@@ -1,6 +1,6 @@
 import React from "react";
 import { cookies } from "next/headers";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { CustomerViewClient } from "./customer-view-client";
 import { notFound } from "next/navigation";
 
@@ -40,7 +40,7 @@ export default async function CustomerViewPage({ params }: { params: Promise<{ i
     notFound();
   }
 
-  const customers = await query<Customer>(
+  const customers = await cachedQuery<Customer>(
     `SELECT c.*, 
             a.account_name,
             cc.center_name as cost_center_name

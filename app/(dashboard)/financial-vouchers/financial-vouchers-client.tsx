@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, Suspense, useMemo } from "react";
+import React, { useState, useEffect, useRef, useCallback, Suspense, useMemo } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -9,7 +9,7 @@ import {
   FileText, Receipt, Wallet, ArrowRight, TrendingUp, TrendingDown,
   Sparkles, Building2, RefreshCw,
   ScrollText, FileCheck, ArrowUpRight, BarChart3, PlusCircle, DollarSign,
-  AlertCircle, Loader2
+  AlertCircle, Loader2, LayoutDashboard, Bolt, ChevronRight
 } from "lucide-react";
 
 interface Stats {
@@ -124,7 +124,27 @@ function FinancialVouchersContent() {
       }
     };
     init();
-  }, []);
+    }, []);
+
+    // Force black text on data-force-black elements in BOTH modes (overrides all CSS)
+    useEffect(() => {
+      const applyForceBlack = () => {
+        const els = document.querySelectorAll('[data-force-black]');
+        els.forEach((el) => {
+          const htmlEl = el as HTMLElement;
+          htmlEl.style.setProperty('color', '#000000', 'important');
+          htmlEl.style.setProperty('-webkit-text-fill-color', '#000000', 'important');
+          htmlEl.style.setProperty('background', 'none', 'important');
+          htmlEl.style.setProperty('background-image', 'none', 'important');
+          htmlEl.style.setProperty('-webkit-background-clip', 'unset', 'important');
+          htmlEl.style.setProperty('background-clip', 'unset', 'important');
+        });
+      };
+      applyForceBlack();
+      const observer = new MutationObserver(applyForceBlack);
+      observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+      return () => observer.disconnect();
+    }, []);
 
   const voucherTypes = useMemo(() => [
     {
@@ -247,6 +267,19 @@ function FinancialVouchersContent() {
   const totalExpense = stats.paymentVouchers.total;
   const netBalance = totalIncome - totalExpense;
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.08 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -268,7 +301,7 @@ function FinancialVouchersContent() {
           </div>
           <button
             onClick={() => fetchStats(companyId)}
-            className="inline-flex items-center gap-3 px-8 py-4 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-700 transition-all active:scale-95 shadow-xl"
+            className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black rounded-2xl hover:from-blue-700 hover:to-indigo-700 transition-all active:scale-95 shadow-2xl shadow-blue-500/40"
           >
             <RefreshCw size={20} />
             {isRtl ? "إعادة المحاولة" : "Retry"}
@@ -278,253 +311,263 @@ function FinancialVouchersContent() {
     );
   }
 
-  return (
-    <div className="max-w-[95%] mx-auto p-4 md:p-8 space-y-8" dir={isRtl ? "rtl" : "ltr"}>
-      {/* Unified Card Container */}
-      <motion.div
-        initial={{ opacity: 0, y: -30 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] p-10 text-white shadow-2xl border border-white/10"
-      >
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-emerald-500 via-rose-500 via-amber-500 via-purple-500 to-blue-500 animate-gradient-x" />
-        
-        <div className="relative z-10 space-y-10">
-          {/* Hero Header Section */}
-          <div className={`flex flex-col lg:flex-row items-center justify-between gap-10 ${isRtl ? "lg:text-right" : "lg:text-left"}`}>
-            <div className={`text-center space-y-4 ${isRtl ? "lg:text-right" : "lg:text-left"}`}>
-              <motion.div 
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.2, type: "spring" }}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 mb-2"
-              >
-                <Sparkles className="w-4 h-4 text-yellow-400 animate-pulse" />
-                  <span className="text-black font-black text-[10px] uppercase tracking-widest">{t("managementCenter")}</span>
-              </motion.div>
-              
-              <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
-                {t("title")}
-              </h1>
-              <p className="text-lg text-slate-300 max-w-2xl font-medium leading-relaxed">
-                {t("description")}
-              </p>
-              
-                <div className="flex flex-wrap justify-center lg:justify-start gap-4 mt-8">
+    return (
+      <div id="fv-page" className="min-h-screen pb-20" dir={isRtl ? "rtl" : "ltr"}>
+      <style dangerouslySetInnerHTML={{ __html: `
+            #fv-page [data-force-black] {
+              color: #000000 !important;
+              -webkit-text-fill-color: #000000 !important;
+              background: none !important;
+              background-image: none !important;
+              -webkit-background-clip: unset !important;
+              background-clip: unset !important;
+              font-weight: 900 !important;
+            }
+          `}} />
+      <div className="w-full px-2 pt-8">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="bg-gradient-to-br from-slate-800 via-slate-700 to-slate-600 rounded-[3rem] shadow-2xl border border-slate-500/30 overflow-hidden"
+        >
+          {/* Top Decorative Line */}
+          <div className="h-2 w-full bg-gradient-to-r from-blue-500 via-indigo-500 via-purple-500 via-emerald-500 to-blue-500 animate-gradient-x" />
 
-                <div className="flex items-center gap-3 px-6 py-3 bg-blue-500/20 backdrop-blur-md rounded-2xl border border-blue-500/30 text-black font-black text-sm shadow-xl">
-                    <Building2 size={18} className="text-blue-400" />
-                    {companyInfo?.name || t("loading")}
-                  </div>
-                <button 
+          <div className="p-8 md:p-12 space-y-12">
+            {/* Header Section */}
+            <motion.div
+              variants={itemVariants}
+              className="flex flex-col md:flex-row md:items-center justify-between gap-8 bg-gradient-to-r from-violet-50/80 via-purple-50/50 to-indigo-50/80 dark:bg-white/10 dark:bg-none backdrop-blur-xl p-8 rounded-2xl dark:rounded-[2rem] border-2 border-violet-200/60 dark:border dark:border-white/10 shadow-sm dark:shadow-xl relative overflow-hidden"
+            >
+              {/* Decorative circles - light mode only */}
+              <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-violet-500/10 to-purple-500/10 rounded-full -translate-y-16 -translate-x-16 dark:hidden" />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-full -translate-y-16 translate-x-16 dark:hidden" />
+              <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-emerald-500/10 to-teal-500/10 rounded-full translate-y-12 -translate-x-12 dark:hidden" />
+              <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tr from-amber-500/10 to-orange-500/10 rounded-full translate-y-12 translate-x-12 dark:hidden" />
+
+              <div className="relative z-10">
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-400 dark:text-slate-300 mb-2">
+                  <Link href="/dashboard" className="hover:text-blue-400 transition-colors flex items-center gap-1">
+                    <LayoutDashboard size={14} />
+                    {isRtl ? 'لوحة التحكم' : 'Dashboard'}
+                  </Link>
+                  <ArrowRight size={14} className={`${isRtl ? 'rotate-180' : ''} text-slate-500`} />
+                  <span className="text-blue-400">{isRtl ? 'السندات المالية' : 'Financial Vouchers'}</span>
+                </div>
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-violet-100/50 dark:bg-white/10 backdrop-blur-md rounded-2xl border border-violet-200/60 dark:border-white/10 mb-3">
+                  <Sparkles className="w-4 h-4 text-yellow-500 dark:text-yellow-400 animate-pulse" />
+                    <span data-force-black className="text-black dark:text-black font-black text-[10px] uppercase tracking-widest">{t("managementCenter")}</span>
+                </div>
+                  <h1 data-no-gradient data-force-black className="text-3xl md:text-4xl font-black text-black dark:text-black">{t("title")}</h1>
+                <p className="text-xs font-bold text-slate-500 dark:text-slate-300 mt-2 max-w-2xl leading-relaxed">
+                  {t("description")}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-4 relative z-10">
+                <div className="hidden md:flex items-center gap-3 px-5 py-2.5 bg-slate-100/80 dark:bg-white/5 border border-violet-200/60 dark:border-white/10 rounded-2xl backdrop-blur-md">
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                  <span className="text-sm font-black text-slate-700 dark:text-slate-200">{companyInfo?.name || t("loading")}</span>
+                </div>
+                <button
                   onClick={() => fetchStats(companyId)}
-                  className="flex items-center gap-3 px-6 py-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-white font-black text-sm hover:bg-white/20 transition-all shadow-xl active:scale-95"
+                  className="flex items-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 transition-all font-black text-sm shadow-2xl shadow-blue-500/40 active:scale-95"
                 >
-                  <RefreshCw size={18} className={cn("text-blue-400", loading ? "animate-spin" : "")} />
+                  <RefreshCw size={18} className={cn(loading ? "animate-spin" : "")} />
                   {t("updateData")}
                 </button>
               </div>
-            </div>
+            </motion.div>
 
-            {/* Summary Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full lg:w-auto">
-              <motion.div 
-                initial={{ opacity: 0, x: isRtl ? 30 : -30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 }}
-                  className="bg-white/20 backdrop-blur-xl rounded-[2rem] p-6 border border-white/20 shadow-2xl min-w-[200px] group hover:bg-white/30 transition-all"
-                >
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="p-2 bg-emerald-500/20 rounded-lg text-emerald-400 group-hover:scale-110 transition-transform">
-                      <TrendingUp className="w-5 h-5" />
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              {[
+                {
+                  color: "from-emerald-500 to-teal-600",
+                  icon: <TrendingUp size={24} />,
+                  label: t("totalIncome"),
+                  value: totalIncome.toLocaleString(),
+                  subLabel: t("sar")
+                },
+                {
+                  color: "from-rose-500 to-pink-600",
+                  icon: <TrendingDown size={24} />,
+                  label: t("expenses"),
+                  value: totalExpense.toLocaleString(),
+                  subLabel: t("sar")
+                },
+                {
+                  color: netBalance >= 0 ? "from-blue-500 to-indigo-600" : "from-amber-500 to-orange-600",
+                  icon: <DollarSign size={24} />,
+                  label: t("netBalance"),
+                  value: netBalance.toLocaleString(),
+                  subLabel: t("sar")
+                }
+              ].map((stat, idx) => (
+                <motion.div key={idx} variants={itemVariants}>
+                  <div className={`relative overflow-hidden rounded-3xl bg-gradient-to-br ${stat.color} p-6 shadow-2xl transition-all group cursor-pointer hover:-translate-y-1`}>
+                    <div className="flex items-start justify-between relative z-10">
+                      <div className="text-white/90 bg-white/10 p-2.5 rounded-xl backdrop-blur-md border border-white/10">{stat.icon}</div>
                     </div>
-                    <span className="text-emerald-300 font-black text-xs uppercase tracking-wider">{t("totalIncome")}</span>
-                </div>
-                <p className="text-3xl font-black text-white tracking-tight">{totalIncome.toLocaleString()}</p>
-                <p className="text-emerald-400/60 text-[10px] font-black mt-1">{t("sar")}</p>
-              </motion.div>
-
-              <motion.div 
-                initial={{ opacity: 0, x: isRtl ? 30 : -30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 }}
-                  className="bg-white/20 backdrop-blur-xl rounded-[2rem] p-6 border border-white/20 shadow-2xl min-w-[200px] group hover:bg-white/30 transition-all"
-                >
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="p-2 bg-rose-500/20 rounded-lg text-rose-400 group-hover:scale-110 transition-transform">
-                      <TrendingDown className="w-5 h-5" />
+                    <div className="mt-6 relative z-10">
+                      <p className="text-white/70 text-[10px] font-black uppercase tracking-widest">{stat.label}</p>
+                      <p className="text-4xl font-black text-white mt-2">{stat.value}</p>
+                      <p className="text-white/50 text-[10px] font-black mt-1">{stat.subLabel}</p>
                     </div>
-                    <span className="text-rose-300 font-black text-xs uppercase tracking-wider">{t("expenses")}</span>
-                </div>
-                <p className="text-3xl font-black text-white tracking-tight">{totalExpense.toLocaleString()}</p>
-                <p className="text-rose-400/60 text-[10px] font-black mt-1">{t("sar")}</p>
-              </motion.div>
-
-              <motion.div 
-                initial={{ opacity: 0, x: isRtl ? 30 : -30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.5 }}
-                className={cn(
-                  "backdrop-blur-xl rounded-[2rem] p-6 border shadow-2xl min-w-[200px] group transition-all",
-                  netBalance >= 0 
-                    ? "bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20" 
-                    : "bg-amber-500/10 border-amber-500/20 hover:bg-amber-500/20"
-                )}
-              >
-                <div className="flex items-center gap-3 mb-3">
-                  <div className={cn(
-                    "p-2 rounded-lg group-hover:scale-110 transition-transform",
-                    netBalance >= 0 ? "bg-blue-500/20 text-blue-400" : "bg-amber-500/20 text-amber-400"
-                  )}>
-                    <DollarSign className="w-5 h-5" />
+                    <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-all"></div>
                   </div>
-                  <span className={cn(
-                    "font-black text-xs uppercase tracking-wider",
-                    netBalance >= 0 ? "text-blue-300" : "text-amber-300"
-                  )}>{t("netBalance")}</span>
-                </div>
-                <p className="text-3xl font-black text-white tracking-tight">{netBalance.toLocaleString()}</p>
-                <p className={cn(
-                  "text-[10px] font-black mt-1",
-                  netBalance >= 0 ? "text-blue-400/60" : "text-amber-400/60"
-                )}>{t("sar")}</p>
-              </motion.div>
-            </div>
-          </div>
-
-          {/* Divider */}
-          <div className="border-t border-white/10" />
-
-          {/* Voucher Cards Grid Section */}
-          <div>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 bg-white/10 rounded-xl">
-                <FileText className="w-5 h-5 text-blue-400" />
-              </div>
-              <h2 className="text-xl font-black text-white">{t("voucherTemplates")}</h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {voucherTypes.map((voucher, index) => {
-                const statData = stats[voucher.stats.key];
-                return (
-                  <motion.div
-                    key={voucher.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    whileHover={{ y: -4 }}
-                    className="group"
-                  >
-                    <Link href={voucher.href}>
-                        <div className="relative overflow-hidden bg-white/20 backdrop-blur-xl rounded-[2rem] shadow-xl border border-white/20 hover:bg-white/30 hover:shadow-2xl transition-all duration-300">
-                        <div className={`h-1 bg-gradient-to-r ${voucher.gradient} opacity-80 group-hover:opacity-100 transition-opacity`} />
-                        
-                        <div className="p-6">
-                          <div className="flex items-start justify-between mb-4">
-                            <div className={cn(
-                              "p-3 rounded-xl shadow-xl transform group-hover:scale-110 transition-transform duration-300",
-                              voucher.iconBg
-                            )}>
-                              <voucher.icon className="w-6 h-6 text-white" />
-                            </div>
-                            <div className={`w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/50 group-hover:bg-white/20 group-hover:text-white transition-all ${isRtl ? "-scale-x-100" : ""}`}>
-                              <ArrowUpRight size={16} />
-                            </div>
-
-                          </div>
-
-                          <h3 className="text-lg font-black text-white mb-1">{voucher.title}</h3>
-                          <p className="text-slate-400 text-xs font-medium mb-4 line-clamp-1">{voucher.description}</p>
-
-                            <div className="rounded-xl p-4 mb-4 bg-white/10 border border-white/15">
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="text-slate-400 font-bold text-[10px] uppercase tracking-widest">{voucher.stats.label}</span>
-                              <span className={cn(
-                                "px-3 py-1 text-white text-[10px] font-black rounded-full shadow-lg",
-                                voucher.iconBg
-                              )}>
-                                {t("voucherCount", { count: statData.count })}
-                              </span>
-                            </div>
-                            <div className="flex items-baseline gap-1">
-                              <p className="text-2xl font-black text-white tracking-tight">
-                                {statData.total.toLocaleString()}
-                              </p>
-                              <span className="text-sm font-bold text-slate-500">{t("currency")}</span>
-                            </div>
-                          </div>
-
-                          <div className="space-y-2 mb-4">
-                            {voucher.features.map((feature, fIndex) => (
-                              <div key={fIndex} className="flex items-center gap-2 text-xs text-slate-400 font-medium">
-                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                <span className="line-clamp-1">{feature}</span>
-                              </div>
-                            ))}
-                          </div>
-
-                          <div className={cn(
-                            "py-3 px-4 bg-gradient-to-r rounded-xl text-center group-hover:shadow-xl transition-all shadow-lg active:scale-95",
-                            voucher.gradient,
-                            voucher.shadowColor
-                          )}>
-                            <span className="text-white font-black text-xs flex items-center justify-center gap-2">
-                              {t("manageVoucher", { title: voucher.title })}
-                                <ArrowRight className={`w-4 h-4 transform group-hover:translate-x-1 transition-transform ${isRtl ? "rotate-180" : ""}`} />
-
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-                  </motion.div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Divider */}
-          <div className="border-t border-white/10" />
-
-          {/* Quick Actions Section */}
-          <div>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 bg-white/10 rounded-xl">
-                <BarChart3 className="w-5 h-5 text-blue-400" />
-              </div>
-              <div>
-                <h3 className="text-xl font-black text-white">{t("quickActions")}</h3>
-                <p className="text-slate-400 text-sm font-medium">{t("quickActionsDesc")}</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-              {voucherTypes.map((tool) => (
-                  <Link key={tool.id} href={tool.href} className="flex flex-col items-center gap-3 p-4 bg-white/15 rounded-2xl border border-white/20 hover:border-white/30 hover:bg-white/25 transition-all group cursor-pointer text-center active:scale-95">
-                  <div className={cn(
-                    "p-3 rounded-xl group-hover:scale-110 transition-transform shadow-md",
-                    tool.iconBg
-                  )}>
-                    <tool.icon className="w-5 h-5 text-white" />
-                  </div>
-                  <p className="font-bold text-white text-xs tracking-tight">{tool.title}</p>
-                </Link>
+                </motion.div>
               ))}
             </div>
-          </div>
-        </div>
-        
-        {/* Decorative elements */}
-        <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl" />
-        <div className="absolute -top-12 -left-12 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl" />
-      </motion.div>
 
-      {/* Footer */}
-      <div className={`flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-slate-400 uppercase tracking-widest pt-4 opacity-70 ${isRtl ? "text-right" : "text-left"}`}>
-        <div className="flex items-center gap-2">
-          <Sparkles size={10} className="text-indigo-500" />
-          <span>Logistics Systems Pro</span>
-        </div>
-        <span>{t("allRightsReserved", { year: new Date().getFullYear() })}</span>
+            {/* Voucher Cards Section */}
+            <motion.div variants={itemVariants} className="bg-gradient-to-r from-violet-50/80 via-purple-50/50 to-indigo-50/80 dark:bg-white/95 dark:bg-none backdrop-blur-xl rounded-2xl dark:rounded-[2.5rem] border-2 border-violet-200/60 dark:border dark:border-white/50 shadow-sm dark:shadow-2xl overflow-hidden relative">
+              {/* Decorative circles - light mode only */}
+              <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-violet-500/10 to-purple-500/10 rounded-full -translate-y-16 -translate-x-16 dark:hidden z-0" />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-full -translate-y-16 translate-x-16 dark:hidden z-0" />
+              <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-emerald-500/10 to-teal-500/10 rounded-full translate-y-12 -translate-x-12 dark:hidden z-0" />
+              <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tr from-amber-500/10 to-orange-500/10 rounded-full translate-y-12 translate-x-12 dark:hidden z-0" />
+
+              <div className="bg-gradient-to-r from-violet-100 via-purple-100 to-indigo-100 dark:from-white/10 dark:via-white/5 dark:to-white/10 dark:bg-none px-8 py-6">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-2xl bg-violet-200/50 dark:bg-white/10 flex items-center justify-center border border-violet-300/50 dark:border-white/10">
+                    <FileText className="text-violet-600 dark:text-white" size={24} />
+                  </div>
+                  <div>
+                      <h3 data-force-black className="text-black dark:text-black text-lg font-black">{t("voucherTemplates")}</h3>
+                    <p className="text-slate-600 dark:text-slate-400 text-xs font-bold">{voucherTypes.length} {isRtl ? 'نموذج متاح' : 'templates available'}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-8 relative z-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {voucherTypes.map((voucher, index) => {
+                    const statData = stats[voucher.stats.key];
+                    return (
+                      <motion.div
+                        key={voucher.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        whileHover={{ y: -4 }}
+                        className="group"
+                      >
+                        <Link href={voucher.href}>
+                          <div className="relative overflow-hidden bg-white/80 dark:bg-slate-50 backdrop-blur-xl rounded-3xl shadow-sm border border-violet-200/40 dark:border-slate-100 hover:border-violet-300 dark:hover:border-blue-200 hover:shadow-2xl transition-all duration-300 h-full flex flex-col">
+                            <div className={`h-1 bg-gradient-to-r ${voucher.gradient} opacity-80 group-hover:opacity-100 transition-opacity`} />
+
+                            <div className="p-6 flex flex-col flex-1">
+                              <div className="flex items-start justify-between mb-4">
+                                <div className={cn(
+                                  "h-16 w-16 rounded-2xl flex items-center justify-center shadow-xl transform group-hover:scale-110 transition-transform duration-300",
+                                  voucher.iconBg,
+                                  voucher.shadowColor
+                                )}>
+                                  <voucher.icon className="w-7 h-7 text-white" />
+                                </div>
+                                <div className={`w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-violet-100 group-hover:text-violet-600 transition-all ${isRtl ? "-scale-x-100" : ""}`}>
+                                  <ArrowUpRight size={16} />
+                                </div>
+                              </div>
+
+                              <h3 className="text-xl font-black text-slate-900 mb-1">{voucher.title}</h3>
+                              <p className="text-xs font-bold text-slate-500 mb-4 line-clamp-1">{voucher.description}</p>
+
+                              <div className="rounded-xl p-4 mb-4 bg-slate-50 dark:bg-slate-100/50 border border-slate-200/60">
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="text-slate-400 font-bold text-[10px] uppercase tracking-widest">{voucher.stats.label}</span>
+                                  <span className={cn(
+                                    "px-3 py-1 text-white text-[10px] font-black rounded-full shadow-lg",
+                                    voucher.iconBg
+                                  )}>
+                                    {t("voucherCount", { count: statData.count })}
+                                  </span>
+                                </div>
+                                <div className="flex items-baseline gap-1">
+                                  <p className="text-2xl font-black text-slate-900 tracking-tight">
+                                    {statData.total.toLocaleString()}
+                                  </p>
+                                  <span className="text-sm font-bold text-slate-400">{t("currency")}</span>
+                                </div>
+                              </div>
+
+                              <div className="space-y-2 mb-4 flex-1">
+                                {voucher.features.map((feature, fIndex) => (
+                                  <div key={fIndex} className="flex items-center gap-2 text-xs text-slate-500 font-medium">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                    <span className="line-clamp-1">{feature}</span>
+                                  </div>
+                                ))}
+                              </div>
+
+                              <div className={cn(
+                                "py-3 px-4 bg-gradient-to-r rounded-xl text-center group-hover:shadow-xl transition-all shadow-lg active:scale-95",
+                                voucher.gradient,
+                                voucher.shadowColor
+                              )}>
+                                <span className="text-white font-black text-xs flex items-center justify-center gap-2">
+                                  {t("manageVoucher", { title: voucher.title })}
+                                  <ArrowRight className={`w-4 h-4 transform group-hover:translate-x-1 transition-transform ${isRtl ? "rotate-180" : ""}`} />
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </Link>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Quick Actions Section */}
+            <motion.div variants={itemVariants} className="bg-gradient-to-r from-violet-50/80 via-purple-50/50 to-indigo-50/80 dark:bg-white/95 dark:bg-none backdrop-blur-xl rounded-2xl dark:rounded-[2.5rem] border-2 border-violet-200/60 dark:border dark:border-white/50 p-5 dark:p-8 shadow-sm dark:shadow-2xl relative overflow-hidden">
+              {/* Decorative circles - light mode only */}
+              <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-violet-500/10 to-purple-500/10 rounded-full -translate-y-16 -translate-x-16 dark:hidden" />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-full -translate-y-16 translate-x-16 dark:hidden" />
+              <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-emerald-500/10 to-teal-500/10 rounded-full translate-y-12 -translate-x-12 dark:hidden" />
+              <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tr from-amber-500/10 to-orange-500/10 rounded-full translate-y-12 translate-x-12 dark:hidden" />
+
+              <div className="flex items-center gap-3 mb-8 relative z-10">
+                <div className="h-10 w-10 rounded-2xl bg-orange-100 dark:bg-white/10 flex items-center justify-center shadow-lg shadow-orange-500/10">
+                  <Bolt className="text-orange-600 dark:text-white" size={20} />
+                </div>
+                <div>
+                    <h3 data-force-black className="text-xl font-black text-black dark:text-black">{t("quickActions")}</h3>
+                  <p className="text-xs font-bold text-slate-500 dark:text-slate-400">{t("quickActionsDesc")}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 relative z-10">
+                {voucherTypes.map((tool) => (
+                  <Link key={tool.id} href={tool.href} className="flex flex-col items-center justify-center gap-3 p-5 rounded-3xl bg-slate-50 dark:bg-white/80 border border-slate-100 dark:border-slate-200 hover:bg-white hover:border-slate-200 hover:shadow-2xl transition-all group cursor-pointer text-center active:scale-95">
+                    <div className={cn(
+                      "p-3 rounded-xl group-hover:scale-110 transition-transform shadow-md",
+                      tool.iconBg,
+                      tool.shadowColor
+                    )}>
+                      <tool.icon className="w-5 h-5 text-white" />
+                    </div>
+                    <p className="font-black text-slate-600 dark:text-slate-700 text-xs tracking-tight">{tool.title}</p>
+                  </Link>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Footer Section */}
+            <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-[11px] font-black text-slate-400 uppercase tracking-widest pt-8 border-t border-white/10">
+              <div className="flex items-center gap-3">
+                <Sparkles size={14} className="text-blue-400" />
+                <span>{isRtl ? 'نظام السندات المالية - Logistics Systems Pro' : 'Financial Vouchers - Logistics Systems Pro'}</span>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="bg-white/5 px-3 py-1 rounded-lg">{t("allRightsReserved", { year: new Date().getFullYear() })}</span>
+              </div>
+            </div>
+          </div>
+        </motion.div>
       </div>
     </div>
   );

@@ -1,18 +1,18 @@
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { CreditNoteViewClient } from "./credit-note-view-client";
 import { generateZatcaQR } from "@/lib/zatca-qr";
 
 export const dynamic = "force-dynamic";
 
 async function getCompanyId(userId: number) {
-  const users = await query<any>("SELECT company_id FROM users WHERE id = ?", [userId]);
+  const users = await cachedQuery<any>("SELECT company_id FROM users WHERE id = ?", [userId]);
   return users[0]?.company_id;
 }
 
 async function getCreditNoteDetails(id: string, companyId: number) {
-    const creditNotes = await query<any>(`
+    const creditNotes = await cachedQuery<any>(`
       SELECT 
         cn.*,
         si.issue_date as invoice_date,

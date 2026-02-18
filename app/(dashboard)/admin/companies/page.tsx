@@ -1,5 +1,5 @@
 import React from "react";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { Company } from "@/lib/types";
 import { CompaniesClient } from "./companies-client";
 
@@ -42,11 +42,11 @@ export default async function AdminCompaniesPage({
 
   sql += " ORDER BY created_at DESC";
 
-  const companies = await query<Company>(sql, params);
+  const companies = await cachedQuery<Company>(sql, params);
 
   let plans: any[] = [];
   try {
-    plans = await query(`SELECT id, name, price, duration_value, duration_unit FROM subscription_plans WHERE is_active = 1 ORDER BY sort_order ASC`);
+    plans = await cachedQuery(`SELECT id, name, price, duration_value, duration_unit FROM subscription_plans WHERE is_active = 1 ORDER BY sort_order ASC`);
     plans = plans.map((p: any) => ({ ...p, price: parseFloat(p.price) || 0 }));
   } catch (e) {
     console.log('Plans table may not exist yet');
@@ -55,7 +55,7 @@ export default async function AdminCompaniesPage({
   // جلب اشتراكات الشركات النشطة
   let subscriptionsMap: Record<number, CompanySubscription> = {};
   try {
-    const subscriptions = await query<any>(`
+    const subscriptions = await cachedQuery<any>(`
       SELECT 
         cs.id, cs.company_id, cs.plan_id, cs.start_date, cs.end_date, cs.status,
         sp.name as plan_name, sp.price as plan_price

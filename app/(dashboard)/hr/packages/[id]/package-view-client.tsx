@@ -720,9 +720,18 @@ export function PackageViewClient({
       >
         <motion.div 
           variants={itemVariants}
-          className="bg-gradient-to-r from-slate-700 to-slate-800 rounded-2xl shadow-lg overflow-hidden"
+          className="relative bg-gradient-to-br from-slate-800 via-slate-700 to-slate-600 dark:bg-gradient-to-r dark:from-slate-700 dark:to-slate-800 rounded-[3rem] dark:rounded-2xl shadow-2xl dark:shadow-lg border border-slate-500/30 dark:border-0 overflow-hidden"
         >
-          <div className="p-6 border-b border-white/10">
+          {/* Top colored bar */}
+          <div className="h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 via-purple-500 via-emerald-500 to-blue-500 dark:hidden"></div>
+          
+          {/* Decorative circles - light mode only */}
+          <div className="absolute top-4 left-4 w-32 h-32 bg-gradient-to-br from-violet-500/10 to-purple-500/10 rounded-full blur-2xl dark:hidden"></div>
+          <div className="absolute top-4 right-4 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-full blur-2xl dark:hidden"></div>
+          <div className="absolute bottom-4 left-4 w-24 h-24 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 rounded-full blur-2xl dark:hidden"></div>
+          <div className="absolute bottom-4 right-4 w-24 h-24 bg-gradient-to-br from-amber-500/10 to-orange-500/10 rounded-full blur-2xl dark:hidden"></div>
+
+          <div className="relative z-10 p-6 border-b border-white/10">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center">
@@ -753,23 +762,25 @@ export function PackageViewClient({
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="h-10 px-4 rounded-xl bg-white/10 border border-white/10 text-xs font-black text-white hover:bg-white/20 transition-all flex items-center gap-2"
-                    >
-                      {isRTL ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
-                      {t('previous')}
-                    </motion.button>
-                  </Link>
-                )}
-                {nextPackage && (
-                  <Link href={`/hr/packages/${nextPackage.id}`}>
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="h-10 px-4 rounded-xl bg-white/10 border border-white/10 text-xs font-black text-white hover:bg-white/20 transition-all flex items-center gap-2"
-                    >
-                      {t('next')}
-                      {isRTL ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
-                    </motion.button>
+                        className="h-10 px-4 rounded-xl transition-all flex items-center gap-2 text-xs font-black"
+                        style={{ backgroundColor: '#e2e8f0', color: '#4f46e5', border: '1px solid #c7d2fe', WebkitTextFillColor: '#4f46e5' }}
+                      >
+                        {isRTL ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+                        {t('previous')}
+                      </motion.button>
+                    </Link>
+                  )}
+                  {nextPackage && (
+                    <Link href={`/hr/packages/${nextPackage.id}`}>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="h-10 px-4 rounded-xl transition-all flex items-center gap-2 text-xs font-black"
+                        style={{ backgroundColor: '#e2e8f0', color: '#4f46e5', border: '1px solid #c7d2fe', WebkitTextFillColor: '#4f46e5' }}
+                      >
+                        {t('next')}
+                        {isRTL ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
+                      </motion.button>
                   </Link>
                 )}
                 
@@ -777,7 +788,8 @@ export function PackageViewClient({
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setIsAddModalOpen(true)}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-violet-500 text-white hover:from-purple-600 hover:to-violet-600 transition-all font-black text-sm shadow-lg"
+                      className="flex items-center gap-2 px-5 py-2.5 rounded-2xl transition-all font-black text-sm"
+                      style={{ backgroundColor: '#4f46e5', color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                 >
                   <UserPlus size={18} />
                   {t('addEmployees')}
@@ -786,7 +798,7 @@ export function PackageViewClient({
             </div>
           </div>
 
-          <div className="p-6 border-b border-white/10">
+          <div className="relative z-10 p-6 border-b border-white/10">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
               <div className="flex items-center gap-5">
                 <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/30">
@@ -850,7 +862,7 @@ export function PackageViewClient({
             </div>
           </div>
 
-          <div className="p-6 border-b border-white/10">
+          <div className="relative z-10 p-6 border-b border-white/10">
             <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-3">
               <div className="flex-1 relative">
                 <Search className={cn("absolute top-1/2 -translate-y-1/2 text-slate-400", isRTL ? "right-4" : "left-4")} size={18} />
@@ -874,11 +886,11 @@ export function PackageViewClient({
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => handleFilterChange(f)}
-                    className={`h-12 px-4 rounded-xl text-xs font-black transition-all ${
-                      filter === f 
-                        ? 'bg-gradient-to-r from-purple-500 to-violet-500 text-white shadow-lg' 
-                        : 'bg-white/10 text-white/70 hover:bg-white/20 border border-white/10'
-                    }`}
+                      className={`h-12 px-4 rounded-xl text-xs font-black transition-all ${
+                        filter === f 
+                          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/30' 
+                          : 'bg-white/10 text-white/70 hover:bg-white/20 border border-white/10'
+                      }`}
                   >
                     {f === 'all' && t('all')}
                     {f === 'active' && t('active')}
@@ -893,14 +905,15 @@ export function PackageViewClient({
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 type="submit" 
-                className="h-12 px-8 rounded-xl bg-white text-gray-900 text-xs font-black hover:bg-gray-100 transition-all shadow-lg"
+                    className="h-12 px-8 rounded-2xl text-xs font-black transition-all"
+                    style={{ backgroundColor: '#4f46e5', color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
               >
                 {t('search')}
               </motion.button>
             </form>
           </div>
 
-          <div className="px-6 py-4 border-b border-white/10">
+          <div className="relative z-10 px-6 py-4 border-b border-white/10">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center">
@@ -948,7 +961,7 @@ export function PackageViewClient({
             </div>
           </div>
 
-          <div className="bg-gray-50">
+          <div className="relative z-10 bg-gradient-to-r from-violet-50/80 via-purple-50/50 to-indigo-50/80 dark:bg-gray-50 dark:bg-none mx-4 mb-4 rounded-2xl border-2 border-violet-200/60 dark:border-gray-200 shadow-sm">
             <div className="overflow-auto max-h-[650px] scrollbar-hide">
               <table className={cn("w-full border-separate border-spacing-0", isRTL ? "text-right" : "text-left")}>
                 <thead className="sticky top-0 z-20">
@@ -1029,17 +1042,19 @@ export function PackageViewClient({
                               <motion.button 
                                 whileHover={{ scale: 1.1 }}
                                 whileTap={{ scale: 0.9 }}
-                                className="h-9 w-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                                  className="h-9 w-9 rounded-xl flex items-center justify-center transition-all shadow-sm"
+                                  style={{ backgroundColor: '#dbeafe', color: '#2563eb', WebkitTextFillColor: '#2563eb' }}
+                                >
+                                  <Eye size={16} />
+                                </motion.button>
+                              </Link>
+                              <motion.button 
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                                onClick={() => openDeleteModal(emp)}
+                                className="h-9 w-9 rounded-xl flex items-center justify-center transition-all shadow-sm"
+                                style={{ backgroundColor: '#fee2e2', color: '#dc2626', WebkitTextFillColor: '#dc2626' }}
                               >
-                                <Eye size={16} />
-                              </motion.button>
-                            </Link>
-                            <motion.button 
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                              onClick={() => openDeleteModal(emp)}
-                              className="h-9 w-9 rounded-xl bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all shadow-sm"
-                            >
                               <Trash2 size={16} />
                             </motion.button>
                           </div>
@@ -1063,7 +1078,7 @@ export function PackageViewClient({
             </div>
           </div>
 
-          <div className="bg-slate-600 px-6 py-4">
+          <div className="relative z-10 bg-slate-600 px-6 py-4 rounded-b-[3rem] dark:rounded-b-none">
             <div className="flex items-center justify-between text-xs font-bold text-white/70">
               <span>{t('totalEmployeesFooter')}: {employees.length}</span>
               <div className="flex items-center gap-2">
@@ -1211,7 +1226,8 @@ export function PackageViewClient({
                         setExportModal(false);
                         handleExportEmployees();
                       }}
-                      className="flex-[1.5] flex items-center justify-center gap-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 text-white py-4 rounded-2xl font-black text-sm shadow-xl shadow-indigo-500/30 border-b-4 border-indigo-700/50"
+                        className="flex-[1.5] flex items-center justify-center gap-3 py-4 rounded-2xl font-black text-sm border-b-4"
+                        style={{ backgroundColor: '#4f46e5', color: '#ffffff', WebkitTextFillColor: '#ffffff', borderBottomColor: '#3730a3' }}
                     >
                       <Download size={20} />
                       {t('startDownload')}
@@ -1315,7 +1331,8 @@ export function PackageViewClient({
                         whileHover={{ scale: 1.02, boxShadow: "0 20px 40px rgba(239, 68, 68, 0.4)" }}
                         whileTap={{ scale: 0.98 }}
                         onClick={confirmDeleteEmployee}
-                        className="flex-1 flex items-center justify-center gap-3 bg-gradient-to-r from-red-500 via-rose-600 to-red-600 text-white py-4 rounded-2xl font-black text-lg shadow-xl shadow-red-500/30 border-b-4 border-red-700/50"
+                          className="flex-1 flex items-center justify-center gap-3 py-4 rounded-2xl font-black text-lg border-b-4"
+                          style={{ backgroundColor: '#dc2626', color: '#ffffff', WebkitTextFillColor: '#ffffff', borderBottomColor: '#991b1b' }}
                       >
                         <Trash2 size={20} />
                         {t('yesDeleteEmployee')}
@@ -1499,7 +1516,7 @@ export function PackageViewClient({
                 dir={isRTL ? 'rtl' : 'ltr'}
               >
                 {/* Modal Header */}
-                <div className="bg-gradient-to-r from-purple-600 to-violet-600 p-6 text-white flex items-center justify-between shrink-0">
+                  <div className="bg-gradient-to-r from-purple-600 to-violet-600 p-6 text-white flex items-center justify-between shrink-0" style={{ background: 'linear-gradient(to right, #9333ea, #7c3aed)', color: '#ffffff', WebkitTextFillColor: '#ffffff' }}>
                   <div className="flex items-center gap-3">
                     <div className="h-12 w-12 rounded-xl bg-white/20 flex items-center justify-center">
                       <UserPlus className="text-white" size={24} />
@@ -1554,12 +1571,13 @@ export function PackageViewClient({
                           whileTap={{ scale: 0.98 }}
                           type="button"
                           onClick={downloadTemplate}
-                          className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl text-sm font-black hover:from-blue-600 hover:to-indigo-700 transition-all shadow-lg shadow-blue-500/20"
+                            className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-sm font-black transition-all"
+                            style={{ backgroundColor: '#4f46e5', color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                         >
                           <Download size={18} />
                           {tp('downloadExcelTemplate')}
                         </motion.button>
-                        <label className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl text-sm font-black hover:from-emerald-600 hover:to-teal-700 transition-all shadow-lg shadow-emerald-500/20 cursor-pointer">
+                        <label className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-sm font-black transition-all cursor-pointer" style={{ backgroundColor: '#059669', color: '#ffffff', WebkitTextFillColor: '#ffffff' }}>
                           <Upload size={18} />
                           {tp('uploadExcelFile')}
                           <input ref={fileInputRef} type="file" className="hidden" accept=".xlsx,.xls" onChange={handleFileUpload} />
@@ -1598,7 +1616,8 @@ export function PackageViewClient({
                         whileTap={{ scale: 0.98 }}
                         type="button"
                         onClick={addEmployeeRow}
-                        className="flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-600 rounded-xl text-xs font-black hover:bg-purple-200 transition-all"
+                          className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black transition-all"
+                          style={{ backgroundColor: '#ede9fe', color: '#7c3aed', WebkitTextFillColor: '#7c3aed' }}
                       >
                         <Plus size={16} />
                         {tp('addEmployee')}
@@ -1608,7 +1627,7 @@ export function PackageViewClient({
                     {/* Employees Table */}
                     <div className="overflow-x-auto rounded-2xl border border-gray-100 bg-white shadow-sm">
                       <table className={cn("w-full border-collapse", isRTL ? "text-right" : "text-left")}>
-                        <thead className="bg-gradient-to-r from-purple-600 to-violet-600 text-white">
+                          <thead className="bg-gradient-to-r from-purple-600 to-violet-600 text-white" style={{ background: 'linear-gradient(to right, #9333ea, #7c3aed)', color: '#ffffff', WebkitTextFillColor: '#ffffff' }}>
                           <tr>
                             {fieldDefs.map(f => (
                               <th key={f.key} className="p-3 text-[10px] font-black whitespace-nowrap">
@@ -1681,7 +1700,8 @@ export function PackageViewClient({
                     type="submit"
                     form="addEmployeesForm"
                     disabled={isLoading}
-                    className="px-10 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 text-white font-black text-sm shadow-lg shadow-purple-500/30 hover:from-purple-700 hover:to-violet-700 transition-all disabled:opacity-50 flex items-center gap-2"
+                      className="px-10 py-3 rounded-xl font-black text-sm transition-all disabled:opacity-50 flex items-center gap-2"
+                        style={{ backgroundColor: '#7c3aed', color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                   >
                     {isLoading ? (
                       <div className="h-5 w-5 border-3 border-white/30 border-t-white rounded-full animate-spin" />
@@ -2036,19 +2056,23 @@ export function PackageViewClient({
 
 function StatCard({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: string | number; color: string }) {
   const colorClasses: Record<string, string> = {
-    purple: 'from-purple-500/20 to-violet-500/20 border-purple-500/30 text-purple-300',
-    blue: 'from-blue-500/20 to-indigo-500/20 border-blue-500/30 text-blue-300',
-    emerald: 'from-emerald-500/20 to-teal-500/20 border-emerald-500/30 text-emerald-300',
-    amber: 'from-amber-500/20 to-orange-500/20 border-amber-500/30 text-amber-300',
+    purple: 'from-purple-500 to-violet-600',
+    blue: 'from-blue-500 to-indigo-600',
+    emerald: 'from-emerald-500 to-teal-600',
+    amber: 'from-amber-500 to-orange-600',
+    rose: 'from-rose-500 to-pink-600',
   };
 
   return (
-    <div className={`bg-gradient-to-br ${colorClasses[color]} backdrop-blur-md border rounded-xl px-4 py-3 min-w-[120px]`}>
-      <div className="flex items-center gap-2 mb-1">
-        <span className="opacity-70">{icon}</span>
-        <span className="text-[9px] font-black uppercase tracking-wider opacity-70">{label}</span>
+    <div className={`relative overflow-hidden bg-gradient-to-br ${colorClasses[color]} rounded-xl px-4 py-3 min-w-[120px] shadow-lg`}>
+      <div className="absolute inset-0 bg-white/10 rounded-full blur-3xl -top-4 -right-4 w-16 h-16"></div>
+      <div className="relative z-10">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="bg-white/10 p-1.5 rounded-lg backdrop-blur-md border border-white/10">{icon}</span>
+          <span className="text-[9px] font-black uppercase tracking-wider text-white/70">{label}</span>
+        </div>
+        <span className="text-xl font-black text-white">{value}</span>
       </div>
-      <span className="text-lg font-black text-white">{value}</span>
     </div>
   );
 }

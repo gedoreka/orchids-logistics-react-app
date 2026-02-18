@@ -1473,10 +1473,40 @@ export function NewPayrollClient({ packages, debts, companyId, userName }: NewPa
             isDraft,
           }
         );
-        setTimeout(() => {
-          router.push("/salary-payrolls");
-          router.refresh();
-        }, 3000);
+          // Check if any employees have "مدد" payment method - redirect to ANB submission
+          const muddadRows = selectedRows.filter(r => r.payment_method === 'مدد');
+          if (muddadRows.length > 0 && !isDraft) {
+            // Store mudad employee data in sessionStorage for ANB submission
+            const anbData = {
+              payroll_month: payrollMonth,
+              package_name: selectedPackage?.group_name || '',
+              company_id: companyId,
+              employees: muddadRows.map(row => ({
+                employee_name: row.employee_name,
+                iqama_number: row.iqama_number,
+                user_code: row.user_code,
+                basic_salary: row.basic_salary,
+                housing_allowance: row.housing_allowance,
+                net_salary: row.net_salary,
+                target_deduction: row.target_deduction,
+                operator_deduction: row.operator_deduction,
+                internal_deduction: row.internal_deduction,
+                wallet_deduction: row.wallet_deduction,
+                monthly_bonus: row.monthly_bonus,
+                internal_bonus: row.internal_bonus,
+                extra_amount: row.extra_amount,
+              }))
+            };
+            sessionStorage.setItem('anb_payroll_data', JSON.stringify(anbData));
+            setTimeout(() => {
+              router.push("/anb-payroll/submit-from-payroll");
+            }, 2000);
+          } else {
+            setTimeout(() => {
+              router.push("/salary-payrolls");
+              router.refresh();
+            }, 3000);
+          }
       } else {
         const data = await res.json();
         showNotification("error", t("newPayroll.notifications.saveFailed"), data.error || t("newPayroll.notifications.errorSaving"));

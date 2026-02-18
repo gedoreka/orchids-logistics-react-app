@@ -1,6 +1,6 @@
 import React from "react";
 import { cookies } from "next/headers";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { Account } from "@/lib/types";
 import { AccountsClient } from "./accounts-client";
 
@@ -11,7 +11,7 @@ export default async function AccountsPage() {
   
   const companyId = session.company_id;
 
-  const accounts = await query<Account>(
+  const accounts = await cachedQuery<Account>(
     "SELECT * FROM accounts WHERE company_id = ? ORDER BY id DESC",
     [companyId]
   );

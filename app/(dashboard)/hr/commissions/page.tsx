@@ -1,6 +1,6 @@
 import React from "react";
 import { cookies } from "next/headers";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { CommissionsClient } from "./commissions-client";
 
 export default async function CommissionsPage() {
@@ -16,7 +16,7 @@ export default async function CommissionsPage() {
 
   // Initial data can be fetched here or via the API on the client side.
   // We'll fetch packages here to have them ready.
-  const packages = await query(
+  const packages = await cachedQuery(
     "SELECT id, group_name, work_type FROM employee_packages WHERE company_id = ? AND work_type = 'commission'",
     [companyId]
   );

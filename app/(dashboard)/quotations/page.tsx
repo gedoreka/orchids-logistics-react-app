@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { QuotationsClient } from "./quotations-client";
 
 interface Quotation {
@@ -25,7 +25,7 @@ interface Customer {
 
 async function getQuotations(companyId: number) {
   try {
-    const quotations = await query<Quotation>(
+    const quotations = await cachedQuery<Quotation>(
       `SELECT q.*, 
               COALESCE(q.client_name, c.customer_name, c.company_name) as client_name,
               COALESCE(q.client_vat, c.vat_number) as client_vat
@@ -44,7 +44,7 @@ async function getQuotations(companyId: number) {
 
 async function getStats(companyId: number) {
   try {
-    const stats = await query<any>(
+    const stats = await cachedQuery<any>(
       `SELECT 
         COUNT(*) as total,
         SUM(CASE WHEN status = 'confirmed' THEN 1 ELSE 0 END) as confirmed,
@@ -61,7 +61,7 @@ async function getStats(companyId: number) {
 
 async function getCustomers(companyId: number) {
   try {
-    const customers = await query<Customer>(
+    const customers = await cachedQuery<Customer>(
       `SELECT id, customer_name, company_name, vat_number FROM customers WHERE company_id = ? ORDER BY id DESC`,
       [companyId]
     );
@@ -75,7 +75,7 @@ async function getCustomers(companyId: number) {
 async function getNextQuotationNumber() {
   try {
     const currentYear = new Date().getFullYear();
-    const result = await query<any>(
+    const result = await cachedQuery<any>(
       `SELECT MAX(CAST(SUBSTRING(quotation_number, 10) AS UNSIGNED)) as last_number 
        FROM quotations 
        WHERE quotation_number LIKE ?`,

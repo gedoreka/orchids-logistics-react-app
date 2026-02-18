@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslations, useLocale } from "@/lib/locale-context";
 import { 
     Lock, 
@@ -18,7 +18,13 @@ import {
     Shield,
     LayoutGrid,
     Key,
-    Zap
+    Zap,
+    Landmark,
+    Save,
+    Eye,
+    EyeOff,
+    CheckCircle,
+    Loader2
   } from "lucide-react";
 import { ThemeCustomizer } from "@/components/theme-customizer";
 import { createClient } from "@supabase/supabase-js";
@@ -58,6 +64,70 @@ export function SettingsContent({ company, taxSettings, userEmail, companyId }: 
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
 
+    // ANB Bank settings state
+    const [anbCorporateId, setAnbCorporateId] = useState("");
+    const [anbApiUrl, setAnbApiUrl] = useState("");
+    const [anbCertificate, setAnbCertificate] = useState("");
+    const [anbPrivateKey, setAnbPrivateKey] = useState("");
+    const [anbSaving, setAnbSaving] = useState(false);
+    const [anbLoading, setAnbLoading] = useState(true);
+    const [anbSaved, setAnbSaved] = useState(false);
+    const [showAnbKey, setShowAnbKey] = useState(false);
+
+    // Load ANB credentials on mount
+    useEffect(() => {
+      const loadAnbCredentials = async () => {
+        try {
+          const res = await fetch(`/api/anb-payroll/credentials?company_id=${companyId}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data) {
+              setAnbCorporateId(data.corporate_id || "");
+              setAnbApiUrl(data.api_url || "");
+              setAnbCertificate(data.certificate ? "****" : "");
+              setAnbPrivateKey(data.private_key ? "****" : "");
+              setAnbSaved(true);
+            }
+          }
+        } catch (err) {
+          console.error("Error loading ANB credentials:", err);
+        } finally {
+          setAnbLoading(false);
+        }
+      };
+      loadAnbCredentials();
+    }, [companyId]);
+
+    const handleSaveAnbCredentials = async () => {
+      if (!anbCorporateId.trim()) {
+        toast.error("يرجى إدخال معرف الشركة");
+        return;
+      }
+      setAnbSaving(true);
+      try {
+        const body: any = {
+          company_id: companyId,
+          corporate_id: anbCorporateId,
+          api_url: anbApiUrl || null,
+        };
+        if (anbCertificate && anbCertificate !== "****") body.certificate = anbCertificate;
+        if (anbPrivateKey && anbPrivateKey !== "****") body.private_key = anbPrivateKey;
+
+        const res = await fetch("/api/anb-payroll/credentials", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        if (!res.ok) throw new Error("Failed to save");
+        toast.success("تم حفظ بيانات بنك ANB بنجاح");
+        setAnbSaved(true);
+      } catch (err) {
+        toast.error("فشل حفظ بيانات بنك ANB");
+      } finally {
+        setAnbSaving(false);
+      }
+    };
+
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
@@ -86,7 +156,7 @@ export function SettingsContent({ company, taxSettings, userEmail, companyId }: 
   };
 
     return (
-    <div className="max-w-5xl mx-auto space-y-8 pb-20">
+    <div className="w-[90%] mx-auto space-y-8 pb-20">
       {/* Dynamic Header */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
@@ -255,7 +325,99 @@ export function SettingsContent({ company, taxSettings, userEmail, companyId }: 
               </div>
             </div>
 
-            {/* Feature Teasers */}
+            {/* ANB Bank Settings */}
+          <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-green-500/30 transition-all duration-300">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-green-500/20 rounded-xl">
+                <Landmark className="w-5 h-5 text-green-400" />
+              </div>
+              <div>
+                <h3 className="text-white font-bold text-lg">إعدادات بنك ANB</h3>
+                <p className="text-white/50 text-xs">بيانات الربط مع البنك العربي الوطني لتحويل الرواتب</p>
+              </div>
+              {anbSaved && (
+                  <div className="ms-auto flex items-center gap-1 text-green-400 text-xs">
+                  <CheckCircle className="w-4 h-4" />
+                  <span>متصل</span>
+                </div>
+              )}
+            </div>
+
+            {anbLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-6 h-6 text-green-400 animate-spin" />
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-white/70 text-sm mb-1.5">معرف الشركة (Corporate ID) *</label>
+                    <input
+                      type="text"
+                      value={anbCorporateId}
+                      onChange={(e) => setAnbCorporateId(e.target.value)}
+                      placeholder="أدخل معرف الشركة"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-white/30 focus:border-green-500/50 focus:outline-none transition-all text-sm"
+                      dir="ltr"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-white/70 text-sm mb-1.5">رابط API البنك</label>
+                    <input
+                      type="text"
+                      value={anbApiUrl}
+                      onChange={(e) => setAnbApiUrl(e.target.value)}
+                      placeholder="https://api.anb.com.sa/wps/v1"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-white/30 focus:border-green-500/50 focus:outline-none transition-all text-sm"
+                      dir="ltr"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-white/70 text-sm mb-1.5">شهادة mTLS (Certificate PEM)</label>
+                  <textarea
+                    value={anbCertificate}
+                    onChange={(e) => setAnbCertificate(e.target.value)}
+                    placeholder="-----BEGIN CERTIFICATE-----&#10;...&#10;-----END CERTIFICATE-----"
+                    rows={3}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-white/30 focus:border-green-500/50 focus:outline-none transition-all text-sm font-mono"
+                    dir="ltr"
+                  />
+                </div>
+
+                <div className="relative">
+                  <label className="block text-white/70 text-sm mb-1.5">المفتاح الخاص (Private Key PEM)</label>
+                  <textarea
+                    value={anbPrivateKey}
+                    onChange={(e) => setAnbPrivateKey(e.target.value)}
+                    placeholder="-----BEGIN PRIVATE KEY-----&#10;...&#10;-----END PRIVATE KEY-----"
+                    rows={3}
+                    className={`w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-white/30 focus:border-green-500/50 focus:outline-none transition-all text-sm font-mono ${!showAnbKey ? 'blur-sm select-none' : ''}`}
+                    dir="ltr"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowAnbKey(!showAnbKey)}
+                    className="absolute top-8 left-3 text-white/50 hover:text-white transition-colors"
+                  >
+                    {showAnbKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+
+                <button
+                  onClick={handleSaveAnbCredentials}
+                  disabled={anbSaving || !anbCorporateId.trim()}
+                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-5 py-2.5 rounded-xl transition-all text-sm font-medium"
+                >
+                  {anbSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  حفظ بيانات ANB
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Feature Teasers */}
             <div className="space-y-8">
               <div className="flex items-center gap-4 opacity-60">
                 <div className="p-2.5 rounded-xl bg-pink-500/10 border border-pink-500/20">

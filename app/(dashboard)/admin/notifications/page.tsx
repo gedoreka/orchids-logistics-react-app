@@ -1,9 +1,9 @@
 import React from "react";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { AdminNotificationsClient } from "./notifications-client";
 
 export default async function AdminNotificationsPage() {
-  const notifications = await query<any>(
+  const notifications = await cachedQuery<any>(
     "SELECT * FROM admin_notifications ORDER BY created_at DESC"
   );
 

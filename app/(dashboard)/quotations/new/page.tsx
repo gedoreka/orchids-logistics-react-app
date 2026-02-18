@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { NewQuotationClient } from "./new-quotation-client";
 
 interface Customer {
@@ -11,7 +11,7 @@ interface Customer {
 
 async function getCustomers(companyId: number) {
   try {
-    const customers = await query<Customer>(
+    const customers = await cachedQuery<Customer>(
       `SELECT id, customer_name, company_name, vat_number FROM customers WHERE company_id = ? ORDER BY id DESC`,
       [companyId]
     );
@@ -25,7 +25,7 @@ async function getCustomers(companyId: number) {
 async function getNextQuotationNumber() {
   try {
     const currentYear = new Date().getFullYear();
-    const result = await query<any>(
+    const result = await cachedQuery<any>(
       `SELECT MAX(CAST(SUBSTRING(quotation_number, 10) AS UNSIGNED)) as last_number 
        FROM quotations 
        WHERE quotation_number LIKE ?`,

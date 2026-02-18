@@ -1,6 +1,6 @@
 import React from "react";
 import { cookies } from "next/headers";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { HRDashboardClient } from "./hr-dashboard-client";
 
 export default async function HRPage() {
@@ -11,45 +11,45 @@ export default async function HRPage() {
   const companyId = session.company_id;
 
   // 1. Fetch Company Info
-  const company = await query(
+  const company = await cachedQuery(
     "SELECT name FROM companies WHERE id = ?",
     [companyId]
   );
   const companyName = company[0]?.name || "شركتي";
 
   // 2. Fetch Stats
-  const totalEmployeesRes = await query(
+  const totalEmployeesRes = await cachedQuery(
     "SELECT COUNT(*) as count FROM employees WHERE company_id = ?",
     [companyId]
   );
   const totalEmployees = Number(totalEmployeesRes[0]?.count || 0);
 
-  const totalPackagesRes = await query(
+  const totalPackagesRes = await cachedQuery(
     "SELECT COUNT(*) as count FROM employee_packages WHERE company_id = ?",
     [companyId]
   );
   const totalPackages = Number(totalPackagesRes[0]?.count || 0);
 
-  const onLeaveRes = await query(
+  const onLeaveRes = await cachedQuery(
     "SELECT COUNT(*) as count FROM employees WHERE company_id = ? AND is_active = 0",
     [companyId]
   );
   const onLeave = Number(onLeaveRes[0]?.count || 0);
 
-  const expiredIqamaRes = await query(
+  const expiredIqamaRes = await cachedQuery(
     "SELECT COUNT(*) as count FROM employees WHERE company_id = ? AND iqama_expiry IS NOT NULL AND iqama_expiry <= CURRENT_DATE",
     [companyId]
   );
   const expiredIqama = Number(expiredIqamaRes[0]?.count || 0);
 
   // 3. Fetch Active Packages (limit 6)
-  const activePackages = await query(
+  const activePackages = await cachedQuery(
     "SELECT * FROM employee_packages WHERE company_id = ? ORDER BY id DESC LIMIT 6",
     [companyId]
   );
 
   // 3.1 Find the most used package (by employee count)
-  const mostUsedPackageRes = await query(
+  const mostUsedPackageRes = await cachedQuery(
     `SELECT ep.id, ep.group_name, COUNT(e.id) as employee_count
      FROM employee_packages ep
      LEFT JOIN employees e ON e.package_id = ep.id
@@ -62,7 +62,7 @@ export default async function HRPage() {
   const mostUsedPackageId = mostUsedPackageRes[0]?.id || (activePackages[0]?.id || null);
 
   // 4. Fetch Recent Employees (limit 5)
-  const recentEmployees = await query(
+  const recentEmployees = await cachedQuery(
     `SELECT e.*, ep.group_name 
      FROM employees e 
      LEFT JOIN employee_packages ep ON e.package_id = ep.id 

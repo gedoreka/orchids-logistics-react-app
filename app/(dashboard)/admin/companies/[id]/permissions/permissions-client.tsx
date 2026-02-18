@@ -71,9 +71,13 @@ const features: FeatureItem[] = [
   { key: 'admin_notifications', name: 'إشعارات المدير', icon: Bell, type: 'admin' },
   { key: 'admin_chat', name: 'الدعم الفني', icon: MessageSquare, type: 'admin' },
   { key: 'special_salaries', name: 'مسيرات رواتب خاص', icon: Coins, type: 'admin' },
+  { key: 'admin_subscriptions', name: 'خطط الاشتراكات', icon: Package, type: 'admin' },
+  { key: 'admin_system_settings', name: 'إعدادات النظام', icon: Settings, type: 'admin' },
   
   { key: 'employees_module', name: 'إدارة الموارد البشرية', icon: Users, type: 'general', category: 'الموارد البشرية' },
   { key: 'salary_payrolls_module', name: 'مسيرات الرواتب', icon: BadgeDollarSign, type: 'general', category: 'الموارد البشرية' },
+  { key: 'anb_payroll_settings', name: 'إعدادات بنك ANB', icon: Landmark, type: 'general', category: 'الموارد البشرية' },
+  { key: 'anb_payroll_batches', name: 'دفعات رواتب ANB', icon: FileSpreadsheet, type: 'general', category: 'الموارد البشرية' },
   
   { key: 'clients_module', name: 'قائمة العملاء', icon: Users, type: 'general', category: 'العملاء والمبيعات' },
   
@@ -108,8 +112,10 @@ const features: FeatureItem[] = [
   { key: 'income_statement_module', name: 'قائمة الأرصدة', icon: BarChart3, type: 'general', category: 'الحسابات' },
   { key: 'balance_sheet_module', name: 'الميزانية العمومية', icon: FileText, type: 'general', category: 'الحسابات' },
   { key: 'tax_settings_module', name: 'إعدادات الضريبة', icon: Calculator, type: 'general', category: 'الحسابات' },
-  
-  { key: 'letters_templates_module', name: 'الخطابات الجاهزة', icon: Mail, type: 'general', category: 'أخرى' },
+    
+    { key: 'virtual_accounts_module', name: 'الحسابات الافتراضية (VIBAN)', icon: Landmark, type: 'general', category: 'البنوك والتحصيل' },
+    
+    { key: 'letters_templates_module', name: 'الخطابات الجاهزة', icon: Mail, type: 'general', category: 'أخرى' },
   { key: 'sub_users_module', name: 'إدارة المستخدمين', icon: Users, type: 'general', category: 'الإدارة' },
 ];
 

@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@100;200;300;400;500;600;700&family=Noto+Sans+Arabic:wght@100;200;300;400;500;600;700;800;900&family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@100;200;300;400;500;600;700;800;900&family=Poppins:wght@100;200;300;400;500;600;700;800;900&family=DM+Sans:wght@100;200;300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -103,6 +104,39 @@
   --hover-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
   --text-color: hsl(222, 47%, 11%);
   --page-bg: #F9FAFB;
+
+  /* Theme text colors */
+  --heading-color: #000000;
+  --subheading-color: #0f172a;
+  --body-text-color: #1e293b;
+  --helper-text-color: #475569;
+  --link-color: #2563eb;
+  --link-hover-color: #1d4ed8;
+  --label-color: #334155;
+  --stat-number-color: #000000;
+
+  /* Theme header/table */
+  --header-bg: linear-gradient(to right, #dbe4ff, #c7d2f8, #d0d0f0);
+  --header-border: rgba(99, 102, 241, 0.12);
+  --header-text: #1e293b;
+  --table-header-bg: rgba(226, 232, 240, 0.40);
+  --table-row-hover: rgba(241, 245, 249, 0.25);
+  --table-border: rgba(226, 232, 240, 0.20);
+
+  /* Theme inputs */
+  --input-focus-border: #94a3b8;
+  --input-focus-ring: rgba(226, 232, 240, 0.20);
+
+  /* Theme scrollbar */
+  --scrollbar-track: #f1f5f9;
+  --scrollbar-thumb: #cbd5e1;
+
+  /* Theme heading gradient */
+  --heading-gradient: linear-gradient(135deg, #ec4899, #f97316);
+
+  /* Theme fonts */
+  --heading-font: 'Cairo', 'Tajawal', sans-serif;
+  --body-font: 'Tajawal', 'Segoe UI', sans-serif;
 }
 
 .dark {
@@ -179,7 +213,7 @@
   }
   
   body {
-    font-family: 'Tajawal', 'Segoe UI', system-ui, sans-serif;
+    font-family: var(--body-font, 'Tajawal'), 'Segoe UI', system-ui, sans-serif;
     background: hsl(var(--background));
     min-height: 100vh;
     color: hsl(var(--foreground));
@@ -189,6 +223,10 @@
     width: 100%;
     max-width: 100vw;
     transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--heading-font, 'Cairo'), 'Tajawal', 'Segoe UI', system-ui, sans-serif;
   }
   
   .font-inter {
@@ -914,7 +952,7 @@ html:not(.dark) .glass-card-light:hover {
 
 /* Light mode page background */
 html:not(.dark) .light-page-bg {
-  background: #F9FAFB !important;
+  background: var(--page-bg, #F9FAFB) !important;
 }
 
 /* Accent border colors for light mode cards */
@@ -932,15 +970,15 @@ html:not(.dark) .accent-orange { border-right: 4px solid #FB923C !important; }
 
 /* Light mode scrollbar */
 html:not(.dark) ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: var(--scrollbar-track, #f1f5f9);
 }
 
 html:not(.dark) ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: var(--scrollbar-thumb, #cbd5e1);
 }
 
 html:not(.dark) ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: var(--scrollbar-thumb, #94a3b8);
 }
 
 /* Third decorative blob for light mode */
@@ -999,10 +1037,10 @@ html:not(.dark) header span, html:not(.dark) header button span {
 
 /* ── HEADER ── */
 html:not(.dark) header.sticky {
-  background: linear-gradient(to right, #dbe4ff, #c7d2f8, #d0d0f0) !important;
+  background: var(--header-bg, linear-gradient(to right, #dbe4ff, #c7d2f8, #d0d0f0)) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-  border-bottom: 1px solid rgba(99, 102, 241, 0.12) !important;
+  border-bottom: 1px solid var(--header-border, rgba(99, 102, 241, 0.12)) !important;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 4px 16px rgba(99,102,241,0.06) !important;
 }
 
@@ -1012,7 +1050,7 @@ html:not(.dark) header [class*="backdrop-blur-2xl"].absolute {
 }
 
 html:not(.dark) header [class*="text-white"] {
-  color: #1e293b !important;
+  color: var(--header-text, #1e293b) !important;
 }
 
 html:not(.dark) header [class*="bg-white/5"],
@@ -1038,7 +1076,7 @@ html:not(.dark) header [class*="via-white/[0.15]"] {
 }
 
 html:not(.dark) header input {
-  color: #1e293b !important;
+  color: var(--header-text, #1e293b) !important;
   background: rgba(99, 102, 241, 0.04) !important;
 }
 
@@ -1054,10 +1092,10 @@ html:not(.dark) header [class*="bg-slate-900"] {
 
 /* ── FOOTER ── */
 html:not(.dark) footer {
-  background: linear-gradient(to right, #dbe4ff, #c7d2f8, #d0d0f0) !important;
+  background: var(--header-bg, linear-gradient(to right, #dbe4ff, #c7d2f8, #d0d0f0)) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-  border-top: 1px solid rgba(99, 102, 241, 0.12) !important;
+  border-top: 1px solid var(--header-border, rgba(99, 102, 241, 0.12)) !important;
   box-shadow: 0 -2px 8px rgba(0,0,0,0.03), 0 -4px 16px rgba(99,102,241,0.05) !important;
 }
 
@@ -1069,7 +1107,7 @@ html:not(.dark) footer > .absolute.top-0 {
   display: none !important;
 }
 
-html:not(.dark) footer [class*="text-white"] { color: #334155 !important; }
+html:not(.dark) footer [class*="text-white"] { color: var(--body-text-color, #334155) !important; }
 
 html:not(.dark) footer [class*="bg-white/5"],
 html:not(.dark) footer [class*="bg-white/10"] {
@@ -1101,9 +1139,9 @@ html:not(.dark) main [class*="bg-zinc-800"],
 html:not(.dark) main [class*="bg-zinc-900"],
 html:not(.dark) main [class*="bg-neutral-800"],
 html:not(.dark) main [class*="bg-neutral-900"] {
-  background: #fafbfd !important;
-    border: 1px solid rgba(226, 232, 240, 0.60) !important;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.04) !important;
+  background: var(--glass-bg, #fafbfd) !important;
+    border: 1px solid var(--glass-border, rgba(226, 232, 240, 0.60)) !important;
+    box-shadow: var(--card-shadow, 0 4px 16px rgba(0,0,0,0.04)) !important;
 }
 
 /* Hardcoded hex dark backgrounds */
@@ -1111,9 +1149,9 @@ html:not(.dark) main [class*="bg-[#0"],
 html:not(.dark) main [class*="bg-[#1"],
 html:not(.dark) main [class*="bg-[#2"],
 html:not(.dark) main [class*="bg-[#3"] {
-  background: #fafbfd !important;
-    border: 1px solid rgba(226, 232, 240, 0.60) !important;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.04) !important;
+  background: var(--glass-bg, #fafbfd) !important;
+    border: 1px solid var(--glass-border, rgba(226, 232, 240, 0.60)) !important;
+    box-shadow: var(--card-shadow, 0 4px 16px rgba(0,0,0,0.04)) !important;
 }
 
 /* Gradient from-slate/gray → clean white gradient */
@@ -1201,35 +1239,45 @@ html:not(.dark) main .preserve-colors [class*="from-blue-300"] {
    MAIN CONTENT - TEXT COLORS (Pure Black for readability)
    ════════════════════════════════════════════ */
 
-/* White text → pure black in light mode */
-html:not(.dark) main [class*="text-white"]:not(.preserve-colors *) { color: #000000 !important; }
-html:not(.dark) main [class*="text-white/9"] { color: #000000 !important; }
-html:not(.dark) main [class*="text-white/8"] { color: #0f172a !important; }
+/* Buttons always keep their own colors */
+html:not(.dark) main button[class*="text-white"],
+html:not(.dark) main button[class*="text-white"] * {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+html:not(.dark) main button[style*="color"],
+html:not(.dark) main button[style*="color"] * {
+  -webkit-text-fill-color: inherit !important;
+}
+/* White text → themed heading color in light mode */
+html:not(.dark) main [class*="text-white"]:not(.preserve-colors *):not(button):not(button *) { color: var(--heading-color, #000000) !important; }
+html:not(.dark) main [class*="text-white/9"] { color: var(--heading-color, #000000) !important; }
+html:not(.dark) main [class*="text-white/8"] { color: var(--subheading-color, #0f172a) !important; }
 html:not(.dark) main [class*="text-white/7"],
-html:not(.dark) main [class*="text-white/6"] { color: #1e293b !important; }
+html:not(.dark) main [class*="text-white/6"] { color: var(--body-text-color, #1e293b) !important; }
 html:not(.dark) main [class*="text-white/5"],
 html:not(.dark) main [class*="text-white/4"],
 html:not(.dark) main [class*="text-white/3"],
-html:not(.dark) main [class*="text-white/2"] { color: #334155 !important; }
+html:not(.dark) main [class*="text-white/2"] { color: var(--helper-text-color, #334155) !important; }
 
-/* Slate light text → pure black for max readability */
+/* Slate light text → themed colors */
 html:not(.dark) main [class*="text-slate-100"],
-html:not(.dark) main [class*="text-slate-200"] { color: #000000 !important; }
-html:not(.dark) main [class*="text-slate-300"] { color: #0f172a !important; }
-html:not(.dark) main [class*="text-slate-400"] { color: #334155 !important; }
-html:not(.dark) main [class*="text-slate-500"] { color: #475569 !important; }
+html:not(.dark) main [class*="text-slate-200"] { color: var(--heading-color, #000000) !important; }
+html:not(.dark) main [class*="text-slate-300"] { color: var(--subheading-color, #0f172a) !important; }
+html:not(.dark) main [class*="text-slate-400"] { color: var(--label-color, #334155) !important; }
+html:not(.dark) main [class*="text-slate-500"] { color: var(--helper-text-color, #475569) !important; }
 
-/* Gray light text → darker */
+/* Gray light text → themed */
 html:not(.dark) main [class*="text-gray-100"],
 html:not(.dark) main [class*="text-gray-200"],
-html:not(.dark) main [class*="text-gray-300"] { color: #0f172a !important; }
-html:not(.dark) main [class*="text-gray-400"] { color: #334155 !important; }
-html:not(.dark) main [class*="text-gray-500"] { color: #475569 !important; }
+html:not(.dark) main [class*="text-gray-300"] { color: var(--subheading-color, #0f172a) !important; }
+html:not(.dark) main [class*="text-gray-400"] { color: var(--label-color, #334155) !important; }
+html:not(.dark) main [class*="text-gray-500"] { color: var(--helper-text-color, #475569) !important; }
 
-/* text-slate-800, text-black → ensure pure black */
+/* text-slate-800, text-black → themed heading */
 html:not(.dark) main [class*="text-slate-800"],
 html:not(.dark) main [class*="text-slate-900"],
-html:not(.dark) main [class*="text-black"] { color: #000000 !important; }
+html:not(.dark) main [class*="text-black"] { color: var(--heading-color, #000000) !important; }
 
 /* Colored text classes - keep their natural colors */
 html:not(.dark) main [class*="text-emerald"],
@@ -1254,45 +1302,51 @@ html:not(.dark) main [class*="text-pink"] {
    Applies to main page headings h1, h2
    ════════════════════════════════════════════ */
 
-html:not(.dark) main h1:not([class*="bg-clip-text"]):not([data-no-gradient]),
-html:not(.dark) main h2:not([class*="bg-clip-text"]):not([class*="text-emerald"]):not([class*="text-rose"]):not([class*="text-blue"]):not([class*="text-amber"]):not([class*="text-red"]):not([data-no-gradient]) {
-  background: linear-gradient(135deg, #ec4899, #f97316) !important;
+html:not(.dark) main h1:not([class*="bg-clip-text"]):not([data-no-gradient]):not([data-force-black]),
+html:not(.dark) main h2:not([class*="bg-clip-text"]):not([class*="text-emerald"]):not([class*="text-rose"]):not([class*="text-blue"]):not([class*="text-amber"]):not([class*="text-red"]):not([data-no-gradient]):not([data-force-black]) {
+  background: var(--heading-gradient, linear-gradient(135deg, #ec4899, #f97316)) !important;
   -webkit-background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
   background-clip: text !important;
 }
 
-/* h3, h4 inside cards → pure black bold */
-html:not(.dark) main h3,
-html:not(.dark) main h4 {
-  color: #000000 !important;
-  -webkit-text-fill-color: #000000 !important;
+/* Force-black headings */
+html:not(.dark) main [data-force-black] {
+  color: var(--heading-color, #000000) !important;
+  -webkit-text-fill-color: var(--heading-color, #000000) !important;
 }
 
-/* Numbers/values (large font inside cards) → pure black */
+/* h3, h4 inside cards → themed heading color */
+html:not(.dark) main h3,
+html:not(.dark) main h4 {
+  color: var(--heading-color, #000000) !important;
+  -webkit-text-fill-color: var(--heading-color, #000000) !important;
+}
+
+/* Numbers/values (large font inside cards) → themed stat number */
 html:not(.dark) main [class*="text-3xl"],
 html:not(.dark) main [class*="text-4xl"],
 html:not(.dark) main [class*="text-5xl"] {
-  color: #000000 !important;
-  -webkit-text-fill-color: #000000 !important;
+  color: var(--stat-number-color, #000000) !important;
+  -webkit-text-fill-color: var(--stat-number-color, #000000) !important;
 }
 
-/* Small labels → dark gray */
+/* Small labels → themed helper */
 html:not(.dark) main [class*="text-\\[10px\\]"],
 html:not(.dark) main [class*="text-xs"][class*="uppercase"],
 html:not(.dark) main [class*="tracking-wider"] {
-  color: #475569 !important;
+  color: var(--helper-text-color, #475569) !important;
 }
 
-/* p tags → very dark for readability */
+/* p tags → themed body text */
 html:not(.dark) main p {
-  color: #1e293b !important;
-  -webkit-text-fill-color: #1e293b !important;
+  color: var(--body-text-color, #1e293b) !important;
+  -webkit-text-fill-color: var(--body-text-color, #1e293b) !important;
 }
 
-/* span text → dark */
+/* span text → themed heading */
 html:not(.dark) main span:not([class*="bg-clip-text"]):not([class*="text-emerald"]):not([class*="text-rose"]):not([class*="text-blue"]):not([class*="text-amber"]):not([class*="text-red"]):not([class*="text-green"]):not([class*="text-pink"]):not([class*="text-orange"]):not([class*="text-violet"]):not([class*="text-purple"]):not([class*="text-cyan"]):not([class*="text-teal"]):not([class*="text-yellow"]):not([class*="text-indigo"]):not([class*="text-transparent"]) {
-  color: #000000 !important;
+  color: var(--heading-color, #000000) !important;
 }
 
 /* ════════════════════════════════════════════
@@ -1316,8 +1370,8 @@ html:not(.dark) main [class*="from-amber"][class*="bg-gradient"] [class*="text-w
 html:not(.dark) main [class*="from-amber"][class*="bg-gradient"][class*="text-white"],
 html:not(.dark) main [class*="from-indigo"][class*="bg-gradient"] [class*="text-white"],
 html:not(.dark) main [class*="from-indigo"][class*="bg-gradient"][class*="text-white"],
-html:not(.dark) main [class*="from-violet"][class*="bg-gradient"] [class*="text-white"],
-html:not(.dark) main [class*="from-violet"][class*="bg-gradient"][class*="text-white"],
+html:not(.dark) main [class*="from-violet"][class*="bg-gradient"]:not([class*="from-violet-50"]):not([class*="from-violet-100"]) [class*="text-white"],
+html:not(.dark) main [class*="from-violet"][class*="bg-gradient"]:not([class*="from-violet-50"]):not([class*="from-violet-100"])[class*="text-white"],
 html:not(.dark) main [class*="from-purple"][class*="bg-gradient"] [class*="text-white"],
 html:not(.dark) main [class*="from-purple"][class*="bg-gradient"][class*="text-white"],
 html:not(.dark) main [class*="from-cyan"][class*="bg-gradient"] [class*="text-white"],
@@ -1338,7 +1392,21 @@ html:not(.dark) main [class*="bg-cyan"][class*="text-white"],
 html:not(.dark) main [class*="bg-teal"][class*="text-white"],
 html:not(.dark) main [class*="bg-orange"][class*="text-white"],
 html:not(.dark) main button[class*="bg-gradient"][class*="text-white"],
-html:not(.dark) main a[class*="bg-gradient"][class*="text-white"] {
+html:not(.dark) main a[class*="bg-gradient"][class*="text-white"],
+html:not(.dark) main button[data-colored-btn],
+html:not(.dark) main [data-colored-btn] {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* Protect gradient background on colored buttons */
+html:not(.dark) main button[data-colored-btn] {
+  background: linear-gradient(to right, #9333ea, #7c3aed) !important;
+  -webkit-background-clip: padding-box !important;
+  background-clip: padding-box !important;
+}
+html:not(.dark) main button[data-colored-btn] *,
+html:not(.dark) main [data-colored-btn] * {
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
 }
@@ -1394,26 +1462,26 @@ html:not(.dark) main [class*="backdrop-blur"]:not([class*="from-rose"]):not([cla
    INPUTS / FORMS / SELECTS
    ════════════════════════════════════════════ */
 
-html:not(.dark) main input:not([type="checkbox"]):not([type="radio"]),
+html:not(.dark) main input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
 html:not(.dark) main textarea,
 html:not(.dark) main select {
   background: #ffffff !important;
   background-image: none !important;
-  border-color: rgba(226, 232, 240, 0.60) !important;
-  color: #000000 !important;
+  border-color: var(--glass-border, rgba(226, 232, 240, 0.60)) !important;
+  color: var(--heading-color, #000000) !important;
 }
 
 html:not(.dark) main input:not([type="checkbox"]):not([type="radio"]):hover,
 html:not(.dark) main textarea:hover,
 html:not(.dark) main select:hover {
-  border-color: #94a3b8 !important;
+  border-color: var(--input-focus-border, #94a3b8) !important;
 }
 
 html:not(.dark) main input:not([type="checkbox"]):not([type="radio"]):focus,
 html:not(.dark) main textarea:focus,
 html:not(.dark) main select:focus {
-  border-color: #94a3b8 !important;
-  box-shadow: 0 0 0 2px rgba(226, 232, 240, 0.20) !important;
+  border-color: var(--input-focus-border, #94a3b8) !important;
+  box-shadow: 0 0 0 2px var(--input-focus-ring, rgba(226, 232, 240, 0.20)) !important;
 }
 
 html:not(.dark) main input::placeholder,
@@ -1427,8 +1495,8 @@ html:not(.dark) [data-slot="dialog-content"] textarea,
 html:not(.dark) [data-slot="dialog-content"] select {
   background: #ffffff !important;
   background-image: none !important;
-  border-color: rgba(226, 232, 240, 0.60) !important;
-  color: #000000 !important;
+  border-color: var(--glass-border, rgba(226, 232, 240, 0.60)) !important;
+  color: var(--heading-color, #000000) !important;
 }
 
 /* ════════════════════════════════════════════
@@ -1442,22 +1510,22 @@ html:not(.dark) main table {
 }
 
 html:not(.dark) main thead {
-  background: rgba(226, 232, 240, 0.40) !important;
+  background: var(--table-header-bg, rgba(226, 232, 240, 0.40)) !important;
 }
 
 html:not(.dark) main thead th {
-  color: #000000 !important;
-  border-color: rgba(226, 232, 240, 0.20) !important;
+  color: var(--heading-color, #000000) !important;
+  border-color: var(--table-border, rgba(226, 232, 240, 0.20)) !important;
   font-weight: 700 !important;
 }
 
 html:not(.dark) main tbody td {
-  color: #000000 !important;
-  border-color: rgba(226, 232, 240, 0.15) !important;
+  color: var(--body-text-color, #000000) !important;
+  border-color: var(--table-border, rgba(226, 232, 240, 0.15)) !important;
 }
 
 html:not(.dark) main tbody tr:hover {
-  background: rgba(241, 245, 249, 0.25) !important;
+  background: var(--table-row-hover, rgba(241, 245, 249, 0.25)) !important;
 }
 
 /* ════════════════════════════════════════════
@@ -1515,8 +1583,8 @@ html:not(.dark) [class*="border-slate-950"] { border-color: rgba(226, 232, 240, 
 
 /* Dialog content panels (Radix) */
 html:not(.dark) [data-slot="dialog-content"] {
-  background: #fafbfd !important;
-  border: 1px solid rgba(226, 232, 240, 0.40) !important;
+  background: var(--glass-bg, #fafbfd) !important;
+  border: 1px solid var(--glass-border, rgba(226, 232, 240, 0.40)) !important;
   box-shadow: 0 24px 48px rgba(226, 232, 240, 0.15) !important;
 }
 
@@ -1524,47 +1592,47 @@ html:not(.dark) [data-slot="dialog-content"] {
 html:not(.dark) [data-slot="dialog-content"] [class*="bg-slate-900"],
 html:not(.dark) [data-slot="dialog-content"] [class*="bg-slate-800"],
 html:not(.dark) [data-slot="dialog-content"] [class*="bg-slate-950"] {
-  background: #fafbfd !important;
+  background: var(--glass-bg, #fafbfd) !important;
 }
 
 /* Text in modals */
 html:not(.dark) [data-slot="dialog-content"] [class*="text-white"] {
-  color: #000000 !important;
+  color: var(--heading-color, #000000) !important;
 }
 
 html:not(.dark) [data-slot="dialog-content"] [class*="text-slate-400"],
 html:not(.dark) [data-slot="dialog-content"] [class*="text-slate-300"] {
-  color: #334155 !important;
+  color: var(--label-color, #334155) !important;
 }
 
 html:not(.dark) [data-slot="dialog-content"] [class*="text-slate-100"],
 html:not(.dark) [data-slot="dialog-content"] [class*="text-slate-200"] {
-  color: #000000 !important;
+  color: var(--heading-color, #000000) !important;
 }
 
-/* All text in modals → black */
+/* All text in modals → themed */
 html:not(.dark) [data-slot="dialog-content"] p,
 html:not(.dark) [data-slot="dialog-content"] span:not([class*="text-transparent"]):not([class*="text-emerald"]):not([class*="text-rose"]):not([class*="text-blue"]):not([class*="text-red"]):not([class*="text-green"]):not([class*="text-amber"]):not([class*="text-pink"]):not([class*="text-orange"]),
 html:not(.dark) [data-slot="dialog-content"] label {
-  color: #000000 !important;
-  -webkit-text-fill-color: #000000 !important;
+  color: var(--heading-color, #000000) !important;
+  -webkit-text-fill-color: var(--heading-color, #000000) !important;
 }
 
 /* Modal headings → gradient */
 html:not(.dark) [data-slot="dialog-content"] h1,
 html:not(.dark) [data-slot="dialog-content"] h2,
 html:not(.dark) [data-slot="dialog-content"] h3 {
-  background: linear-gradient(135deg, #ec4899, #f97316) !important;
+  background: var(--heading-gradient, linear-gradient(135deg, #ec4899, #f97316)) !important;
   -webkit-background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
   background-clip: text !important;
 }
 
-/* Modal h4, h5 → pure black */
+/* Modal h4, h5 → themed heading */
 html:not(.dark) [data-slot="dialog-content"] h4,
 html:not(.dark) [data-slot="dialog-content"] h5 {
-  color: #000000 !important;
-  -webkit-text-fill-color: #000000 !important;
+  color: var(--heading-color, #000000) !important;
+  -webkit-text-fill-color: var(--heading-color, #000000) !important;
 }
 
 /* Borders in modals */
@@ -1609,18 +1677,18 @@ html:not(.dark) [data-slot="dialog-content"] [class*="hover:bg-white/20"]:hover 
 /* .fixed modals (non-Radix) */
 html:not(.dark) .fixed > div:not(.absolute) [class*="bg-slate-900"],
 html:not(.dark) .fixed > div:not(.absolute) [class*="bg-slate-950"] {
-  background: #fafbfd !important;
+  background: var(--glass-bg, #fafbfd) !important;
 }
 
 html:not(.dark) .fixed > div:not(.absolute) [class*="text-white"] {
-  color: #000000 !important;
+  color: var(--heading-color, #000000) !important;
 }
 
 html:not(.dark) .fixed > div:not(.absolute) p,
 html:not(.dark) .fixed > div:not(.absolute) span:not([class*="text-transparent"]):not([class*="text-emerald"]):not([class*="text-rose"]):not([class*="text-blue"]):not([class*="text-red"]):not([class*="text-green"]):not([class*="text-amber"]):not([class*="text-pink"]):not([class*="text-orange"]),
 html:not(.dark) .fixed > div:not(.absolute) label {
-  color: #000000 !important;
-  -webkit-text-fill-color: #000000 !important;
+  color: var(--heading-color, #000000) !important;
+  -webkit-text-fill-color: var(--heading-color, #000000) !important;
 }
 
 html:not(.dark) .fixed > div:not(.absolute) [class*="border-white"] {
@@ -1694,21 +1762,21 @@ html:not(.dark) .fixed [class*="from-blue"][class*="bg-gradient"] * {
 
 html:not(.dark) [data-slot="popover-content"],
 html:not(.dark) [data-radix-popper-content-wrapper] > div {
-  background: #fafbfd !important;
-  border-color: rgba(226, 232, 240, 0.40) !important;
-  color: #000000 !important;
+  background: var(--glass-bg, #fafbfd) !important;
+  border-color: var(--glass-border, rgba(226, 232, 240, 0.40)) !important;
+  color: var(--heading-color, #000000) !important;
 }
 
 html:not(.dark) [role="listbox"],
 html:not(.dark) [role="menu"] {
-  background: #fafbfd !important;
-  border-color: rgba(226, 232, 240, 0.40) !important;
-  color: #000000 !important;
+  background: var(--glass-bg, #fafbfd) !important;
+  border-color: var(--glass-border, rgba(226, 232, 240, 0.40)) !important;
+  color: var(--heading-color, #000000) !important;
 }
 
 html:not(.dark) [role="option"],
 html:not(.dark) [role="menuitem"] {
-  color: #000000 !important;
+  color: var(--heading-color, #000000) !important;
 }
 
 html:not(.dark) [role="option"]:hover,
@@ -1722,13 +1790,13 @@ html:not(.dark) [data-highlighted] {
    ════════════════════════════════════════════ */
 
 html:not(.dark) [data-slot="select-content"] {
-  background: #fafbfd !important;
-  border-color: rgba(226, 232, 240, 0.40) !important;
-  color: #000000 !important;
+  background: var(--glass-bg, #fafbfd) !important;
+  border-color: var(--glass-border, rgba(226, 232, 240, 0.40)) !important;
+  color: var(--heading-color, #000000) !important;
 }
 
 html:not(.dark) [data-slot="select-item"] {
-  color: #000000 !important;
+  color: var(--heading-color, #000000) !important;
 }
 
 html:not(.dark) [data-slot="select-item"]:hover,
@@ -1741,12 +1809,12 @@ html:not(.dark) [data-slot="select-item"][data-highlighted] {
    ════════════════════════════════════════════ */
 
 html:not(.dark) [data-slot="sheet-content"] {
-  background: #fafbfd !important;
-  border-color: rgba(226, 232, 240, 0.40) !important;
+  background: var(--glass-bg, #fafbfd) !important;
+  border-color: var(--glass-border, rgba(226, 232, 240, 0.40)) !important;
 }
 
 html:not(.dark) [data-slot="sheet-content"] [class*="text-white"] {
-  color: #000000 !important;
+  color: var(--heading-color, #000000) !important;
 }
 
 html:not(.dark) [data-slot="sheet-content"] p,
@@ -1756,8 +1824,8 @@ html:not(.dark) [data-slot="sheet-content"] h1,
 html:not(.dark) [data-slot="sheet-content"] h2,
 html:not(.dark) [data-slot="sheet-content"] h3,
 html:not(.dark) [data-slot="sheet-content"] h4 {
-  color: #000000 !important;
-  -webkit-text-fill-color: #000000 !important;
+  color: var(--heading-color, #000000) !important;
+  -webkit-text-fill-color: var(--heading-color, #000000) !important;
 }
 
 /* ════════════════════════════════════════════
@@ -1765,9 +1833,9 @@ html:not(.dark) [data-slot="sheet-content"] h4 {
    ════════════════════════════════════════════ */
 
 html:not(.dark) [data-sonner-toaster] [data-sonner-toast] {
-  background: #fafbfd !important;
-  border-color: rgba(226, 232, 240, 0.40) !important;
-  color: #000000 !important;
+  background: var(--glass-bg, #fafbfd) !important;
+  border-color: var(--glass-border, rgba(226, 232, 240, 0.40)) !important;
+  color: var(--heading-color, #000000) !important;
 }
 
 /* ════════════════════════════════════════════
@@ -1811,7 +1879,7 @@ html:not(.dark) [data-slot="tooltip-content"] {
 
 html:not(.dark) main [class*="bg-slate-500"] {
   background: rgba(226, 232, 240, 0.20) !important;
-  color: #000000 !important;
+  color: var(--heading-color, #000000) !important;
 }
 
 /* ════════════════════════════════════════════
@@ -1819,12 +1887,12 @@ html:not(.dark) main [class*="bg-slate-500"] {
    ════════════════════════════════════════════ */
 
 html:not(.dark) [data-slot="alert-dialog-content"] {
-  background: #fafbfd !important;
-  border: 1px solid rgba(226, 232, 240, 0.40) !important;
+  background: var(--glass-bg, #fafbfd) !important;
+  border: 1px solid var(--glass-border, rgba(226, 232, 240, 0.40)) !important;
 }
 
 html:not(.dark) [data-slot="alert-dialog-content"] [class*="text-white"] {
-  color: #000000 !important;
+  color: var(--heading-color, #000000) !important;
 }
 
 html:not(.dark) [data-slot="alert-dialog-content"] p,
@@ -1834,8 +1902,8 @@ html:not(.dark) [data-slot="alert-dialog-content"] h1,
 html:not(.dark) [data-slot="alert-dialog-content"] h2,
 html:not(.dark) [data-slot="alert-dialog-content"] h3,
 html:not(.dark) [data-slot="alert-dialog-content"] h4 {
-  color: #000000 !important;
-  -webkit-text-fill-color: #000000 !important;
+  color: var(--heading-color, #000000) !important;
+  -webkit-text-fill-color: var(--heading-color, #000000) !important;
 }
 
 /* Colored buttons in alert dialog keep white */
@@ -1851,8 +1919,8 @@ html:not(.dark) [data-slot="alert-dialog-content"] button[class*="bg-gradient"] 
    ════════════════════════════════════════════ */
 
 html:not(.dark) main [data-slot="accordion-trigger"] {
-  color: #000000 !important;
-  -webkit-text-fill-color: #000000 !important;
+  color: var(--heading-color, #000000) !important;
+  -webkit-text-fill-color: var(--heading-color, #000000) !important;
 }
 
 /* ════════════════════════════════════════════
@@ -1864,13 +1932,13 @@ html:not(.dark) main [data-slot="tabs-list"] {
 }
 
 html:not(.dark) main [data-slot="tabs-trigger"] {
-  color: #000000 !important;
+  color: var(--heading-color, #000000) !important;
 }
 
 html:not(.dark) main [data-slot="tabs-trigger"][data-state="active"] {
   background: #ffffff !important;
-  color: #000000 !important;
-  -webkit-text-fill-color: #000000 !important;
+  color: var(--heading-color, #000000) !important;
+  -webkit-text-fill-color: var(--heading-color, #000000) !important;
 }
 
 /* ════════════════════════════════════════════
@@ -1910,13 +1978,13 @@ html:not(.dark) [class*="bg-[#0d1525]"] h2 {
 html:not(.dark) [class*="bg-[#0a0e1a]"] [class*="text-white"],
 html:not(.dark) [class*="bg-[#0d1525]"] [class*="text-white"],
 html:not(.dark) [class*="bg-[#080c15]"] [class*="text-white"] {
-  color: #000000 !important;
+  color: var(--heading-color, #000000) !important;
 }
 
 html:not(.dark) [class*="bg-[#0a0e1a]"] p,
 html:not(.dark) [class*="bg-[#0d1525]"] p,
 html:not(.dark) [class*="bg-[#080c15]"] p {
-  color: #1e293b !important;
+  color: var(--body-text-color, #1e293b) !important;
 }
 
 html:not(.dark) [class*="bg-[#0a0e1a]"] input,
@@ -1924,7 +1992,7 @@ html:not(.dark) [class*="bg-[#0d1525]"] input,
 html:not(.dark) [class*="bg-[#080c15]"] input {
   background-color: rgba(255, 255, 255, 0.60) !important;
   border-color: rgba(226, 232, 240, 0.40) !important;
-  color: #000000 !important;
+  color: var(--heading-color, #000000) !important;
 }
 
 /* ════════════════════════════════════════════
@@ -1932,16 +2000,16 @@ html:not(.dark) [class*="bg-[#080c15]"] input {
    ════════════════════════════════════════════ */
 
 html:not(.dark) main svg:not([class*="text-emerald"]):not([class*="text-rose"]):not([class*="text-blue"]):not([class*="text-amber"]):not([class*="text-red"]):not([class*="text-green"]):not([class*="text-pink"]):not([class*="text-orange"]):not([class*="text-violet"]):not([class*="text-purple"]):not([class*="text-cyan"]):not([class*="text-teal"]):not([class*="text-yellow"]):not([class*="text-indigo"]):not([class*="text-white"]) {
-  color: #334155 !important;
+  color: var(--label-color, #334155) !important;
 }
 
 /* ════════════════════════════════════════════
    CATCH-ALL: Ensure ALL buttons have readable text
    ════════════════════════════════════════════ */
 
-/* Default buttons → black text */
+/* Default buttons → themed text */
 html:not(.dark) main button:not([class*="bg-gradient"]):not([class*="bg-rose"]):not([class*="bg-red"]):not([class*="bg-emerald"]):not([class*="bg-green"]):not([class*="bg-blue"]):not([class*="bg-amber"]):not([class*="bg-indigo"]):not([class*="bg-violet"]):not([class*="bg-purple"]) {
-  color: #000000 !important;
+  color: var(--heading-color, #000000) !important;
 }
 
 /* Colored buttons keep white text */
@@ -1964,7 +2032,7 @@ html:not(.dark) main button[class*="bg-purple"] {
    ════════════════════════════════════════════ */
 
 html:not(.dark) main a:not([class*="text-emerald"]):not([class*="text-rose"]):not([class*="text-blue"]):not([class*="text-pink"]):not([class*="text-orange"]):not([class*="bg-gradient"]):not([class*="text-transparent"]) {
-  color: #000000 !important;
+  color: var(--link-color, #000000) !important;
 }
 
 /* ════════════════════════════════════════════
@@ -1972,7 +2040,7 @@ html:not(.dark) main a:not([class*="text-emerald"]):not([class*="text-rose"]):no
    ════════════════════════════════════════════ */
 
 html:not(.dark) main [class*="bg-slate-800"][class*="text-white"] {
-  background: linear-gradient(135deg, #ec4899, #f97316) !important;
+  background: var(--heading-gradient, linear-gradient(135deg, #ec4899, #f97316)) !important;
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
 }
@@ -1983,9 +2051,9 @@ html:not(.dark) main [class*="bg-slate-800"][class*="text-white"] {
 
 html:not(.dark) [class*="luxury-notification"],
 html:not(.dark) [data-notification] {
-  background: #fafbfd !important;
-  border-color: rgba(226, 232, 240, 0.40) !important;
-  color: #000000 !important;
+  background: var(--glass-bg, #fafbfd) !important;
+  border-color: var(--glass-border, rgba(226, 232, 240, 0.40)) !important;
+  color: var(--heading-color, #000000) !important;
 }
 
 /* ════════════════════════════════════════════
@@ -1993,8 +2061,8 @@ html:not(.dark) [data-notification] {
    ════════════════════════════════════════════ */
 
 html:not(.dark) main label {
-  color: #000000 !important;
-  -webkit-text-fill-color: #000000 !important;
+  color: var(--label-color, #000000) !important;
+  -webkit-text-fill-color: var(--label-color, #000000) !important;
 }
 
 /* ════════════════════════════════════════════
@@ -2002,11 +2070,11 @@ html:not(.dark) main label {
    ════════════════════════════════════════════ */
 
 html:not(.dark) main dt {
-  color: #475569 !important;
+  color: var(--helper-text-color, #475569) !important;
 }
 
 html:not(.dark) main dd {
-  color: #000000 !important;
+  color: var(--heading-color, #000000) !important;
 }
 
 /* ════════════════════════════════════════════
@@ -2014,7 +2082,7 @@ html:not(.dark) main dd {
    ════════════════════════════════════════════ */
 
 html:not(.dark) main li {
-  color: #000000 !important;
+  color: var(--heading-color, #000000) !important;
 }
 
 /* ════════════════════════════════════════════
@@ -2023,8 +2091,8 @@ html:not(.dark) main li {
 
 html:not(.dark) main strong,
 html:not(.dark) main b {
-  color: #000000 !important;
-  -webkit-text-fill-color: #000000 !important;
+  color: var(--heading-color, #000000) !important;
+  -webkit-text-fill-color: var(--heading-color, #000000) !important;
 }
 
 /* ════════════════════════════════════════════
@@ -2038,7 +2106,7 @@ html:not(.dark) main div[class*="text-slate-3"],
 html:not(.dark) main div[class*="text-gray-1"],
 html:not(.dark) main div[class*="text-gray-2"],
 html:not(.dark) main div[class*="text-gray-3"] {
-  color: #000000 !important;
+  color: var(--heading-color, #000000) !important;
 }
 
 /* ════════════════════════════════════════════════════════
@@ -2336,3 +2404,27 @@ html:not(.dark)[data-accent="royal-purple"] main .h-px {
 .dark[data-accent="cyber-teal"] ::-webkit-scrollbar-thumb { background: rgba(20,184,166,0.4) !important; }
 .dark[data-accent="midnight-gold"] ::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.4) !important; }
 .dark[data-accent="aurora-violet"] ::-webkit-scrollbar-thumb { background: rgba(139,92,246,0.4) !important; }
+
+/* ════════════════════════════════════════════
+   FORCE BLACK TEXT (highest priority - must be last)
+   Use data-force-black attribute on any element
+   ════════════════════════════════════════════ */
+html:not(.dark) [data-force-black],
+html:not(.dark) main [data-force-black],
+html:not(.dark) main h1[data-force-black],
+html:not(.dark) main h2[data-force-black],
+html:not(.dark) main h3[data-force-black],
+html:not(.dark) main h4[data-force-black],
+html:not(.dark) main span[data-force-black],
+html:not(.dark) main p[data-force-black],
+html:not(.dark) main [data-force-black][class*="text-3xl"],
+html:not(.dark) main [data-force-black][class*="text-4xl"],
+html:not(.dark) main [data-force-black][class*="text-xl"],
+html:not(.dark) main [data-force-black][class*="text-lg"] {
+  color: var(--heading-color, #000000) !important;
+  -webkit-text-fill-color: var(--heading-color, #000000) !important;
+  background: none !important;
+  background-image: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+}

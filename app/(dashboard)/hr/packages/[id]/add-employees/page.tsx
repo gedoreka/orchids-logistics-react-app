@@ -1,6 +1,6 @@
 import React from "react";
 import { cookies } from "next/headers";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { AddEmployeesClient } from "./add-employees-client";
 
 export default async function AddEmployeesPage({ params }: { params: Promise<{ id: string }> }) {
@@ -12,7 +12,7 @@ export default async function AddEmployeesPage({ params }: { params: Promise<{ i
   const companyId = session.company_id;
   const packageId = parseInt(id);
 
-  const packages = await query<any>(
+  const packages = await cachedQuery<any>(
     "SELECT * FROM employee_packages WHERE id = ? AND company_id = ?",
     [packageId, companyId]
   );

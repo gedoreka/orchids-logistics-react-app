@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { DashboardClient } from "./dashboard-client";
 
 interface Company {
@@ -51,7 +51,7 @@ export default async function DashboardPage() {
 
   try {
     if (session.company_id) {
-      const companies = await query<Company>(
+      const companies = await cachedQuery<Company>(
         "SELECT * FROM companies WHERE id = ?",
         [session.company_id]
       );
@@ -90,25 +90,25 @@ export default async function DashboardPage() {
         }
       }
 
-      const empResult = await query<{ count: number }>(
+      const empResult = await cachedQuery<{ count: number }>(
         "SELECT COUNT(*) as count FROM employees WHERE company_id = ?",
         [session.company_id]
       );
       stats.total_employees = empResult[0]?.count || 0;
 
-      const invoicesResult = await query<{ total: number }>(
+      const invoicesResult = await cachedQuery<{ total: number }>(
         "SELECT COALESCE(SUM(total_amount), 0) as total FROM sales_invoices WHERE company_id = ?",
         [session.company_id]
       );
       stats.total_invoices_amount = invoicesResult[0]?.total || 0;
 
-      const yearlyExpensesResult = await query<{ total: number }>(
+      const yearlyExpensesResult = await cachedQuery<{ total: number }>(
         "SELECT COALESCE(SUM(amount), 0) as total FROM monthly_expenses WHERE company_id = ? AND YEAR(expense_date) = YEAR(CURDATE())",
         [session.company_id]
       );
       stats.yearly_expenses = yearlyExpensesResult[0]?.total || 0;
 
-      const expiredResult = await query<{ count: number }>(
+      const expiredResult = await cachedQuery<{ count: number }>(
         "SELECT COUNT(*) as count FROM employees WHERE company_id = ? AND iqama_expiry <= CURDATE()",
         [session.company_id]
       );
@@ -116,17 +116,17 @@ export default async function DashboardPage() {
     }
 
     if (isAdmin) {
-      const usersResult = await query<{ count: number }>(
+      const usersResult = await cachedQuery<{ count: number }>(
         "SELECT COUNT(*) as count FROM users WHERE is_activated = 1"
       );
       stats.users_count = usersResult[0]?.count || 0;
 
-      const pendingResult = await query<{ count: number }>(
+      const pendingResult = await cachedQuery<{ count: number }>(
         "SELECT COUNT(*) as count FROM companies WHERE status = 'pending'"
       );
       stats.pending_requests = pendingResult[0]?.count || 0;
 
-      const stoppedResult = await query<{ count: number }>(
+      const stoppedResult = await cachedQuery<{ count: number }>(
         "SELECT COUNT(*) as count FROM companies WHERE status = 'stopped'"
       );
       stats.stopped_companies = stoppedResult[0]?.count || 0;

@@ -7,7 +7,7 @@ import { Header } from "./header";
 import { Footer } from "./footer";
 import { GlobalChatNotifications } from "./global-chat-notifications";
 import { GlobalAdminNotifications } from "./global-admin-notifications";
-import { X, AlertCircle } from "lucide-react";
+import { X, AlertCircle, Phone, ArrowLeft, ArrowRight } from "lucide-react";
 import { useLocale } from "@/lib/locale-context";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -39,6 +39,8 @@ export function DashboardLayout({ children, user, permissions, userType, subscri
   const router = useRouter();
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [showPhoneBanner, setShowPhoneBanner] = useState(false);
+  const [phoneBannerDismissed, setPhoneBannerDismissed] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -51,6 +53,17 @@ export function DashboardLayout({ children, user, permissions, userType, subscri
       return () => clearTimeout(t);
     }
   }, [mounted, resolvedTheme]);
+
+  // Check if company needs phone number for WhatsApp OTP
+  useEffect(() => {
+    if (!mounted || phoneBannerDismissed || user?.role === "admin") return;
+    fetch("/api/auth/check-phone")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.needsPhone) setShowPhoneBanner(true);
+      })
+      .catch(() => {});
+  }, [mounted, phoneBannerDismissed, user?.role]);
 
   const isDark = !mounted || resolvedTheme === "dark";
 
@@ -97,7 +110,7 @@ export function DashboardLayout({ children, user, permissions, userType, subscri
 
   useEffect(() => {
     fetchUnreadCount();
-    const interval = setInterval(fetchUnreadCount, 5000);
+    const interval = setInterval(fetchUnreadCount, 30000);
     return () => clearInterval(interval);
   }, [fetchUnreadCount]);
 
@@ -170,8 +183,72 @@ export function DashboardLayout({ children, user, permissions, userType, subscri
       
         <div className={`${isRTL ? 'lg:mr-64' : 'lg:ml-64'} flex flex-col h-screen`}>
           <div className="flex-shrink-0 relative z-[100]">
-            <Header user={user} onToggleSidebar={() => setIsSidebarOpen(true)} unreadChatCount={unreadChatCount} subscriptionData={subscriptionData} />
-          </div>
+              <Header user={user} onToggleSidebar={() => setIsSidebarOpen(true)} unreadChatCount={unreadChatCount} subscriptionData={subscriptionData} />
+            </div>
+
+            {/* Phone Number Required Banner */}
+            <AnimatePresence>
+              {showPhoneBanner && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.35, ease: "easeOut" }}
+                  className="flex-shrink-0 overflow-hidden"
+                >
+                  <div className={`relative flex items-center gap-3 px-5 py-3.5 border-b ${
+                    isDark
+                      ? "bg-gradient-to-r from-amber-900/40 via-orange-900/30 to-amber-900/40 border-amber-500/20"
+                      : "bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 border-amber-200"
+                  }`}>
+                    {/* Animated glow strip */}
+                    <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-amber-500/0 via-amber-400 to-amber-500/0" />
+
+                    <motion.div
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="flex-shrink-0 w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center"
+                    >
+                      <Phone size={18} className="text-amber-500" />
+                    </motion.div>
+
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm font-black ${isDark ? "text-amber-300" : "text-amber-700"}`}>
+                        رقم الهاتف مطلوب لاستقبال رمز التحقق عبر واتساب
+                      </p>
+                      <p className={`text-xs mt-0.5 ${isDark ? "text-amber-400/70" : "text-amber-600/80"}`}>
+                        تحقق الدخول بخطوتين مفعّل — يجب إضافة رقم هاتف في بيانات المؤسسة لاستقبال رمز التحقق
+                      </p>
+                    </div>
+
+                    <motion.button
+                      whileHover={{ scale: 1.03, y: -1 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => router.push("/settings")}
+                      className={`flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black transition-all ${
+                        isDark
+                          ? "bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30"
+                          : "bg-amber-500 hover:bg-amber-600 text-white shadow-md shadow-amber-500/25"
+                      }`}
+                    >
+                      <Phone size={13} />
+                      إضافة رقم الهاتف
+                      {isRTL ? <ArrowLeft size={13} /> : <ArrowRight size={13} />}
+                    </motion.button>
+
+                    <button
+                      onClick={() => { setShowPhoneBanner(false); setPhoneBannerDismissed(true); }}
+                      className={`flex-shrink-0 p-1.5 rounded-lg transition-all ${
+                        isDark ? "hover:bg-white/10 text-white/30 hover:text-white/60" : "hover:bg-amber-100 text-amber-400 hover:text-amber-600"
+                      }`}
+                      title="إغلاق"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
           <main className="flex-1 overflow-y-auto overflow-x-hidden relative">
             <div className="w-full">

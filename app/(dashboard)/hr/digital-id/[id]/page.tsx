@@ -1,6 +1,6 @@
 import React from "react";
 import { cookies } from "next/headers";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { DigitalIdClient } from "./digital-id-client";
 import { notFound } from "next/navigation";
 
@@ -19,7 +19,7 @@ export default async function DigitalIdPage({
   const companyId = session.company_id;
 
   // 1. Fetch Employee Data
-  const employeeRes = await query(
+  const employeeRes = await cachedQuery(
     `SELECT e.*, ep.group_name, c.name as company_name, c.logo as company_logo
      FROM employees e 
      LEFT JOIN employee_packages ep ON e.package_id = ep.id 
@@ -34,7 +34,7 @@ export default async function DigitalIdPage({
   }
 
   // 2. Fetch all employees in same package for navigation
-  const allEmployees = await query(
+  const allEmployees = await cachedQuery(
     `SELECT id, name, user_code, iqama_number
      FROM employees 
      WHERE package_id = ? AND company_id = ? AND is_active = 1

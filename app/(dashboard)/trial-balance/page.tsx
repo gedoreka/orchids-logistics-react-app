@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { TrialBalanceClient } from "./trial-balance-client";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 
 export const metadata = {
   title: "ميزان المراجعة - Logistics Systems Pro",
@@ -22,7 +22,7 @@ export default async function TrialBalancePage() {
     redirect("/dashboard");
   }
 
-  const companies = await query<any>(
+  const companies = await cachedQuery<any>(
     "SELECT name, logo_path FROM companies WHERE id = ?",
     [companyId]
   );

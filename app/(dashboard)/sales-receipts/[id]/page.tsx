@@ -1,11 +1,11 @@
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { SalesReceiptViewClient } from "./sales-receipt-view-client";
 
 async function getSalesReceipt(id: string) {
   try {
-    const receipts = await query<any>(
+    const receipts = await cachedQuery<any>(
       `SELECT sr.*, 
               CASE WHEN sr.use_custom_client = 1 THEN sr.client_name ELSE c.customer_name END as client_name,
               CASE WHEN sr.use_custom_client = 1 THEN sr.client_vat ELSE c.vat_number END as client_vat,
@@ -23,7 +23,7 @@ async function getSalesReceipt(id: string) {
     const receipt = receipts[0];
 
     // Fetch items
-    const items = await query<any>(
+    const items = await cachedQuery<any>(
       `SELECT * FROM sales_receipt_items WHERE receipt_id = ? ORDER BY id ASC`,
       [id]
     );
@@ -39,7 +39,7 @@ async function getSalesReceipt(id: string) {
 
 async function getCompany(companyId: number) {
   try {
-    const companies = await query<any>(
+    const companies = await cachedQuery<any>(
       `SELECT * FROM companies WHERE id = ?`,
       [companyId]
     );

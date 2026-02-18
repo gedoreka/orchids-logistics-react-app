@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { ReceiptVoucherViewClient } from "./receipt-voucher-view-client";
 import { notFound } from "next/navigation";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 
 export const metadata = {
   title: "عرض سند القبض - Logistics Systems Pro",
@@ -9,7 +9,7 @@ export const metadata = {
 
 async function getVoucherData(id: string) {
   try {
-    const vouchers = await query<any>(
+    const vouchers = await cachedQuery<any>(
       `SELECT
         receipt_vouchers.*,
         account_code AS debit_account_code,
@@ -27,7 +27,7 @@ async function getVoucherData(id: string) {
 
     const voucher = vouchers[0];
 
-    const companyData = await query<any>(
+    const companyData = await cachedQuery<any>(
       `SELECT id, name, commercial_number, vat_number, country, region, district, street, postal_code, short_address, logo_path, stamp_path, digital_seal_path FROM companies WHERE id = ?`,
       [voucher.company_id]
     );

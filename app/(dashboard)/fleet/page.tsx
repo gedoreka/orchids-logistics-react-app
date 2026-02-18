@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { FleetClient } from "./fleet-client";
 
 export default async function FleetPage() {
@@ -20,7 +20,7 @@ export default async function FleetPage() {
   }
 
   // Fetch initial data for the fleet dashboard
-  const vehicles = await query<any>(
+  const vehicles = await cachedQuery<any>(
     `SELECT v.*, e.name as driver_name 
      FROM vehicles v 
      LEFT JOIN employees e ON v.driver_id = e.id 
@@ -29,7 +29,7 @@ export default async function FleetPage() {
     [companyId]
   );
 
-  const spares = await query<any>(
+  const spares = await cachedQuery<any>(
     `SELECT s.*, c.name as category_name 
      FROM spares s 
      LEFT JOIN spares_categories c ON s.category_id = c.id 
@@ -38,12 +38,12 @@ export default async function FleetPage() {
     [companyId]
   );
 
-  const categories = await query<any>(
+  const categories = await cachedQuery<any>(
     "SELECT * FROM spares_categories WHERE company_id = ? ORDER BY name",
     [companyId]
   );
 
-  const maintenanceRequests = await query<any>(
+  const maintenanceRequests = await cachedQuery<any>(
     `SELECT mr.*, v.plate_number_ar, v.brand, v.model 
      FROM maintenance_requests mr 
      JOIN vehicles v ON mr.vehicle_id = v.id 
@@ -52,7 +52,7 @@ export default async function FleetPage() {
     [companyId]
   );
 
-  const employees = await query<any>(
+  const employees = await cachedQuery<any>(
     `SELECT e.id, e.name, e.iqama_number, e.personal_photo, e.user_code, e.identity_number, e.job_title, e.package_id, 
      ep.group_name as package_name
      FROM employees e 
@@ -62,17 +62,17 @@ export default async function FleetPage() {
     [companyId]
   );
 
-    const vehicleCategories = await query<any>(
+    const vehicleCategories = await cachedQuery<any>(
       "SELECT * FROM vehicle_categories WHERE company_id = ? ORDER BY name",
       [companyId]
     );
 
-    const company = await query<any>(
+    const company = await cachedQuery<any>(
       "SELECT name FROM companies WHERE id = ?",
       [companyId]
     );
 
-    const user = await query<any>(
+    const user = await cachedQuery<any>(
       "SELECT email FROM users WHERE id = ?",
       [userId || null]
     );

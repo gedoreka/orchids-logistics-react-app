@@ -1,6 +1,6 @@
 import React from "react";
 import { cookies } from "next/headers";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { PackageViewClient } from "./package-view-client";
 import { notFound } from "next/navigation";
 
@@ -24,7 +24,7 @@ export default async function PackageViewPage({
   const companyId = session.company_id;
 
   // 1. Fetch Package Data
-  const packageRes = await query(
+  const packageRes = await cachedQuery(
     "SELECT * FROM employee_packages WHERE id = ? AND company_id = ?",
     [packageId, companyId]
   );
@@ -35,13 +35,13 @@ export default async function PackageViewPage({
   }
 
   // 2. Fetch all packages for navigation
-  const allPackages = await query(
+  const allPackages = await cachedQuery(
     "SELECT id, group_name FROM employee_packages WHERE company_id = ? ORDER BY id DESC",
     [companyId]
   );
 
   // 3. Document Stats
-  const statsRes = await query(
+  const statsRes = await cachedQuery(
     `SELECT 
         COUNT(*) as total_employees,
         SUM(CASE WHEN iqama_file IS NOT NULL AND iqama_file != '' THEN 1 ELSE 0 END) as iqama_complete,
@@ -75,7 +75,7 @@ export default async function PackageViewPage({
     condition += " AND is_active = 0";
   }
 
-  const employees = await query(
+  const employees = await cachedQuery(
     `SELECT * FROM employees WHERE ${condition} ORDER BY id DESC LIMIT 200`,
     paramsArr
   );

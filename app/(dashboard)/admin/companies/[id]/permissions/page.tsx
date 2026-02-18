@@ -1,5 +1,5 @@
 import React from "react";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { Company } from "@/lib/types";
 import { PermissionsClient } from "./permissions-client";
 import { notFound } from "next/navigation";
@@ -18,7 +18,7 @@ export default async function CompanyPermissionsPage({
 }) {
   const { id } = await params;
   
-  const companies = await query<Company>(
+  const companies = await cachedQuery<Company>(
     "SELECT * FROM companies WHERE id = ?",
     [id]
   );
@@ -29,7 +29,7 @@ export default async function CompanyPermissionsPage({
 
   const company = companies[0];
   
-  const permissions = await query<Permission>(
+  const permissions = await cachedQuery<Permission>(
     "SELECT * FROM company_permissions WHERE company_id = ? AND is_enabled = 1",
     [id]
   );

@@ -1,6 +1,6 @@
 import React, { Suspense } from "react";
 import { cookies } from "next/headers";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { PackagesClient } from "./packages-client";
 
 export default async function PackagesPage() {
@@ -10,7 +10,7 @@ export default async function PackagesPage() {
   
   const companyId = session.company_id;
 
-  const packages = await query(
+  const packages = await cachedQuery(
     "SELECT * FROM employee_packages WHERE company_id = ? ORDER BY id DESC",
     [companyId]
   );
@@ -19,7 +19,7 @@ export default async function PackagesPage() {
   const packageIds = packages.map((p: any) => p.id);
   let employeeCounts: any[] = [];
   if (packageIds.length > 0) {
-    employeeCounts = await query(
+    employeeCounts = await cachedQuery(
       `SELECT package_id, COUNT(*) as count FROM employees WHERE package_id IN (${packageIds.map(() => '?').join(',')}) GROUP BY package_id`,
       packageIds
     );

@@ -1,6 +1,6 @@
 import React from "react";
 import { cookies } from "next/headers";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { IqamaReportClient } from "./iqama-report-client";
 
 export default async function IqamaReportPage({ searchParams }: { 
@@ -16,7 +16,7 @@ export default async function IqamaReportPage({ searchParams }: {
   const companyId = session.company_id;
 
   // 1. Fetch Company Info
-  const company = await query(
+  const company = await cachedQuery(
     "SELECT name, logo FROM companies WHERE id = ?",
     [companyId]
   );
@@ -44,7 +44,7 @@ export default async function IqamaReportPage({ searchParams }: {
     params.push(`%${search.trim()}%`, `%${cleanSearch}%`, `%${cleanSearch}%`);
   }
 
-    const allData: any[] = await query(sql, params);
+    const allData: any[] = await cachedQuery(sql, params);
   
     // 3. Process data based on filter
     const iqamaData = allData.filter((item: any) => {

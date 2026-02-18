@@ -1,6 +1,6 @@
 import React from "react";
 import { cookies } from "next/headers";
-import { query } from "@/lib/db";
+import { cachedQuery } from "@/lib/db";
 import { CostCenter } from "@/lib/types";
 import { CostCentersClient } from "./cost-centers-client";
 
@@ -13,7 +13,7 @@ export default async function CostCentersPage() {
   
   const companyId = session.company_id;
 
-  const costCenters = await query<CostCenter>(
+  const costCenters = await cachedQuery<CostCenter>(
     "SELECT * FROM cost_centers WHERE company_id = ? ORDER BY id DESC",
     [companyId]
   );
