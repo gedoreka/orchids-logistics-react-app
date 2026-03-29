@@ -42,10 +42,10 @@ export default async function SettingsPage() {
   const userEmail = users[0]?.email || "";
 
   return (
-    <div className="p-6 w-[90%] mx-auto space-y-8">
-      <SettingsContent 
-        company={company} 
-        taxSettings={taxSettings || {}} 
+    <div className="w-[90%] mx-auto py-6">
+      <SettingsContent
+        company={company}
+        taxSettings={taxSettings || {}}
         userEmail={userEmail}
         companyId={companyId}
       />

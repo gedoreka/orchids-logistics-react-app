@@ -273,7 +273,7 @@ export default function IncomeFormClient({ user }: { user: User }) {
   }
 
   return (
-    <div className="max-w-[96%] w-[96%] mx-auto p-4 md:p-8 space-y-8" dir={isRtl ? "rtl" : "ltr"}>
+    <div className="w-full px-2 pt-6 pb-6" dir={isRtl ? "rtl" : "ltr"}>
       <SuccessModal
           isOpen={successModal.isOpen}
           type={successModal.type}
@@ -289,14 +289,16 @@ export default function IncomeFormClient({ user }: { user: User }) {
         />
 
       <motion.div
-        initial={{ opacity: 0, y: -30 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] p-10 text-white shadow-2xl border border-white/10"
+        transition={{ duration: 0.5 }}
+        className="bg-gradient-to-br from-slate-800 via-slate-700 to-slate-600 rounded-[3rem] shadow-2xl border border-slate-500/30 overflow-hidden"
       >
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 via-blue-500 via-teal-500 via-emerald-500 to-cyan-500 animate-gradient-x" />
-        
-        <div className="relative z-10 space-y-10">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
+        <div className="h-2 w-full bg-gradient-to-r from-blue-500 via-indigo-500 via-purple-500 via-emerald-500 to-blue-500" />
+        <div className="p-6 md:p-10 space-y-6">
+          <div className="bg-white/5 backdrop-blur-xl p-8 rounded-[2rem] border border-white/10 shadow-xl relative overflow-hidden flex flex-col lg:flex-row items-center justify-between gap-10">
+            <div className="absolute -bottom-8 -right-8 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -top-8 -left-8 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
             <div className="text-center lg:text-right space-y-4">
               <motion.div 
                 initial={{ scale: 0 }}
@@ -701,17 +703,7 @@ export default function IncomeFormClient({ user }: { user: User }) {
           </div>
         </div>
 
-        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-cyan-500/10 rounded-full blur-[100px] pointer-events-none" />
-        <div className="absolute -top-24 -left-24 w-96 h-96 bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none" />
       </motion.div>
-
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-slate-500 uppercase tracking-widest pt-4 opacity-60">
-        <div className="flex items-center gap-2">
-          <Sparkles size={10} className="text-cyan-500" />
-          <span>{t("footer.system")}</span>
-        </div>
-        <span>{t("footer.rights", { year: new Date().getFullYear().toString() })}</span>
-      </div>
 
       <AnimatePresence>
           {showSuccess && (

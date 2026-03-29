@@ -9,7 +9,7 @@ import {
   CheckCircle, AlertCircle, X, ArrowDown, ArrowUp, Building2,
   Banknote, StickyNote, Sparkles, RefreshCw, Download, Target,
   BadgeCheck, Clock, FileCheck, Send, Ban, Loader2, Plus, FileSpreadsheet,
-  TrendingDown, TrendingUp
+  TrendingDown, TrendingUp, ArrowRight
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -357,9 +357,9 @@ function PaymentVouchersContent({ companyId }: { companyId: string }) {
   }
 
     return (
-      <div className="max-w-[95%] mx-auto p-4 md:p-8 space-y-8" dir={isRtl ? "rtl" : "ltr"}>
-        <DeleteNotification 
-          notification={notification} 
+      <div className="min-h-screen pb-20" dir={isRtl ? "rtl" : "ltr"}>
+        <DeleteNotification
+          notification={notification}
           onClose={hideNotification}
           cancelLabel={tCommon("cancel")}
           deleteLabel={tCommon("delete")}
@@ -375,91 +375,94 @@ function PaymentVouchersContent({ companyId }: { companyId: string }) {
             @page { size: A4; margin: 20mm; }
           }
         `}</style>
-  
+
+        <div className="w-full px-2 pt-6 pb-6">
         <motion.div
-          initial={{ opacity: 0, y: -30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] p-10 text-white shadow-2xl border border-white/10"
+          transition={{ duration: 0.5 }}
+          className="bg-gradient-to-br from-slate-800 via-slate-700 to-slate-600 rounded-[3rem] shadow-2xl border border-slate-500/30 overflow-hidden"
         >
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-rose-500 via-amber-500 via-purple-500 to-blue-500 animate-gradient-x" />
-          
-          <div className="relative z-10 space-y-10">
+          <div className="h-2 w-full bg-gradient-to-r from-rose-500 via-orange-500 via-pink-500 via-red-500 to-rose-500" />
+          <div className="p-6 md:p-10 space-y-6">
             {/* Header Section */}
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
-              <div className="text-center lg:text-right space-y-4">
-                <motion.div 
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.2, type: "spring" }}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 mb-2"
-                >
-                  <Sparkles className="w-4 h-4 text-yellow-400 animate-pulse" />
-                  <span className="text-blue-200 font-black text-[10px] uppercase tracking-widest">{t("subtitle")}</span>
-                </motion.div>
-                
-                <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight bg-gradient-to-r from-white via-rose-100 to-white bg-clip-text text-transparent">
-                  {t("title")}
-                </h1>
-                <p className="text-lg text-slate-300 max-w-2xl font-medium leading-relaxed">
-                  {t("description")}
-                </p>
-                
-                <div className="flex flex-wrap justify-center lg:justify-start gap-4 mt-8">
-                  <button 
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 }}
+              className="bg-white/5 backdrop-blur-xl p-8 rounded-[2rem] border border-white/10 shadow-xl relative overflow-hidden"
+            >
+              <div className="absolute -bottom-8 -right-8 w-40 h-40 bg-rose-500/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute -top-8 -left-8 w-40 h-40 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-8 relative z-10">
+                <div>
+                  <div className="flex items-center gap-2 text-xs font-bold text-slate-300 mb-3">
+                    <Link href="/dashboard" className="hover:text-rose-400 transition-colors flex items-center gap-1">
+                      {isRtl ? 'لوحة التحكم' : 'Dashboard'}
+                    </Link>
+                    <ArrowRight size={13} className={`${isRtl ? 'rotate-180' : ''} text-slate-500`} />
+                    <Link href="/financial-vouchers" className="hover:text-rose-400 transition-colors">
+                      {isRtl ? 'السندات المالية' : 'Financial Vouchers'}
+                    </Link>
+                    <ArrowRight size={13} className={`${isRtl ? 'rotate-180' : ''} text-slate-500`} />
+                    <span className="text-rose-400">{t("title")}</span>
+                  </div>
+                  <div className="flex items-center gap-5">
+                    <div className="h-16 w-16 rounded-[1.25rem] bg-gradient-to-br from-rose-500 to-orange-600 flex items-center justify-center shadow-lg shadow-rose-500/25 flex-shrink-0">
+                      <Wallet size={32} strokeWidth={2.5} className="text-white" />
+                    </div>
+                    <div>
+                      <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-1">{t("title")}</h1>
+                      <div className="flex flex-wrap items-center gap-3">
+                        <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-rose-500/20 text-rose-300 text-xs font-bold border border-rose-500/30">
+                          <Sparkles size={12} className="animate-pulse" />
+                          {t("subtitle")}
+                        </span>
+                        <p className="text-slate-400 text-sm font-semibold">{t("description")}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-3 mt-4">
+                  <button
                     onClick={() => { setShowForm(!showForm); if (showForm) resetForm(); }}
                     className={cn(
-                      "flex items-center gap-3 px-6 py-3 font-black text-sm rounded-2xl transition-all shadow-xl active:scale-95",
-                      showForm ? "bg-white/10 text-white border border-white/20" : "bg-rose-500 text-white hover:bg-rose-600"
+                      "flex items-center gap-2.5 px-6 py-3 font-black text-sm rounded-2xl transition-all shadow-lg",
+                      showForm ? "bg-white/10 text-white border border-white/20 hover:bg-white/20" : "bg-gradient-to-r from-rose-600 to-orange-600 text-white hover:from-rose-500 hover:to-orange-500 shadow-rose-500/25"
                     )}
                   >
                     {showForm ? <X size={18} /> : <Plus size={18} />}
                     {showForm ? t("cancelForm") : t("addNew")}
                   </button>
-                  <button 
-                      onClick={fetchData}
-                      className="flex items-center gap-3 px-6 py-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-white font-black text-sm hover:bg-white/20 transition-all shadow-xl active:scale-95"
-                    >
-                    <RefreshCw size={18} className={cn("text-blue-400", loading ? "animate-spin" : "")} />
+                  <button
+                    onClick={fetchData}
+                    className="flex items-center gap-2 px-4 py-3 bg-white/5 text-white/70 font-bold text-sm rounded-2xl border border-white/10 hover:bg-white/10 hover:text-white transition-all"
+                  >
+                    <RefreshCw size={16} className={cn("text-rose-400", loading ? "animate-spin" : "")} />
                     {t("refreshData")}
                   </button>
                 </div>
               </div>
-  
+
               {/* Summary Stats */}
-              <div className="grid grid-cols-2 gap-4 w-full lg:w-auto">
-                <motion.div 
-                  initial={{ opacity: 0, x: 30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-6 border border-white/10 shadow-2xl min-w-[160px] group hover:bg-white/20 transition-all"
-                >
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="p-2 bg-rose-500/20 rounded-lg text-rose-400 group-hover:scale-110 transition-transform">
-                      <Wallet className="w-5 h-5" />
-                    </div>
-                    <span className="text-rose-300 font-black text-[10px] uppercase tracking-wider">{t("stats.count")}</span>
-                  </div>
-                  <p className="text-3xl font-black text-white tracking-tight">{vouchers.length}</p>
-                  <p className="text-rose-400/60 text-[10px] font-black mt-1">{t("stats.voucherLabel")}</p>
-                </motion.div>
-  
-                <motion.div 
-                  initial={{ opacity: 0, x: 30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.4 }}
-                  className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-6 border border-white/10 shadow-2xl min-w-[160px] group hover:bg-white/20 transition-all"
-                >
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="p-2 bg-emerald-500/20 rounded-lg text-emerald-400 group-hover:scale-110 transition-transform">
-                      <TrendingDown className="w-5 h-5" />
-                    </div>
-                    <span className="text-emerald-300 font-black text-[10px] uppercase tracking-wider">{t("stats.nextNumber")}</span>
-                  </div>
+              <div className="grid grid-cols-2 gap-4 mt-6">
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-rose-500 to-orange-600 p-5 shadow-xl shadow-rose-500/25">
+                  <div className="p-2 bg-white/10 rounded-xl border border-white/10 w-fit mb-3"><Wallet className="w-5 h-5 text-white" /></div>
+                  <p className="text-white/70 text-[10px] font-black uppercase tracking-widest">{t("stats.count")}</p>
+                  <p className="text-3xl font-black text-white mt-1">{vouchers.length}</p>
+                  <p className="text-white/50 text-[10px] font-black mt-0.5">{t("stats.voucherLabel")}</p>
+                  <div className="absolute -bottom-4 -left-4 w-20 h-20 bg-white/10 rounded-full blur-2xl" />
+                </div>
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-500 to-orange-600 p-5 shadow-xl shadow-amber-500/25">
+                  <div className="p-2 bg-white/10 rounded-xl border border-white/10 w-fit mb-3"><TrendingDown className="w-5 h-5 text-white" /></div>
+                  <p className="text-white/70 text-[10px] font-black uppercase tracking-widest">{t("stats.nextNumber")}</p>
                   <p className="text-2xl font-black text-white tracking-tight">{voucherNumber}</p>
-                  <p className="text-emerald-400/60 text-[10px] font-black mt-1">{t("stats.sequential")}</p>
-                </motion.div>
+                  <p className="text-amber-400/60 text-[10px] font-black mt-1">{t("stats.sequential")}</p>
+                  <div className="absolute -bottom-4 -left-4 w-20 h-20 bg-white/10 rounded-full blur-2xl" />
+                </div>
               </div>
-            </div>
+            </motion.div>
   
             <AnimatePresence>
               {showForm && (
@@ -621,14 +624,14 @@ function PaymentVouchersContent({ companyId }: { companyId: string }) {
             </div>
 
             <div className="bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl">
-                <div className="p-6 border-b border-white/10 flex items-center justify-between bg-white/5">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-emerald-500/20 rounded-xl">
-                            <Wallet className="w-5 h-5 text-emerald-400" />
+                <div className="bg-gradient-to-r from-rose-600 to-orange-600 px-8 py-5 flex items-center justify-between">
+                    <div className="flex items-center gap-3 text-white">
+                        <div className="p-2 bg-white/20 rounded-xl backdrop-blur-xl border border-white/10">
+                            <Wallet className="w-5 h-5" strokeWidth={2.5} />
                         </div>
                         <h3 className="font-black text-lg">{t("table.title")}</h3>
                     </div>
-                    <span className="px-4 py-1.5 bg-white/10 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-400">
+                    <span className="bg-white/20 backdrop-blur-xl px-5 py-1.5 rounded-xl text-sm font-black text-white border border-white/20">
                         {t("table.countLabel", { count: filteredVouchers.length })}
                     </span>
                 </div>
@@ -748,22 +751,17 @@ function PaymentVouchersContent({ companyId }: { companyId: string }) {
                     </table>
                 </div>
             </div>
+            {/* Footer */}
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[11px] font-black text-white/30 uppercase tracking-widest pt-6 border-t border-white/10">
+              <div className="flex items-center gap-2">
+                <Sparkles size={12} className="text-rose-400" />
+                <span>{tFinancial("systemTitle", { name: "Logistics Systems Pro" })} - {t("subtitle")}</span>
+              </div>
+              <span className="bg-white/5 px-3 py-1 rounded-lg border border-white/10">{tFinancial("allRightsReserved", { year: new Date().getFullYear() })}</span>
+            </div>
           </div>
+        </motion.div>
         </div>
-
-        {/* Decorative elements */}
-        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-rose-500/10 rounded-full blur-[100px] pointer-events-none" />
-        <div className="absolute -top-24 -left-24 w-96 h-96 bg-orange-500/10 rounded-full blur-[100px] pointer-events-none" />
-      </motion.div>
-
-      {/* Footer */}
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-slate-500 uppercase tracking-widest pt-4 opacity-60">
-        <div className="flex items-center gap-2">
-          <Sparkles size={10} className="text-rose-500" />
-          <span>{tFinancial("systemTitle", { name: "Logistics Systems Pro" })} - {t("subtitle")}</span>
-        </div>
-        <span>{tFinancial("allRightsReserved", { year: new Date().getFullYear() })}</span>
-      </div>
 
       <AnimatePresence>
           {showSuccess && (

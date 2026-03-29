@@ -77,7 +77,7 @@ import { useLocale, useTranslations } from '@/lib/locale-context';
 import { LanguageSwitcher } from "./language-switcher";
 import { usePrayer } from "./prayer-provider";
 import { useTheme } from "next-themes";
-import { ThemeSelectorPopup } from "@/components/theme-customizer";
+import { applyAccentTheme } from "@/components/theme-customizer";
 
 interface EmailAccount {
   id: string;
@@ -372,7 +372,6 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
     const [showIncompleteDetail, setShowIncompleteDetail] = useState(false);
       const [showLoginSplash, setShowLoginSplash] = useState(false);
     const [activeNotifTab, setActiveNotifTab] = useState<'system' | 'identity' | 'incomplete'>('system');
-        const [showThemeSelector, setShowThemeSelector] = useState(false);
         const { resolvedTheme, setTheme: setNextTheme } = useTheme();
       const isDarkMode = resolvedTheme === "dark";
 
@@ -506,6 +505,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
 
   const toggleTheme = () => {
     setNextTheme(isDarkMode ? "light" : "dark");
+    setTimeout(applyAccentTheme, 150);
   };
 
   useEffect(() => {
@@ -1072,54 +1072,6 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
 <div className="flex items-center gap-2">
                       <LanguageSwitcher />
 
-                      {/* Theme Selector Button */}
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => setShowThemeSelector(true)}
-                          className={cn(
-                            "group relative hidden sm:flex items-center gap-2.5 px-4 py-2.5 rounded-xl overflow-hidden transition-all duration-300 border",
-                            isDarkMode
-                              ? "bg-gradient-to-br from-violet-600/15 via-fuchsia-600/15 to-rose-600/15 border-fuchsia-500/20 hover:border-fuchsia-500/40 hover:shadow-lg hover:shadow-fuchsia-500/10"
-                              : "bg-gradient-to-br from-violet-400/15 via-fuchsia-400/15 to-rose-400/15 border-fuchsia-400/25 hover:border-fuchsia-400/50 hover:shadow-lg hover:shadow-fuchsia-400/10"
-                          )}
-                        >
-                          {/* Animated background shimmer */}
-                          <div className={cn(
-                            "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500",
-                            "bg-[linear-gradient(110deg,transparent_25%,rgba(168,85,247,0.08)_50%,transparent_75%)] bg-[length:200%_100%]",
-                            "group-hover:animate-[shimmer_2s_ease-in-out_infinite]"
-                          )} />
-                          <div className="relative flex items-center gap-2">
-                            <motion.div
-                              animate={{ rotate: [0, 10, -10, 0] }}
-                              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                            >
-                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <defs>
-                                  <linearGradient id="themeIconGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stopColor="#a855f7" />
-                                    <stop offset="50%" stopColor="#ec4899" />
-                                    <stop offset="100%" stopColor="#f59e0b" />
-                                  </linearGradient>
-                                </defs>
-                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.38 0 2.5-1.12 2.5-2.5 0-.61-.23-1.2-.64-1.67-.08-.1-.13-.21-.13-.33 0-.28.22-.5.5-.5H16c3.31 0 6-2.69 6-6 0-4.96-4.48-9-10-9z" fill="url(#themeIconGrad)" opacity="0.9"/>
-                                <circle cx="8" cy="11" r="1.5" fill="#fff" opacity="0.9"/>
-                                <circle cx="11" cy="7.5" r="1.5" fill="#fff" opacity="0.9"/>
-                                <circle cx="15" cy="8.5" r="1.5" fill="#fff" opacity="0.9"/>
-                                <circle cx="16.5" cy="12" r="1.5" fill="#fff" opacity="0.9"/>
-                              </svg>
-                            </motion.div>
-                            <span className={cn(
-                              "text-[13px] font-extrabold transition-colors bg-clip-text text-transparent bg-gradient-to-r",
-                              isDarkMode 
-                                ? "from-violet-400 via-fuchsia-400 to-rose-400" 
-                                : "from-violet-600 via-fuchsia-600 to-rose-600"
-                            )}>
-                              {isRTL ? 'ثيمات النظام' : 'Themes'}
-                            </span>
-                          </div>
-                        </motion.button>
 
                       <motion.button
                         whileHover={{ scale: 1.05 }}
@@ -3360,11 +3312,6 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
           )}
           </AnimatePresence>
 
-      {/* Theme Selector Popup */}
-      <ThemeSelectorPopup
-        isOpen={showThemeSelector}
-        onClose={() => setShowThemeSelector(false)}
-      />
       </>
     );
 }

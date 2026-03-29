@@ -1,36 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Building2, 
-  User, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  FileText, 
-  Receipt,
-  Hash,
-  Globe,
-  Building,
-  MapPinned,
-  Calendar,
-  Clock,
-  CheckCircle,
-  XCircle,
-  Edit,
-  Trash2,
-  ArrowRight,
-  Wallet,
-  Calculator,
-  Loader2,
-  Route,
-  ArrowLeft,
-  Users,
-  RefreshCw,
-  Printer,
-  FileSpreadsheet,
-  Power
+import { motion } from "framer-motion";
+import {
+  Building2, User, Mail, Phone, MapPin, FileText, Receipt, Hash,
+  Globe, Building, MapPinned, Calendar, Edit, Trash2, ArrowRight,
+  Wallet, Calculator, Loader2, Route, Users, Printer, Power, LayoutDashboard
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -59,7 +34,7 @@ interface Customer {
   cost_center_name?: string;
   is_active: number;
   created_at: string;
-  updated_at?: string; // may not exist in DB but keep for display safety
+  updated_at?: string;
 }
 
 interface CustomerViewClientProps {
@@ -72,35 +47,24 @@ export function CustomerViewClient({ customer, companyId }: CustomerViewClientPr
   const t = useTranslations("customers.viewPage");
   const { isRTL } = useLocale();
   const [deleteLoading, setDeleteLoading] = useState(false);
-  
-  // Modal states
+
   const [deleteConfirmModal, setDeleteConfirmModal] = useState<{ isOpen: boolean; item: Customer | null }>({ isOpen: false, item: null });
-  const [successModal, setSuccessModal] = useState<{ isOpen: boolean; type: 'delete' | 'update' | 'create' | null; title: string }>({ isOpen: false, type: null, title: '' });
+  const [successModal, setSuccessModal] = useState<{ isOpen: boolean; type: 'delete' | null; title: string }>({ isOpen: false, type: null, title: '' });
   const [loadingModal, setLoadingModal] = useState(false);
   const [errorModal, setErrorModal] = useState<{ isOpen: boolean; title: string; message: string }>({ isOpen: false, title: '', message: '' });
 
-  const handleDelete = () => {
-    setDeleteConfirmModal({ isOpen: true, item: customer });
-  };
+  const handleDelete = () => setDeleteConfirmModal({ isOpen: true, item: customer });
 
   const confirmDelete = async () => {
     setDeleteLoading(true);
     setDeleteConfirmModal({ isOpen: false, item: null });
     setLoadingModal(true);
-
     try {
-      const res = await fetch(`/api/customers/${customer.id}?company_id=${companyId}`, {
-        method: "DELETE"
-      });
-
+      const res = await fetch(`/api/customers/${customer.id}?company_id=${companyId}`, { method: "DELETE" });
       setLoadingModal(false);
-
       if (res.ok) {
         setSuccessModal({ isOpen: true, type: 'delete', title: customer.customer_name || customer.company_name });
-        setTimeout(() => {
-          router.push("/customers");
-          router.refresh();
-        }, 2000);
+        setTimeout(() => { router.push("/customers"); router.refresh(); }, 2000);
       } else {
         setErrorModal({ isOpen: true, title: "فشل الحذف", message: "حدث خطأ أثناء محاولة حذف العميل" });
       }
@@ -112,252 +76,233 @@ export function CustomerViewClient({ customer, companyId }: CustomerViewClientPr
     }
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
+  const fullAddress = [customer.city, customer.district && `حي ${customer.district}`, customer.street_name && `شارع ${customer.street_name}`].filter(Boolean).join(' ');
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0d1525] relative overflow-hidden print:bg-white print:text-black" dir={isRTL ? "rtl" : "ltr"}>
-      {/* Dynamic Background Elements */}
-      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-blue-600/5 rounded-full blur-[150px] -mr-96 -mt-96 pointer-events-none print:hidden" />
-      <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-purple-600/5 rounded-full blur-[150px] -ml-96 -mb-96 pointer-events-none print:hidden" />
-
+    <div className="w-full px-2 pt-4 pb-6 print:p-0" dir={isRTL ? "rtl" : "ltr"}>
       {/* Modals */}
-      <DeleteConfirmModal
-        isOpen={deleteConfirmModal.isOpen}
-        itemTitle={deleteConfirmModal.item?.customer_name || deleteConfirmModal.item?.company_name || ''}
-        isLoading={deleteLoading}
-        onConfirm={confirmDelete}
-        onCancel={() => setDeleteConfirmModal({ isOpen: false, item: null })}
-      />
-      <SuccessModal
-        isOpen={successModal.isOpen}
-        type={successModal.type}
-        title={successModal.title}
-        onClose={() => setSuccessModal({ isOpen: false, type: null, title: '' })}
-      />
+      <DeleteConfirmModal isOpen={deleteConfirmModal.isOpen} itemTitle={deleteConfirmModal.item?.customer_name || deleteConfirmModal.item?.company_name || ''} isLoading={deleteLoading} onConfirm={confirmDelete} onCancel={() => setDeleteConfirmModal({ isOpen: false, item: null })} />
+      <SuccessModal isOpen={successModal.isOpen} type={successModal.type} title={successModal.title} onClose={() => setSuccessModal({ isOpen: false, type: null, title: '' })} />
       <LoadingModal isOpen={loadingModal} title="جاري الحذف" message="جاري حذف بيانات العميل..." />
-      <ErrorModal
-        isOpen={errorModal.isOpen}
-        title={errorModal.title}
-        message={errorModal.message}
-        onClose={() => setErrorModal({ isOpen: false, title: '', message: '' })}
-      />
+      <ErrorModal isOpen={errorModal.isOpen} title={errorModal.title} message={errorModal.message} onClose={() => setErrorModal({ isOpen: false, title: '', message: '' })} />
 
-      <div className="relative z-10 flex-1 p-4 md:p-8 lg:p-10">
-        <div className="max-w-[1400px] mx-auto space-y-10">
-          {/* Header Card */}
-          <div className="relative overflow-hidden bg-white/5 backdrop-blur-2xl rounded-[3rem] p-8 md:p-12 text-white shadow-2xl border border-white/10 print:bg-white print:text-black print:border-none print:shadow-none print:p-0">
-            <div className="relative z-10">
-              <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-10">
-                <div className="flex items-center gap-6 md:gap-8">
-                  <div className="h-24 w-28 rounded-[2rem] bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20 rotate-3 border border-white/20 print:hidden">
-                    <Building2 size={48} strokeWidth={2.5} className="-rotate-3" />
-                  </div>
-                  <div>
-                    <h1 className="text-3xl md:text-5xl font-black tracking-tight mb-3 print:text-black">{t('title')}</h1>
-                    <div className="flex flex-wrap items-center gap-3">
-                      <span className="px-4 py-1.5 rounded-full bg-blue-500/10 text-blue-400 text-sm font-black border border-blue-500/20 print:border-black print:text-black">
-                        بطاقة معلومات
-                      </span>
-                      <p className="text-slate-400 text-xl font-bold print:text-black/60">{t('subtitle')}</p>
-                    </div>
-                  </div>
-                </div>
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="bg-gradient-to-br from-slate-800 via-slate-700 to-slate-600 rounded-[3rem] shadow-2xl border border-slate-500/30 overflow-hidden print:shadow-none print:rounded-none"
+      >
+        {/* Rainbow bar */}
+        <div className="h-1.5 w-full bg-gradient-to-r from-blue-500 via-indigo-500 via-purple-500 via-emerald-500 to-blue-500 print:hidden" />
 
-                <div className="flex flex-wrap gap-4 print:hidden">
-                  <Link href="/customers">
-                    <button className="flex items-center gap-3 px-8 py-5 rounded-2xl bg-white/5 text-white font-black text-lg hover:bg-white/10 transition-all border border-white/10 backdrop-blur-xl">
-                      {isRTL ? <ArrowRight size={24} /> : <ArrowLeft size={24} />}
-                      <span>{t('backToList')}</span>
-                    </button>
+        <div className="p-5 md:p-8 space-y-5">
+
+          {/* ── Compact Header ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+            className="bg-white/5 backdrop-blur-xl px-6 py-5 rounded-[1.75rem] border border-white/10 shadow-lg flex items-center justify-between print:hidden"
+          >
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-md shadow-blue-500/25 flex-shrink-0">
+                <Building2 size={22} strokeWidth={2.5} className="text-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 mb-1">
+                  <Link href="/dashboard" className="hover:text-blue-400 transition-colors flex items-center gap-1">
+                    <LayoutDashboard size={11} />لوحة التحكم
                   </Link>
-                  <button
-                    onClick={handlePrint}
-                    className="p-5 rounded-2xl bg-white/5 text-amber-400 border border-white/10 hover:bg-white/10 transition-all active:scale-95"
-                  >
-                    <Printer size={28} />
-                  </button>
-                  <Link href={`/customers/${customer.id}/edit`}>
-                    <button className="flex items-center gap-3 px-10 py-5 rounded-2xl bg-amber-500 text-white font-black text-lg hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/20 active:scale-95">
-                      <Edit size={24} />
-                      <span>{t('editBtn')}</span>
-                    </button>
+                  <ArrowRight size={11} className="text-slate-500 rotate-180" />
+                  <Link href="/customers" className="hover:text-blue-400 transition-colors flex items-center gap-1">
+                    <Users size={11} />العملاء
                   </Link>
+                  <ArrowRight size={11} className="text-slate-500 rotate-180" />
+                  <span className="text-blue-400">بيانات العميل</span>
                 </div>
+                <h1 className="text-xl font-black text-white tracking-tight">
+                  {customer.company_name || customer.customer_name}
+                </h1>
+                <p className="text-white/40 text-xs font-semibold mt-0.5">
+                  {fullAddress || 'عرض تفصيلي لبيانات العميل والمنشأة'}
+                </p>
               </div>
             </div>
-            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -mr-32 -mt-32 print:hidden" />
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl -ml-32 -mb-32 print:hidden" />
-          </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => window.print()}
+                className="h-9 w-9 flex items-center justify-center rounded-xl bg-white/5 text-amber-400 hover:bg-amber-500/10 transition-all border border-white/10"
+                title="طباعة"
+              >
+                <Printer size={16} />
+              </button>
+              <Link href={`/customers/${customer.id}/edit`}>
+                <motion.button
+                  whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500/10 text-amber-400 font-bold text-sm hover:bg-amber-500/20 transition-all border border-amber-500/20"
+                >
+                  <Edit size={15} />
+                  <span>{t('editBtn')}</span>
+                </motion.button>
+              </Link>
+              <Link href="/customers">
+                <motion.button
+                  whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 text-white/70 font-bold text-sm hover:bg-white/10 hover:text-white transition-all border border-white/10"
+                >
+                  <ArrowRight size={15} className="rotate-180" />
+                  <span>{t('backToList')}</span>
+                </motion.button>
+              </Link>
+            </div>
+          </motion.div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-            {/* Main Info Columns */}
-            <div className="lg:col-span-8 space-y-10">
-              {/* Basic Info Section */}
-              <Section title={t('facilityInfo')} icon={<Building2 size={28} />} color="blue">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-y-10 gap-x-12">
-                  <InfoItem icon={<User size={22} />} label={t('customerNameLabel')} value={customer.customer_name} />
-                  <InfoItem icon={<Building2 size={22} />} label={t('facilityName')} value={customer.company_name} />
-                  <InfoItem icon={<FileText size={22} />} label={t('commercialNumber')} value={customer.commercial_number} />
-                  <InfoItem icon={<Receipt size={22} />} label={t('vatNumber')} value={customer.vat_number} />
-                  <InfoItem icon={<Hash size={22} />} label={t('unifiedNumber')} value={customer.unified_number} />
-                </div>
-              </Section>
+          {/* ── Main Content: 2-column ── */}
+          <div className="grid grid-cols-1 xl:grid-cols-5 gap-5">
 
-              {/* Address Section */}
-              <Section title={t('addressInfo')} icon={<MapPin size={28} />} color="purple">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  <InfoItem icon={<Globe size={22} />} label={t('country')} value={customer.country} />
-                  <InfoItem icon={<Building size={22} />} label={t('city')} value={customer.city} />
-                  <InfoItem icon={<MapPinned size={22} />} label={t('district')} value={customer.district} />
-                  <InfoItem icon={<Route size={22} />} label={t('street')} value={customer.street_name} />
-                  <InfoItem icon={<Hash size={22} />} label={t('postalCode')} value={customer.postal_code} />
-                  <InfoItem icon={<MapPin size={22} />} label={t('shortAddress')} value={customer.short_address} />
+            {/* Left: Basic Info + Address (3/5) */}
+            <div className="xl:col-span-3 space-y-5">
+
+              {/* Basic Info */}
+              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 shadow-lg overflow-hidden">
+                <SectionHeader title={t('facilityInfo')} icon={<Building2 size={16} />} color="blue" />
+                <div className="p-5 grid grid-cols-2 xl:grid-cols-3 gap-3">
+                  <InfoCell icon={<User size={13} />} label={t('customerNameLabel')} value={customer.customer_name} />
+                  <InfoCell icon={<Building2 size={13} />} label={t('facilityName')} value={customer.company_name} />
+                  <InfoCell icon={<FileText size={13} />} label={t('commercialNumber')} value={customer.commercial_number} mono />
+                  <InfoCell icon={<Receipt size={13} />} label={t('vatNumber')} value={customer.vat_number} mono />
+                  <InfoCell icon={<Hash size={13} />} label={t('unifiedNumber')} value={customer.unified_number} />
                 </div>
-              </Section>
+              </motion.div>
+
+              {/* Address */}
+              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.13 }} className="bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 shadow-lg overflow-hidden">
+                <SectionHeader title={t('addressInfo')} icon={<MapPin size={16} />} color="purple" />
+                <div className="p-5 grid grid-cols-2 xl:grid-cols-3 gap-3">
+                  <InfoCell icon={<Globe size={13} />} label={t('country')} value={customer.country} />
+                  <InfoCell icon={<Building size={13} />} label={t('city')} value={customer.city} />
+                  <InfoCell icon={<MapPinned size={13} />} label={t('district')} value={customer.district} />
+                  <InfoCell icon={<Route size={13} />} label={t('street')} value={customer.street_name} />
+                  <InfoCell icon={<Hash size={13} />} label={t('postalCode')} value={customer.postal_code} mono />
+                  <InfoCell icon={<MapPin size={13} />} label={t('shortAddress')} value={customer.short_address} mono />
+                </div>
+              </motion.div>
+
+              {/* Financial */}
+              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }} className="bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 shadow-lg overflow-hidden">
+                <SectionHeader title={t('financialInfo')} icon={<Wallet size={16} />} color="orange" />
+                <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <InfoCell icon={<Wallet size={13} />} label="الحساب المالي" value={customer.account_name || 'غير مربوط'} />
+                  <InfoCell icon={<Calculator size={13} />} label="مركز التكلفة" value={customer.cost_center_name || 'غير محدد'} />
+                </div>
+              </motion.div>
             </div>
 
-            {/* Sidebar Columns */}
-            <div className="lg:col-span-4 space-y-10">
-              {/* Financial Info Card */}
-              <Section title={t('financialInfo')} icon={<Wallet size={28} />} color="orange">
-                <div className="space-y-8">
-                  <div className="bg-white/5 rounded-[2rem] p-6 border border-white/10">
-                    <p className="text-slate-500 text-xs font-black uppercase tracking-widest mb-3 flex items-center gap-2">
-                      <Wallet size={14} className="text-orange-400" />
-                      الحساب المالي المرتبط
-                    </p>
-                    <p className="text-xl font-black text-white">{customer.account_name || 'غير مربوط بحساب'}</p>
-                  </div>
-                  <div className="bg-white/5 rounded-[2rem] p-6 border border-white/10">
-                    <p className="text-slate-500 text-xs font-black uppercase tracking-widest mb-3 flex items-center gap-2">
-                      <Calculator size={14} className="text-orange-400" />
-                      مركز التكلفة
-                    </p>
-                    <p className="text-xl font-black text-white">{customer.cost_center_name || 'غير محدد'}</p>
-                  </div>
-                </div>
-              </Section>
+            {/* Right: Contact + Status (2/5) */}
+            <div className="xl:col-span-2 space-y-5">
 
-              {/* Contact Info Card */}
-              <Section title={t('contactInfo')} icon={<Phone size={28} />} color="emerald">
-                <div className="space-y-6">
-                  <a href={customer.email ? `mailto:${customer.email}` : '#'} className="block group">
-                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 group-hover:bg-white/10 group-hover:border-emerald-500/30 transition-all">
-                      <div className="h-12 w-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
-                        <Mail size={22} />
-                      </div>
-                      <div>
-                        <p className="text-slate-500 text-[10px] font-black uppercase">{t('email')}</p>
-                        <p className="text-white font-bold group-hover:text-emerald-400 transition-colors">{customer.email || '---'}</p>
-                      </div>
+              {/* Contact */}
+              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 shadow-lg overflow-hidden">
+                <SectionHeader title={t('contactInfo')} icon={<Phone size={16} />} color="emerald" />
+                <div className="p-5 space-y-3">
+                  <a href={customer.email ? `mailto:${customer.email}` : '#'} className="flex items-center gap-3 p-3.5 rounded-xl bg-white/5 border border-white/10 hover:bg-emerald-500/5 hover:border-emerald-500/20 transition-all group">
+                    <div className="h-9 w-9 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20 flex-shrink-0">
+                      <Mail size={16} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-white/30 text-[10px] font-black uppercase tracking-widest">{t('email')}</p>
+                      <p className="text-white text-sm font-bold truncate group-hover:text-emerald-400 transition-colors">{customer.email || '---'}</p>
                     </div>
                   </a>
-                  <a href={customer.phone ? `tel:${customer.phone}` : '#'} className="block group">
-                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 group-hover:bg-white/10 group-hover:border-emerald-500/30 transition-all">
-                      <div className="h-12 w-12 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center border border-blue-500/20">
-                        <Phone size={22} />
-                      </div>
-                      <div>
-                        <p className="text-slate-500 text-[10px] font-black uppercase">{t('phone')}</p>
-                        <p className="text-white font-bold group-hover:text-blue-400 transition-colors">{customer.phone || '---'}</p>
-                      </div>
+                  <a href={customer.phone ? `tel:${customer.phone}` : '#'} className="flex items-center gap-3 p-3.5 rounded-xl bg-white/5 border border-white/10 hover:bg-blue-500/5 hover:border-blue-500/20 transition-all group">
+                    <div className="h-9 w-9 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center border border-blue-500/20 flex-shrink-0">
+                      <Phone size={16} />
+                    </div>
+                    <div>
+                      <p className="text-white/30 text-[10px] font-black uppercase tracking-widest">{t('phone')}</p>
+                      <p className="text-white text-sm font-bold group-hover:text-blue-400 transition-colors">{customer.phone || '---'}</p>
                     </div>
                   </a>
                 </div>
-              </Section>
+              </motion.div>
 
-              {/* System Info Card */}
-              <div className="bg-white/5 backdrop-blur-xl rounded-[2.5rem] p-8 border border-white/10 space-y-6">
-                <div className="flex items-center justify-between">
-                   <div className="flex items-center gap-3">
-                     <div className={`w-3 h-3 rounded-full ${customer.is_active ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
-                     <span className="text-white font-black">{customer.is_active ? t('activeStatus') : t('inactiveStatus')}</span>
-                   </div>
-                   <div className="text-slate-500 text-xs font-black bg-white/5 px-4 py-1.5 rounded-full border border-white/5">
-                     ID: #{customer.id}
-                   </div>
-                </div>
-                <div className="pt-4 border-t border-white/5 space-y-4">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-500 font-bold">{t('createdAt')}</span>
-                    <span className="text-slate-200 font-black">
-                      {customer.created_at ? format(new Date(customer.created_at), 'yyyy-MM-dd') : '---'}
-                    </span>
+              {/* System Info + Status + Delete */}
+              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.13 }} className="bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 shadow-lg p-5 space-y-4">
+                {/* Status */}
+                <div className="flex items-center justify-between px-3.5 py-3 rounded-xl bg-white/5 border border-white/10">
+                  <div className="flex items-center gap-2.5">
+                    <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${customer.is_active ? 'bg-emerald-400 animate-pulse' : 'bg-rose-400'}`} />
+                    <div>
+                      <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">الحالة</p>
+                      <p className={`text-sm font-black ${customer.is_active ? 'text-emerald-400' : 'text-rose-400'}`}>
+                        {customer.is_active ? t('activeStatus') : t('inactiveStatus')}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-500 font-bold">{t('updatedAt')}</span>
-                    <span className="text-slate-200 font-black">
-                      {customer.updated_at && customer.updated_at !== '0000-00-00 00:00:00' 
-                        ? format(new Date(customer.updated_at), 'yyyy-MM-dd HH:mm') 
-                        : '---'}
-                    </span>
+                  <div className="text-white/30 text-xs font-black bg-white/5 px-3 py-1 rounded-lg border border-white/5">
+                    #{customer.id}
                   </div>
                 </div>
-                
-                <button 
+
+                {/* Dates */}
+                <div className="px-3.5 py-3 rounded-xl bg-white/5 border border-white/10 space-y-2.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-white/30 font-bold flex items-center gap-1.5"><Calendar size={11} />{t('createdAt')}</span>
+                    <span className="text-white/70 font-black">{customer.created_at ? format(new Date(customer.created_at), 'yyyy-MM-dd') : '---'}</span>
+                  </div>
+                  {customer.updated_at && customer.updated_at !== '0000-00-00 00:00:00' && (
+                    <div className="flex items-center justify-between text-xs border-t border-white/5 pt-2">
+                      <span className="text-white/30 font-bold flex items-center gap-1.5"><Calendar size={11} />{t('updatedAt')}</span>
+                      <span className="text-white/70 font-black">{format(new Date(customer.updated_at), 'yyyy-MM-dd')}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Delete */}
+                <motion.button
                   onClick={handleDelete}
                   disabled={deleteLoading}
-                  className="w-full mt-6 py-5 rounded-2xl bg-rose-500/10 text-rose-400 font-black text-lg border border-rose-500/20 hover:bg-rose-500 hover:text-white transition-all shadow-lg active:scale-95 flex items-center justify-center gap-3 disabled:opacity-50"
+                  whileHover={{ scale: deleteLoading ? 1 : 1.02 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="w-full py-3 rounded-xl bg-rose-500/10 text-rose-400 font-black text-sm border border-rose-500/20 hover:bg-rose-500/20 transition-all flex items-center justify-center gap-2.5 disabled:opacity-50"
                 >
-                  {deleteLoading ? <Loader2 className="animate-spin" /> : <Trash2 size={24} />}
-                  <span>حذف ملف العميل</span>
-                </button>
-              </div>
+                  {deleteLoading ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                  <span>{t('deleteBtn')}</span>
+                </motion.button>
+              </motion.div>
             </div>
           </div>
+
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
 
-function Section({ title, icon, color, children }: { 
-  title: string; 
-  icon: React.ReactNode; 
-  color: "blue" | "emerald" | "purple" | "orange";
-  children: React.ReactNode;
-}) {
-  const colors = {
-    blue: "from-blue-600 to-blue-400",
-    emerald: "from-emerald-600 to-emerald-400",
-    purple: "from-purple-600 to-purple-400",
-    orange: "from-orange-600 to-orange-400"
+function SectionHeader({ title, icon, color }: { title: string; icon: React.ReactNode; color: "blue" | "emerald" | "purple" | "orange" }) {
+  const gradients = {
+    blue: "from-blue-600 to-indigo-600",
+    emerald: "from-emerald-600 to-teal-600",
+    purple: "from-purple-600 to-violet-600",
+    orange: "from-orange-500 to-amber-600",
   };
-
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      className="bg-white/5 backdrop-blur-3xl rounded-[3rem] border border-white/10 shadow-2xl overflow-hidden group hover:border-white/20 transition-all"
-    >
-      <div className={`bg-gradient-to-r ${colors[color]} px-10 py-7 flex items-center gap-6 text-white border-b border-white/10`}>
-        <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-xl border border-white/20 relative z-10 group-hover:scale-110 transition-transform">
-          {icon}
-        </div>
-        <h3 className="text-2xl font-black tracking-tight">{title}</h3>
-      </div>
-      <div className="p-10 md:p-12">
-        {children}
-      </div>
-    </motion.div>
+    <div className={`bg-gradient-to-r ${gradients[color]} px-5 py-3.5 flex items-center gap-3 text-white relative overflow-hidden`}>
+      <div className="p-1.5 bg-white/20 rounded-lg backdrop-blur-xl border border-white/20 relative z-10">{icon}</div>
+      <h3 className="text-sm font-black tracking-tight relative z-10">{title}</h3>
+      <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10 blur-xl pointer-events-none" />
+    </div>
   );
 }
 
-function InfoItem({ icon, label, value }: {
-  icon: React.ReactNode;
-  label: string;
-  value?: string | null;
-}) {
+function InfoCell({ icon, label, value, mono }: { icon: React.ReactNode; label: string; value?: string | null; mono?: boolean }) {
   return (
-    <div className="space-y-2 group">
-      <div className="flex items-center gap-2 text-slate-500 text-xs font-black uppercase tracking-widest">
-        <span className="text-white/20 group-hover:text-white/40 transition-colors">{icon}</span>
+    <div className="space-y-1.5 group">
+      <div className="flex items-center gap-1.5 text-[10px] font-black text-white/30 uppercase tracking-widest">
+        <span className="text-white/20 group-hover:text-white/50 transition-colors">{icon}</span>
         {label}
       </div>
-      <div className="text-lg font-black text-white bg-white/5 px-6 py-4 rounded-2xl border border-white/5 group-hover:bg-white/10 group-hover:border-white/10 transition-all">
+      <div className={`text-sm font-bold text-white bg-white/5 px-3.5 py-2.5 rounded-xl border border-white/5 group-hover:bg-white/10 group-hover:border-white/10 transition-all truncate ${mono ? 'font-mono' : ''}`}>
         {value || '---'}
       </div>
     </div>

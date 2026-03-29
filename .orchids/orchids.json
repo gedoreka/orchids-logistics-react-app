@@ -1,8 +1,8 @@
 {
-  "projectId": "c2896fb5-655f-4d0f-80fb-38d5e6fdadb4",
+  "projectId": "a9853810-ffa2-46ca-9127-286208c380e8",
   "createdAt": 1739347200,
   "startupCommands": [
-    "npm install; npx next dev --turbopack --hostname 0.0.0.0 --port 3006"
+    "bun install; ./node_modules/.bin/next dev --turbopack --hostname 0.0.0.0 --port 3006"
   ],
   "templateId": "any"
 }

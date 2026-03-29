@@ -2,10 +2,10 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Receipt, 
-  Plus, 
-  Search, 
+import {
+  Receipt,
+  Plus,
+  Search,
   Eye,
   Edit,
   Trash2,
@@ -21,7 +21,8 @@ import {
   CheckCircle,
   AlertCircle,
   Mail,
-  Printer
+  Printer,
+  ArrowRight
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -123,9 +124,9 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
   };
 
   return (
-    <div className="max-w-[95%] mx-auto p-4 md:p-8 space-y-8" dir={isRtl ? "rtl" : "ltr"}>
-      <DeleteNotification 
-        notification={notification} 
+    <div className="min-h-screen pb-20" dir={isRtl ? "rtl" : "ltr"}>
+      <DeleteNotification
+        notification={notification}
         onClose={hideNotification}
         cancelLabel={tCommon("cancel")}
         deleteLabel={tCommon("delete")}
@@ -133,118 +134,99 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
         isRtl={isRtl}
       />
 
+      <div className="w-full px-2 pt-6 pb-6">
       <motion.div
-        initial={{ opacity: 0, y: -30 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] p-10 text-white shadow-2xl border border-white/10"
+        transition={{ duration: 0.5 }}
+        className="bg-gradient-to-br from-slate-800 via-slate-700 to-slate-600 rounded-[3rem] shadow-2xl border border-slate-500/30 overflow-hidden"
       >
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-teal-500 via-emerald-500 via-cyan-500 via-blue-500 to-teal-500 animate-gradient-x" />
-        
-        <div className="relative z-10 space-y-10">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
-            <div className={cn("text-center space-y-4", isRtl ? "lg:text-right" : "lg:text-left")}>
-              <motion.div 
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.2, type: "spring" }}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 mb-2"
-              >
-                <Sparkles className="w-4 h-4 text-yellow-400 animate-pulse" />
-                <span className="text-teal-200 font-black text-[10px] uppercase tracking-widest">{t("subtitle")}</span>
-              </motion.div>
-              
-              <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight bg-gradient-to-r from-white via-teal-100 to-white bg-clip-text text-transparent">
-                {t("title")}
-              </h1>
-              <p className="text-lg text-slate-300 max-w-2xl font-medium leading-relaxed">
-                {t("description")}
-              </p>
-              
-              <div className={cn("flex flex-wrap justify-center gap-4 mt-8", isRtl ? "lg:justify-start" : "lg:justify-start")}>
+        <div className="h-2 w-full bg-gradient-to-r from-teal-500 via-blue-500 via-emerald-500 via-cyan-500 to-teal-500" />
+
+        <div className="p-6 md:p-10 space-y-6">
+
+          {/* ── Header ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+            className="bg-white/5 backdrop-blur-xl p-8 rounded-[2rem] border border-white/10 shadow-xl relative overflow-hidden"
+          >
+            <div className="absolute -bottom-8 -right-8 w-40 h-40 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -top-8 -left-8 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-8 relative z-10">
+              <div>
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-300 mb-3">
+                  <Link href="/dashboard" className="hover:text-blue-400 transition-colors flex items-center gap-1">
+                    <Receipt size={13} />
+                    {isRtl ? 'لوحة التحكم' : 'Dashboard'}
+                  </Link>
+                  <ArrowRight size={13} className={`${isRtl ? 'rotate-180' : ''} text-slate-500`} />
+                  <Link href="/financial-vouchers" className="hover:text-blue-400 transition-colors">
+                    {isRtl ? 'السندات المالية' : 'Financial Vouchers'}
+                  </Link>
+                  <ArrowRight size={13} className={`${isRtl ? 'rotate-180' : ''} text-slate-500`} />
+                  <span className="text-teal-400">{t("title")}</span>
+                </div>
+                <div className="flex items-center gap-5">
+                  <div className="h-16 w-16 rounded-[1.25rem] bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-teal-500/25 flex-shrink-0">
+                    <Receipt size={32} strokeWidth={2.5} className="text-white" />
+                  </div>
+                  <div>
+                    <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-1">{t("title")}</h1>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-teal-500/20 text-teal-300 text-xs font-bold border border-teal-500/30">
+                        <Sparkles size={12} className="animate-pulse" />
+                        {t("subtitle")}
+                      </span>
+                      <p className="text-slate-400 text-sm font-semibold">{t("description")}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
                 <Link href="/sales-receipts/new">
-                  <button className="flex items-center gap-3 px-6 py-3 bg-teal-500 text-white font-black text-sm rounded-2xl hover:bg-teal-600 transition-all shadow-xl active:scale-95">
-                    <Plus size={18} />
-                    {t("addNew")}
-                  </button>
-                </Link>
-                <button 
-                    onClick={() => router.refresh()}
-                    className="flex items-center gap-3 px-6 py-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-white font-black text-sm hover:bg-white/20 transition-all shadow-xl active:scale-95"
+                  <motion.button
+                    whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+                    className="flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-600 text-white font-black text-sm shadow-lg shadow-teal-500/25 hover:from-teal-500 hover:to-emerald-500 transition-all"
                   >
-                  <RefreshCw size={18} className="text-teal-400" />
+                    <Plus size={18} strokeWidth={2.5} />
+                    {t("addNew")}
+                  </motion.button>
+                </Link>
+                <motion.button
+                  whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+                  onClick={() => router.refresh()}
+                  className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-white/5 text-white/70 font-bold text-sm hover:bg-white/10 hover:text-white transition-all border border-white/10"
+                >
+                  <RefreshCw size={16} className="text-teal-400" />
                   {t("refreshData")}
-                </button>
+                </motion.button>
               </div>
             </div>
+          </motion.div>
 
-            <div className="grid grid-cols-2 gap-4 w-full lg:w-auto">
-              <motion.div 
-                initial={{ opacity: 0, x: 30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 }}
-                className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-6 border border-white/10 shadow-2xl min-w-[160px] group hover:bg-white/20 transition-all"
-              >
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-teal-500/20 rounded-lg text-teal-400 group-hover:scale-110 transition-transform">
-                    <Receipt className="w-5 h-5" />
-                  </div>
-                  <span className="text-teal-300 font-black text-[10px] uppercase tracking-wider">{t("totalReceipts")}</span>
+          {/* ── Stats ── */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { icon: <Receipt className="w-5 h-5" />, color: "from-teal-500 to-emerald-600", shadow: "shadow-teal-500/25", label: t("totalReceipts"), value: String(stats.total), sub: t("receiptsCount") },
+              { icon: <TrendingUp className="w-5 h-5" />, color: "from-emerald-500 to-teal-600", shadow: "shadow-emerald-500/25", label: t("totalAmount"), value: Number(stats.total_amount).toLocaleString(locale), sub: isRtl ? "ريال سعودي" : "SAR" },
+              { icon: <LinkIcon className="w-5 h-5" />, color: "from-purple-500 to-violet-600", shadow: "shadow-purple-500/25", label: t("linked"), value: String(stats.linked), sub: t("linkedCount") },
+              { icon: <Unlink className="w-5 h-5" />, color: "from-amber-500 to-orange-600", shadow: "shadow-amber-500/25", label: t("unlinked"), value: String(stats.unlinked), sub: t("unlinkedCount") },
+            ].map((s, i) => (
+              <motion.div key={i} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + i * 0.05 }}>
+                <div className={`relative overflow-hidden rounded-3xl bg-gradient-to-br ${s.color} p-5 shadow-2xl ${s.shadow} transition-all group hover:-translate-y-1`}>
+                  <div className="text-white/90 bg-white/10 p-2 rounded-xl border border-white/10 w-fit mb-3">{s.icon}</div>
+                  <p className="text-white/70 text-[10px] font-black uppercase tracking-widest">{s.label}</p>
+                  <p className="text-2xl font-black text-white mt-1">{s.value}</p>
+                  <p className="text-white/50 text-[10px] font-black mt-0.5">{s.sub}</p>
+                  <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-white/10 rounded-full blur-2xl" />
                 </div>
-                <p className="text-3xl font-black text-white tracking-tight">{stats.total}</p>
-                <p className="text-teal-400/60 text-[10px] font-black mt-1">{t("receiptsCount")}</p>
               </motion.div>
-
-              <motion.div 
-                initial={{ opacity: 0, x: 30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 }}
-                className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-6 border border-white/10 shadow-2xl min-w-[160px] group hover:bg-white/20 transition-all"
-              >
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-emerald-500/20 rounded-lg text-emerald-400 group-hover:scale-110 transition-transform">
-                    <TrendingUp className="w-5 h-5" />
-                  </div>
-                  <span className="text-emerald-300 font-black text-[10px] uppercase tracking-wider">{t("totalAmount")}</span>
-                </div>
-                <p className="text-2xl font-black text-white tracking-tight">{Number(stats.total_amount).toLocaleString(locale)}</p>
-                <p className="text-emerald-400/60 text-[10px] font-black mt-1">{isRtl ? "ريال سعودي" : "SAR"}</p>
-              </motion.div>
-
-              <motion.div 
-                initial={{ opacity: 0, x: 30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.5 }}
-                className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-6 border border-white/10 shadow-2xl min-w-[160px] group hover:bg-white/20 transition-all"
-              >
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-purple-500/20 rounded-lg text-purple-400 group-hover:scale-110 transition-transform">
-                    <LinkIcon className="w-5 h-5" />
-                  </div>
-                  <span className="text-purple-300 font-black text-[10px] uppercase tracking-wider">{t("linked")}</span>
-                </div>
-                <p className="text-3xl font-black text-white tracking-tight">{stats.linked}</p>
-                <p className="text-purple-400/60 text-[10px] font-black mt-1">{t("linkedCount")}</p>
-              </motion.div>
-
-              <motion.div 
-                initial={{ opacity: 0, x: 30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.6 }}
-                className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-6 border border-white/10 shadow-2xl min-w-[160px] group hover:bg-white/20 transition-all"
-              >
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-amber-500/20 rounded-lg text-amber-400 group-hover:scale-110 transition-transform">
-                    <Unlink className="w-5 h-5" />
-                  </div>
-                  <span className="text-amber-300 font-black text-[10px] uppercase tracking-wider">{t("unlinked")}</span>
-                </div>
-                <p className="text-3xl font-black text-white tracking-tight">{stats.unlinked}</p>
-                <p className="text-amber-400/60 text-[10px] font-black mt-1">{t("unlinkedCount")}</p>
-              </motion.div>
-            </div>
+            ))}
           </div>
-
-          <div className="border-t border-white/10" />
 
           <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-6 border border-white/10 flex flex-col md:flex-row gap-4 items-center justify-between">
             <div className="relative w-full md:w-96">
@@ -268,15 +250,15 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
             </div>
           </div>
 
-          <div className="bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl">
-            <div className="p-6 border-b border-white/10 flex items-center justify-between bg-white/5">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-teal-500/20 rounded-xl">
-                  <Receipt className="w-5 h-5 text-teal-400" />
+          <div className="bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 overflow-hidden shadow-xl">
+            <div className="bg-gradient-to-r from-teal-600 to-emerald-600 px-8 py-5 flex items-center justify-between">
+              <div className="flex items-center gap-3 text-white">
+                <div className="p-2 bg-white/20 rounded-xl backdrop-blur-xl border border-white/10">
+                  <Receipt size={20} strokeWidth={2.5} />
                 </div>
                 <h3 className="font-black text-lg">{t("tableTitle")}</h3>
               </div>
-              <span className="px-4 py-1.5 bg-white/10 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-400">
+              <span className="bg-white/20 backdrop-blur-xl px-5 py-1.5 rounded-xl text-sm font-black text-white border border-white/20">
                 {t("receiptsFound", { count: filteredReceipts.length })}
               </span>
             </div>
@@ -396,21 +378,16 @@ export function SalesReceiptsClient({ receipts: initialReceipts, stats, companyI
               </table>
             </div>
           </div>
-        </div>
 
-        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-teal-500/10 rounded-full blur-[100px] pointer-events-none" />
-        <div className="absolute -top-24 -left-24 w-96 h-96 bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none" />
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[11px] font-black text-white/30 uppercase tracking-widest pt-6 border-t border-white/10">
+            <div className="flex items-center gap-2">
+              <Sparkles size={12} className="text-teal-400" />
+              <span>{t("systemFooter")}</span>
+            </div>
+            <span className="bg-white/5 px-3 py-1 rounded-lg border border-white/10">{t("allRightsReserved", { year: new Date().getFullYear() })}</span>
+          </div>
+        </div>
       </motion.div>
-
-      <div className={cn(
-        "flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-slate-500 uppercase tracking-widest pt-4 opacity-60",
-        isRtl ? "md:flex-row" : "md:flex-row-reverse"
-      )}>
-        <div className="flex items-center gap-2">
-          <Sparkles size={10} className="text-teal-500" />
-          <span>{t("systemFooter")}</span>
-        </div>
-        <span>{t("allRightsReserved", { year: new Date().getFullYear() })}</span>
       </div>
     </div>
   );

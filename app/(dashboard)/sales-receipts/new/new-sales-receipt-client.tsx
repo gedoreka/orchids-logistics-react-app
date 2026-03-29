@@ -224,7 +224,7 @@ export function NewSalesReceiptClient({ customers, invoices, companyId, userName
   };
 
   return (
-    <div className="max-w-[95%] mx-auto p-4 md:p-8 space-y-8" dir={isRtl ? "rtl" : "ltr"}>
+    <div className="w-full px-2 pt-6 pb-6" dir={isRtl ? "rtl" : "ltr"}>
       <AnimatePresence>
       <SuccessModal
         isOpen={successModal.isOpen}
@@ -244,13 +244,15 @@ export function NewSalesReceiptClient({ customers, invoices, companyId, userName
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] p-8 md:p-12 text-white shadow-2xl border border-white/10"
+        transition={{ duration: 0.5 }}
+        className="bg-gradient-to-br from-slate-800 via-slate-700 to-slate-600 rounded-[3rem] shadow-2xl border border-slate-500/30 overflow-hidden"
       >
-        <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-500 via-teal-500 to-emerald-500" />
-        
-        <div className="relative z-10 space-y-12">
+        <div className="h-2 w-full bg-gradient-to-r from-blue-500 via-indigo-500 via-purple-500 via-emerald-500 to-blue-500" />
+        <div className="p-6 md:p-10 space-y-6">
           {/* Header Section */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
+          <div className="bg-white/5 backdrop-blur-xl p-8 rounded-[2rem] border border-white/10 shadow-xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-8">
+            <div className="absolute -bottom-8 -right-8 w-40 h-40 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -top-8 -left-8 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
             <div className="space-y-4">
               <motion.div 
                 initial={{ scale: 0 }}
@@ -654,22 +656,7 @@ export function NewSalesReceiptClient({ customers, invoices, companyId, userName
           </form>
         </div>
         
-        {/* Decorative BG elements */}
-        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-emerald-500/5 rounded-full blur-[100px]" />
-        <div className="absolute -top-24 -left-24 w-96 h-96 bg-blue-500/5 rounded-full blur-[100px]" />
       </motion.div>
-
-      {/* Footer Branding */}
-      <div className={cn(
-        "flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-slate-500 uppercase tracking-widest pt-4 opacity-60",
-        isRtl ? "md:flex-row-reverse" : ""
-      )}>
-        <div className="flex items-center gap-2">
-          <Sparkles size={12} className="text-teal-500" />
-          <span>{t("systemFooterBranding", { name: userName || "Logistics" })}</span>
-        </div>
-        <span>{t("allRightsReserved", { year: new Date().getFullYear() })}</span>
-      </div>
     </div>
   );
 }

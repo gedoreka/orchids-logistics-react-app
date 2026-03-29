@@ -52,6 +52,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
   const t = useTranslations('packages');
   
   const [packages, setPackages] = useState(initialPackages);
+  const [isDark, setIsDark] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAddEmployeesModalOpen, setIsAddEmployeesModalOpen] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState<any>(null);
@@ -71,6 +72,14 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
     monthly_target: 0,
     bonus_after_target: 10,
   });
+
+  useEffect(() => {
+    const root = document.documentElement;
+    setIsDark(root.classList.contains('dark'));
+    const observer = new MutationObserver(() => setIsDark(root.classList.contains('dark')));
+    observer.observe(root, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const type = searchParams.get('type');
@@ -638,6 +647,30 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
     }
   };
 
+  // Per work-type card theme colors
+  const cardTheme = {
+    target: {
+      lightBg: 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #4338ca 100%)',
+      darkBg:  'linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 50%, #4338ca 100%)',
+      glow1: '#3b82f6',
+      glow2: '#6366f1',
+    },
+    salary: {
+      lightBg: 'linear-gradient(135deg, #047857 0%, #059669 50%, #0d9488 100%)',
+      darkBg:  'linear-gradient(135deg, #065f46 0%, #047857 50%, #0d9488 100%)',
+      glow1: '#10b981',
+      glow2: '#34d399',
+    },
+    commission: {
+      lightBg: 'linear-gradient(135deg, #b45309 0%, #d97706 50%, #c2410c 100%)',
+      darkBg:  'linear-gradient(135deg, #92400e 0%, #b45309 50%, #d97706 100%)',
+      glow1: '#f59e0b',
+      glow2: '#fb923c',
+    },
+  } as const;
+
+  type WorkType = keyof typeof cardTheme;
+
   return (
     <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen pb-20">
       <motion.div 
@@ -646,38 +679,36 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
         animate="visible"
         className="w-full px-2 pt-6"
       >
-          <motion.div 
+          <motion.div
             variants={itemVariants}
-            className="relative overflow-hidden bg-gradient-to-r from-violet-50/80 via-purple-50/50 to-indigo-50/80 dark:bg-slate-800 dark:from-slate-800 dark:via-slate-800 dark:to-slate-800 rounded-2xl shadow-sm border-2 border-violet-200/60 dark:border-slate-700"
+            className="relative bg-gradient-to-br from-slate-800 via-slate-700 to-slate-600 rounded-[3rem] shadow-2xl border border-slate-500/30 overflow-hidden"
           >
-            {/* Decorative circles - light mode only */}
-            <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-violet-500/10 to-purple-500/10 rounded-full -translate-y-16 -translate-x-16 dark:hidden" />
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-full -translate-y-16 translate-x-16 dark:hidden" />
-            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-emerald-500/10 to-teal-500/10 rounded-full translate-y-12 -translate-x-12 dark:hidden" />
-            <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tr from-amber-500/10 to-orange-500/10 rounded-full translate-y-12 translate-x-12 dark:hidden" />
-          <div className="relative z-10 p-6 border-b border-violet-200/40">
+            {/* Rainbow bar */}
+            <div className="h-1.5 w-full bg-gradient-to-r from-blue-500 via-indigo-500 via-purple-500 via-emerald-500 to-blue-500" />
+
+          <div className="relative z-10 p-6 border-b border-white/10">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-2xl bg-purple-100 flex items-center justify-center">
-                  <Package className="text-purple-600" size={22} />
+                <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center shadow-lg shadow-purple-500/25">
+                  <Package className="text-white" size={22} />
                 </div>
                 <div>
-                    <div className="flex items-center gap-2 text-xs font-bold text-gray-400">
-                      <Link href="/hr" className="hover:text-gray-700 transition-colors flex items-center gap-1">
+                    <div className="flex items-center gap-2 text-xs font-bold text-white/40">
+                      <Link href="/hr" className="hover:text-blue-400 transition-colors flex items-center gap-1">
                         <LayoutDashboard size={12} />
                         {t('hrAffairs')}
                       </Link>
                       {isRTL ? <ArrowLeft size={12} /> : <ArrowRight size={12} />}
-                      <span className="text-purple-600">{t('packagesManagement')}</span>
+                      <span className="text-purple-400">{t('packagesManagement')}</span>
                     </div>
-                    <h1 className="text-xl font-black text-gray-900">{t('title')}</h1>
+                    <h1 className="text-xl font-black text-white">{t('title')}</h1>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-purple-50 border border-purple-100 rounded-xl">
+                <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/10 rounded-xl">
                     <div className="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></div>
-                    <span className="text-xs font-black text-gray-600">{packages.length} {t('packagesCount')}</span>
+                    <span className="text-xs font-black text-white/70">{packages.length} {t('packagesCount')}</span>
                 </div>
                 <motion.button
                   whileHover={{ scale: 1.02 }}
@@ -692,114 +723,110 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
             </div>
           </div>
 
-            <div className="relative z-10 p-6 border-b border-violet-200/40">
+            <div className="relative z-10 p-6 border-b border-white/10">
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-purple-50 to-violet-50 border border-purple-100 p-5">
-                    <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-violet-500/10 to-purple-500/10 rounded-full -translate-y-16 -translate-x-16 dark:hidden" />
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-full -translate-y-16 translate-x-16 dark:hidden" />
+                <div className="relative overflow-hidden rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-5 hover:bg-white/8 transition-all">
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-purple-500/10 rounded-full -translate-y-8 translate-x-8 blur-xl" />
                   <div className="relative z-10 flex items-start justify-between">
-                    <div className="text-purple-600"><Package size={22} /></div>
-                    <span className="text-[10px] font-black text-purple-600 bg-purple-100 px-2 py-0.5 rounded-full">{t('total')}</span>
+                    <div className="p-2 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl shadow-lg"><Package size={18} className="text-white" /></div>
+                    <span className="text-[10px] font-black text-purple-400 bg-purple-500/15 px-2 py-0.5 rounded-full border border-purple-500/20">{t('total')}</span>
                   </div>
                   <div className="mt-4">
-                    <p className="text-gray-500 text-[10px] font-black uppercase tracking-wider">{t('totalPackages')}</p>
-                    <motion.p 
+                    <p className="text-white/50 text-[10px] font-black uppercase tracking-wider">{t('totalPackages')}</p>
+                    <motion.p
                       initial={{ opacity: 0, scale: 0.5 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: 0.2, type: "spring" }}
-                      className="text-3xl font-black text-gray-900 mt-1"
+                      className="text-3xl font-black text-white mt-1"
                     >
                       {stats.total}
                     </motion.p>
-                    <p className="text-gray-400 text-[10px] font-bold mt-1">{t('allWorkGroups')}</p>
+                    <p className="text-white/30 text-[10px] font-bold mt-1">{t('allWorkGroups')}</p>
                   </div>
                 </div>
-                
-                <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 p-5">
-                    <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-violet-500/10 to-purple-500/10 rounded-full -translate-y-16 -translate-x-16 dark:hidden" />
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-full -translate-y-16 translate-x-16 dark:hidden" />
+
+                <div className="relative overflow-hidden rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-5 hover:bg-white/8 transition-all">
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full -translate-y-8 translate-x-8 blur-xl" />
                   <div className="relative z-10 flex items-start justify-between">
-                      <div className="text-blue-600"><Target size={22} /></div>
-                    <span className="text-[10px] font-black text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full">{t('targetLabel')}</span>
+                    <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg"><Target size={18} className="text-white" /></div>
+                    <span className="text-[10px] font-black text-blue-400 bg-blue-500/15 px-2 py-0.5 rounded-full border border-blue-500/20">{t('targetLabel')}</span>
                   </div>
                   <div className="mt-4">
-                    <p className="text-gray-500 text-[10px] font-black uppercase tracking-wider">{t('targetSystem')}</p>
-                    <motion.p 
+                    <p className="text-white/50 text-[10px] font-black uppercase tracking-wider">{t('targetSystem')}</p>
+                    <motion.p
                       initial={{ opacity: 0, scale: 0.5 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: 0.3, type: "spring" }}
-                      className="text-3xl font-black text-gray-900 mt-1"
+                      className="text-3xl font-black text-white mt-1"
                     >
                       {stats.targetType}
                     </motion.p>
-                    <p className="text-gray-400 text-[10px] font-bold mt-1">{t('targetPackages')}</p>
+                    <p className="text-white/30 text-[10px] font-bold mt-1">{t('targetPackages')}</p>
                   </div>
                 </div>
-                
-                <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100 p-5">
-                    <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-violet-500/10 to-purple-500/10 rounded-full -translate-y-16 -translate-x-16 dark:hidden" />
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-full -translate-y-16 translate-x-16 dark:hidden" />
+
+                <div className="relative overflow-hidden rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-5 hover:bg-white/8 transition-all">
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-emerald-500/10 rounded-full -translate-y-8 translate-x-8 blur-xl" />
                   <div className="relative z-10 flex items-start justify-between">
-                      <div className="text-emerald-600"><DollarSign size={22} /></div>
-                    <span className="text-[10px] font-black text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">{t('salaryLabel')}</span>
+                    <div className="p-2 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl shadow-lg"><DollarSign size={18} className="text-white" /></div>
+                    <span className="text-[10px] font-black text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-500/20">{t('salaryLabel')}</span>
                   </div>
                   <div className="mt-4">
-                    <p className="text-gray-500 text-[10px] font-black uppercase tracking-wider">{t('salarySystem')}</p>
-                    <motion.p 
+                    <p className="text-white/50 text-[10px] font-black uppercase tracking-wider">{t('salarySystem')}</p>
+                    <motion.p
                       initial={{ opacity: 0, scale: 0.5 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: 0.4, type: "spring" }}
-                      className="text-3xl font-black text-gray-900 mt-1"
+                      className="text-3xl font-black text-white mt-1"
                     >
                       {stats.salaryType}
                     </motion.p>
-                    <p className="text-gray-400 text-[10px] font-bold mt-1">{t('salaryPackages')}</p>
+                    <p className="text-white/30 text-[10px] font-bold mt-1">{t('salaryPackages')}</p>
                   </div>
                 </div>
-                
-                <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100 p-5">
-                    <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-violet-500/10 to-purple-500/10 rounded-full -translate-y-16 -translate-x-16 dark:hidden" />
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-full -translate-y-16 translate-x-16 dark:hidden" />
+
+                <div className="relative overflow-hidden rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-5 hover:bg-white/8 transition-all">
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-amber-500/10 rounded-full -translate-y-8 translate-x-8 blur-xl" />
                   <div className="relative z-10 flex items-start justify-between">
-                      <div className="text-amber-600"><Zap size={22} /></div>
-                    <span className="text-[10px] font-black text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full">{t('commissionLabel')}</span>
+                    <div className="p-2 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl shadow-lg"><Zap size={18} className="text-white" /></div>
+                    <span className="text-[10px] font-black text-amber-400 bg-amber-500/15 px-2 py-0.5 rounded-full border border-amber-500/20">{t('commissionLabel')}</span>
                   </div>
                   <div className="mt-4">
-                    <p className="text-gray-500 text-[10px] font-black uppercase tracking-wider">{t('commissionSystem')}</p>
-                    <motion.p 
+                    <p className="text-white/50 text-[10px] font-black uppercase tracking-wider">{t('commissionSystem')}</p>
+                    <motion.p
                       initial={{ opacity: 0, scale: 0.5 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: 0.5, type: "spring" }}
-                      className="text-3xl font-black text-gray-900 mt-1"
+                      className="text-3xl font-black text-white mt-1"
                     >
                       {stats.commissionType}
                     </motion.p>
-                    <p className="text-gray-400 text-[10px] font-bold mt-1">{t('commissionPackages')}</p>
+                    <p className="text-white/30 text-[10px] font-bold mt-1">{t('commissionPackages')}</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="relative z-10 px-6 py-4 border-b border-violet-200/40">
+            <div className="relative z-10 px-6 py-4 border-b border-white/10">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-purple-100 flex items-center justify-center">
-                  <Package className="text-purple-600" size={20} />
+                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center shadow-lg">
+                  <Package className="text-white" size={20} />
                 </div>
                 <div>
-                    <h3 className="text-gray-900 font-black">{t('packagesList')}</h3>
-                    <p className="text-gray-400 text-xs font-bold">{filteredPackages.length} {t('packagesInList')}</p>
+                    <h3 className="text-white font-black">{t('packagesList')}</h3>
+                    <p className="text-white/40 text-xs font-bold">{filteredPackages.length} {t('packagesInList')}</p>
                 </div>
               </div>
-              
+
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                 <div className="relative flex-1 sm:min-w-[300px]">
-                    <Search className={cn("absolute top-1/2 -translate-y-1/2 text-gray-400", isRTL ? "right-4" : "left-4")} size={18} />
+                    <Search className={cn("absolute top-1/2 -translate-y-1/2 text-white/30", isRTL ? "right-4" : "left-4")} size={18} />
                     <input
                       type="text"
                       placeholder={t('searchByPackageName')}
                       className={cn(
-                        "w-full py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:bg-white transition-all",
+                        "w-full py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm font-bold text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/40 transition-all",
                         isRTL ? "pr-12 pl-4" : "pl-12 pr-4"
                       )}
                     value={searchTerm}
@@ -809,7 +836,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gray-50 text-gray-600 hover:bg-gray-100 transition-all font-bold text-xs border border-gray-200"
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 text-white/60 hover:bg-white/10 transition-all font-bold text-xs border border-white/10"
                 >
                   <Filter size={16} />
                   {t('filter')}
@@ -818,206 +845,206 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
             </div>
           </div>
 
-            <div className="relative z-10 p-6">
+            <div className="relative z-10 p-6 border-b border-white/10">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               <AnimatePresence>
                     {filteredPackages.map((pkg, index) => (
-                      <motion.div
-                        key={pkg.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.9 }}
-                        transition={{ delay: index * 0.05 }}
-                        className="group"
-                      >
-                        {/* Single Card */}
-                        <div className={cn(
-                          "rounded-[3rem] shadow-2xl border relative overflow-hidden p-6 flex flex-col h-full",
-                          "bg-gradient-to-br from-slate-800 via-slate-700 to-slate-600 border-slate-500/30",
-                          "dark:bg-transparent dark:from-transparent dark:via-transparent dark:to-transparent dark:shadow-none dark:border-slate-700 dark:rounded-2xl"
-                        )}>
-                          {/* Top colorful strip - light mode only */}
-                          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 via-purple-500 via-emerald-500 to-blue-500 dark:hidden" />
-
-                          {/* Decorative circles - light mode only */}
-                          <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-violet-500/10 to-purple-500/10 rounded-full -translate-y-16 -translate-x-16 dark:hidden" />
-                          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-full -translate-y-16 translate-x-16 dark:hidden" />
-                          <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-emerald-500/10 to-teal-500/10 rounded-full translate-y-12 -translate-x-12 dark:hidden" />
-                          <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tr from-amber-500/10 to-orange-500/10 rounded-full translate-y-12 translate-x-12 dark:hidden" />
-
-                          {/* Package Counter Badge */}
-                          <div className={cn(
-                            "absolute top-4 z-10 h-7 w-7 rounded-full flex items-center justify-center text-[11px] font-black text-white shadow-md",
+                        <motion.div
+                          key={pkg.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.9 }}
+                          transition={{ delay: index * 0.05 }}
+                          className="group"
+                        >
+                          {/* Single Card - vibrant colored gradient per work type */}
+                          <div data-pkg-card="true" data-work-type={pkg.work_type} className={cn(
+                            "shadow-2xl pkg-card",
                             pkg.work_type === 'target'
-                              ? 'bg-gradient-to-br from-blue-500 to-indigo-600'
+                              ? "pkg-card-target"
                               : pkg.work_type === 'salary'
-                              ? 'bg-gradient-to-br from-emerald-500 to-teal-600'
-                              : 'bg-gradient-to-br from-amber-500 to-orange-600',
-                            isRTL ? "right-4" : "left-4"
-                          )}>
-                            {index + 1}
-                          </div>
+                              ? "pkg-card-salary"
+                              : "pkg-card-commission"
+                          )} style={{
+                            borderRadius: '2rem',
+                            position: 'relative',
+                            overflow: 'hidden',
+                            padding: '1.5rem',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            height: '100%',
+                          }}>
+                            {/* Glowing overlay */}
+                            <div className={cn(
+                              "absolute inset-0 opacity-20",
+                              pkg.work_type === 'target'
+                                ? "bg-[radial-gradient(ellipse_at_top_right,#3b82f6_0%,transparent_60%)]"
+                                : pkg.work_type === 'salary'
+                                ? "bg-[radial-gradient(ellipse_at_top_right,#10b981_0%,transparent_60%)]"
+                                : "bg-[radial-gradient(ellipse_at_top_right,#f59e0b_0%,transparent_60%)]"
+                            )} />
+                            {/* Bottom glow */}
+                            <div className={cn(
+                              "absolute inset-0 opacity-15",
+                              pkg.work_type === 'target'
+                                ? "bg-[radial-gradient(ellipse_at_bottom_left,#6366f1_0%,transparent_60%)]"
+                                : pkg.work_type === 'salary'
+                                ? "bg-[radial-gradient(ellipse_at_bottom_left,#34d399_0%,transparent_60%)]"
+                                : "bg-[radial-gradient(ellipse_at_bottom_left,#fbbf24_0%,transparent_60%)]"
+                            )} />
 
-                          <div className="relative z-10 space-y-5 flex flex-col h-full">
-                            {/* Header - Centered */}
-                            <div className="flex flex-col items-center gap-3 pt-4">
-                              <div className={cn(
-                                  "h-16 w-16 rounded-2xl flex items-center justify-center text-white shadow-xl transition-all",
+                            {/* Package Counter Badge */}
+                            <div className={cn(
+                              "absolute top-4 z-10 h-8 w-8 rounded-full flex items-center justify-center text-[11px] font-black text-white shadow-xl border-2",
+                              pkg.work_type === 'target'
+                                ? "bg-gradient-to-br from-blue-400 to-indigo-600 border-blue-300/50 shadow-blue-500/40"
+                                : pkg.work_type === 'salary'
+                                ? "bg-gradient-to-br from-emerald-400 to-teal-600 border-emerald-300/50 shadow-emerald-500/40"
+                                : "bg-gradient-to-br from-amber-400 to-orange-600 border-amber-300/50 shadow-amber-500/40",
+                              isRTL ? "right-4" : "left-4"
+                            )}>
+                              {index + 1}
+                            </div>
+
+                            <div className="relative z-10 space-y-5 flex flex-col h-full">
+                              {/* Header - Centered */}
+                              <div className="flex flex-col items-center gap-3 pt-4">
+                                <div className={cn(
+                                  "h-16 w-16 rounded-2xl flex items-center justify-center text-white shadow-xl transition-all border border-white/20",
                                   pkg.work_type === 'target'
-                                    ? 'bg-gradient-to-br from-blue-500 to-indigo-600 shadow-blue-500/20'
+                                    ? "bg-gradient-to-br from-blue-400/40 to-indigo-600/40 shadow-blue-500/30"
                                     : pkg.work_type === 'salary'
-                                    ? 'bg-gradient-to-br from-emerald-500 to-teal-600 shadow-emerald-500/20'
-                                    : 'bg-gradient-to-br from-amber-500 to-orange-600 shadow-orange-500/20'
+                                    ? "bg-gradient-to-br from-emerald-400/40 to-teal-600/40 shadow-emerald-500/30"
+                                    : "bg-gradient-to-br from-amber-400/40 to-orange-600/40 shadow-amber-500/30"
                                 )}>
                                   {pkg.work_type === 'target' && <Shield size={28} />}
                                   {pkg.work_type === 'salary' && <Crown size={28} />}
                                   {pkg.work_type === 'commission' && <Gem size={28} />}
                                 </div>
-                              <h3 className="text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-violet-400 dark:text-gray-900 text-center line-clamp-2">{pkg.group_name}</h3>
-                            </div>
+                                <h3 className="text-lg font-black text-white text-center line-clamp-2 drop-shadow-sm">{pkg.group_name}</h3>
+                              </div>
 
-                            {/* Work Type Badge */}
-                            <div className="flex justify-center">
-                              <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider ${
-                                pkg.work_type === 'target' 
-                                  ? 'bg-blue-100 text-blue-700 border border-blue-300' 
-                                  : pkg.work_type === 'salary' 
-                                  ? 'bg-emerald-100 text-emerald-700 border border-emerald-300' 
-                                  : 'bg-amber-100 text-orange-700 border border-amber-300'
-                              }`}>
-                                {pkg.work_type === 'target' && <Target size={12} />}
-                                {pkg.work_type === 'salary' && <DollarSign size={12} />}
-                                {pkg.work_type === 'commission' && <Zap size={12} />}
-                                {getWorkTypeLabel(pkg.work_type)}
-                              </span>
-                            </div>
-
-                            {/* Stats Grid */}
-                            <div className={cn("grid gap-3", pkg.work_type === 'target' ? "grid-cols-3" : "grid-cols-1")}>
-                              {/* Employees count - always shown */}
-                              <div className={cn(
-                                "rounded-xl p-4 border transition-colors",
-                                pkg.work_type === 'target'
-                                  ? 'bg-blue-100/50 border-blue-300'
-                                  : pkg.work_type === 'salary'
-                                  ? 'bg-emerald-100/50 border-emerald-300'
-                                  : 'bg-amber-100/50 border-amber-300'
-                              )}>
-                                <div className="flex items-center gap-1.5 text-gray-600 mb-1">
-                                  <Users size={12} />
-                                  <span className="text-[9px] font-black uppercase tracking-wider">{t('employeesCountInPackage')}</span>
-                                </div>
-                                <div className={cn(
-                                  "text-xl font-black",
+                              {/* Work Type Badge */}
+                              <div className="flex justify-center">
+                                <span className={cn(
+                                  "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider border",
                                   pkg.work_type === 'target'
-                                    ? 'text-blue-700'
+                                    ? "bg-blue-500/25 text-blue-200 border-blue-400/30"
                                     : pkg.work_type === 'salary'
-                                    ? 'text-emerald-700'
-                                    : 'text-orange-700'
-                                )}>{pkg.employees_count ?? 0}</div>
-                              </div>
-
-                              {/* Target & Bonus - only for target type */}
-                              {pkg.work_type === 'target' && (
-                                <>
-                                  <div className="rounded-xl p-4 border transition-colors bg-blue-100/50 border-blue-300">
-                                    <div className="flex items-center gap-1.5 text-gray-600 mb-1">
-                                      <Target size={12} />
-                                      <span className="text-[9px] font-black uppercase tracking-wider">{t('target')}</span>
-                                    </div>
-                                    <div className="text-xl font-black text-blue-700">{pkg.monthly_target}</div>
-                                  </div>
-                                  <div className="rounded-xl p-4 border transition-colors bg-blue-100/50 border-blue-300">
-                                    <div className="flex items-center gap-1.5 text-gray-600 mb-1">
-                                      <Trophy size={12} />
-                                      <span className="text-[9px] font-black uppercase tracking-wider">{t('bonus')}</span>
-                                    </div>
-                                    <div className="text-xl font-black text-blue-700">{pkg.bonus_after_target}</div>
-                                  </div>
-                                </>
-                              )}
-
-                              {/* Info note for salary/commission */}
-                              {pkg.work_type !== 'target' && (
-                                <div className={cn(
-                                  "rounded-xl p-3 border transition-colors flex items-center gap-2",
-                                  pkg.work_type === 'salary'
-                                    ? 'bg-emerald-50 border-emerald-200'
-                                    : 'bg-amber-50 border-amber-200'
+                                    ? "bg-emerald-500/25 text-emerald-200 border-emerald-400/30"
+                                    : "bg-amber-500/25 text-amber-200 border-amber-400/30"
                                 )}>
-                                  <Info size={14} className={pkg.work_type === 'salary' ? 'text-emerald-500' : 'text-amber-500'} />
-                                  <span className={cn(
-                                    "text-[10px] font-bold",
-                                    pkg.work_type === 'salary' ? 'text-emerald-700' : 'text-amber-700'
-                                  )}>
-                                    {pkg.work_type === 'salary' ? t('salaryPackageInfo') : t('commissionPackageInfo')}
-                                  </span>
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Action Buttons - Always 2x2 grid */}
-                            <div className="pt-2 mt-auto space-y-2">
-                              <div className="grid grid-cols-2 gap-2">
-                                <motion.button 
-                                  whileHover={{ scale: 1.02 }}
-                                  whileTap={{ scale: 0.98 }}
-                                  onClick={() => {
-                                    setSelectedPackage(pkg);
-                                    setIsAddEmployeesModalOpen(true);
-                                  }}
-                                  className="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-violet-600 text-white py-3 rounded-xl text-xs font-black shadow-lg shadow-purple-500/20 hover:from-purple-700 hover:to-violet-700 transition-all"
-                                >
-                                  <UserPlus size={14} />
-                                  <span>{t('addEmployees')}</span>
-                                </motion.button>
-                                <Link 
-                                  href={`/hr/packages/${pkg.id}`}
-                                  className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-3 rounded-xl text-xs font-black shadow-lg shadow-blue-500/20 hover:from-blue-700 hover:to-cyan-700 transition-all"
-                                >
-                                  <Eye size={14} />
-                                  <span>{t('viewPackage')}</span>
-                                </Link>
+                                  {pkg.work_type === 'target' && <Target size={12} />}
+                                  {pkg.work_type === 'salary' && <DollarSign size={12} />}
+                                  {pkg.work_type === 'commission' && <Zap size={12} />}
+                                  {getWorkTypeLabel(pkg.work_type)}
+                                </span>
                               </div>
-                              <div className="grid grid-cols-2 gap-2">
-                                <motion.button
-                                  whileHover={{ scale: 1.02, boxShadow: "0 10px 25px rgba(99, 102, 241, 0.3)" }}
-                                  whileTap={{ scale: 0.98 }}
-                                  onClick={() => openEditModal(pkg)}
-                                  className="flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-3 rounded-xl text-xs font-black shadow-lg shadow-indigo-500/20 hover:from-indigo-600 hover:to-purple-700 transition-all"
-                                >
-                                  <Pencil size={14} />
-                                  <span>{t('editPackage')}</span>
-                                </motion.button>
-                                <motion.button
-                                  whileHover={{ scale: 1.02, boxShadow: "0 10px 25px rgba(239, 68, 68, 0.3)" }}
-                                  whileTap={{ scale: 0.98 }}
-                                  onClick={() => handleDelete(pkg)}
-                                  className="flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-rose-600 text-white py-3 rounded-xl text-xs font-black shadow-lg shadow-red-500/20 hover:from-red-600 hover:to-rose-700 transition-all"
-                                >
-                                  <Trash2 size={14} />
-                                  <span>{t('deletePackage')}</span>
-                                </motion.button>
+
+                              {/* Stats Grid */}
+                              <div className={cn("grid gap-3", pkg.work_type === 'target' ? "grid-cols-3" : "grid-cols-1")}>
+                                {/* Employees count - always shown */}
+                                <div className="rounded-xl p-4 border transition-colors bg-white/10 border-white/20 backdrop-blur-sm">
+                                  <div className="flex items-center gap-1.5 text-white/70 mb-1">
+                                    <Users size={12} />
+                                    <span className="text-[9px] font-black uppercase tracking-wider">{t('employeesCountInPackage')}</span>
+                                  </div>
+                                  <div className="text-xl font-black text-white">{pkg.employees_count ?? 0}</div>
+                                </div>
+
+                                {/* Target & Bonus - only for target type */}
+                                {pkg.work_type === 'target' && (
+                                  <>
+                                    <div className="rounded-xl p-4 border transition-colors bg-white/10 border-white/20 backdrop-blur-sm">
+                                      <div className="flex items-center gap-1.5 text-white/70 mb-1">
+                                        <Target size={12} />
+                                        <span className="text-[9px] font-black uppercase tracking-wider">{t('target')}</span>
+                                      </div>
+                                      <div className="text-xl font-black text-white">{pkg.monthly_target}</div>
+                                    </div>
+                                    <div className="rounded-xl p-4 border transition-colors bg-white/10 border-white/20 backdrop-blur-sm">
+                                      <div className="flex items-center gap-1.5 text-white/70 mb-1">
+                                        <Trophy size={12} />
+                                        <span className="text-[9px] font-black uppercase tracking-wider">{t('bonus')}</span>
+                                      </div>
+                                      <div className="text-xl font-black text-white">{pkg.bonus_after_target}</div>
+                                    </div>
+                                  </>
+                                )}
+
+                                {/* Info note for salary/commission */}
+                                {pkg.work_type !== 'target' && (
+                                  <div className="rounded-xl p-3 border transition-colors flex items-center gap-2 bg-white/10 border-white/20">
+                                    <Info size={14} className="text-white/80" />
+                                    <span className="text-[10px] font-bold text-white/90">
+                                      {pkg.work_type === 'salary' ? t('salaryPackageInfo') : t('commissionPackageInfo')}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Action Buttons - Always 2x2 grid */}
+                              <div className="pt-2 mt-auto space-y-2">
+                                <div className="grid grid-cols-2 gap-2">
+                                  <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={() => {
+                                      setSelectedPackage(pkg);
+                                      setIsAddEmployeesModalOpen(true);
+                                    }}
+                                    className="flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 border border-white/20 text-white py-3 rounded-xl text-xs font-black shadow-lg transition-all backdrop-blur-sm"
+                                  >
+                                    <UserPlus size={14} />
+                                    <span>{t('addEmployees')}</span>
+                                  </motion.button>
+                                  <Link
+                                    href={`/hr/packages/${pkg.id}`}
+                                    className="flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 border border-white/20 text-white py-3 rounded-xl text-xs font-black shadow-lg transition-all backdrop-blur-sm"
+                                  >
+                                    <Eye size={14} />
+                                    <span>{t('viewPackage')}</span>
+                                  </Link>
+                                </div>
+                                <div className="grid grid-cols-2 gap-2">
+                                  <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={() => openEditModal(pkg)}
+                                    className="flex items-center justify-center gap-2 bg-indigo-500/30 hover:bg-indigo-500/50 border border-indigo-300/30 text-white py-3 rounded-xl text-xs font-black shadow-lg transition-all"
+                                  >
+                                    <Pencil size={14} />
+                                    <span>{t('editPackage')}</span>
+                                  </motion.button>
+                                  <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={() => handleDelete(pkg)}
+                                    className="flex items-center justify-center gap-2 bg-red-500/30 hover:bg-red-500/50 border border-red-300/30 text-white py-3 rounded-xl text-xs font-black shadow-lg transition-all"
+                                  >
+                                    <Trash2 size={14} />
+                                    <span>{t('deletePackage')}</span>
+                                  </motion.button>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      </motion.div>
+                        </motion.div>
                     ))}
               </AnimatePresence>
 
               {filteredPackages.length === 0 && (
                 <div className="col-span-full py-16 flex flex-col items-center gap-4">
-                  <div className="h-24 w-24 rounded-3xl bg-gray-100 flex items-center justify-center">
-                    <Package size={48} className="text-gray-300" />
+                  <div className="h-24 w-24 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center">
+                    <Package size={48} className="text-white/20" />
                   </div>
-                  <p className="text-lg font-black text-gray-400">{t('noMatchingPackages')}</p>
-                  <p className="text-sm font-bold text-gray-300">{t('tryDifferentSearch')}</p>
+                  <p className="text-lg font-black text-white/40">{t('noMatchingPackages')}</p>
+                  <p className="text-sm font-bold text-white/30">{t('tryDifferentSearch')}</p>
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setIsModalOpen(true)}
-                    className="mt-2 flex items-center gap-2 px-5 py-2.5 rounded-xl bg-purple-100 text-purple-700 hover:bg-purple-200 transition-all font-bold text-sm"
+                    className="mt-2 flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-violet-500 text-white hover:from-purple-600 hover:to-violet-600 transition-all font-bold text-sm shadow-lg"
                   >
                     <Plus size={16} />
                     {t('createNewPackage')}
@@ -1027,20 +1054,20 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
             </div>
           </div>
 
-            <div className="relative z-10 px-6 py-4 border-t border-violet-200/40">
-              <div className="flex items-center justify-between text-xs font-bold text-gray-500">
+            <div className="relative z-10 px-6 py-4 border-t border-white/10">
+              <div className="flex items-center justify-between text-xs font-bold text-white/40">
                 <span>{t('totalPackagesFooter')}: {filteredPackages.length}</span>
                 <div className="flex items-center gap-4">
                   <span className="flex items-center gap-1">
-                    <Target size={14} className="text-blue-500" />
+                    <Target size={14} className="text-blue-400" />
                     {stats.targetType} {t('targetLabel')}
                   </span>
                   <span className="flex items-center gap-1">
-                    <DollarSign size={14} className="text-emerald-500" />
+                    <DollarSign size={14} className="text-emerald-400" />
                     {stats.salaryType} {t('salaryLabel')}
                   </span>
                   <span className="flex items-center gap-1">
-                    <Zap size={14} className="text-amber-500" />
+                    <Zap size={14} className="text-amber-400" />
                     {stats.commissionType} {t('commissionLabel')}
                   </span>
               </div>
@@ -1048,9 +1075,9 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
           </div>
         </motion.div>
 
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-gray-400 uppercase tracking-widest pt-4">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-white/30 uppercase tracking-widest pt-4">
           <div className="flex items-center gap-2">
-            <Sparkles size={12} className="text-purple-500" />
+            <Sparkles size={12} className="text-purple-400" />
             <span>{t('systemManagement')}</span>
           </div>
           <span>{t('allRightsReserved')} © {new Date().getFullYear()}</span>
@@ -1071,15 +1098,11 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                className="relative w-full max-w-[95vw] h-[90vh] bg-gradient-to-r from-violet-50/80 via-purple-50/50 to-indigo-50/80 dark:bg-slate-900 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 rounded-3xl shadow-2xl overflow-hidden flex flex-col border-2 border-violet-200/60 dark:border-slate-700"
+                className="relative w-full max-w-[95vw] h-[90vh] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl shadow-2xl overflow-hidden flex flex-col border border-white/10"
                 dir={isRTL ? 'rtl' : 'ltr'}
               >
-                {/* Decorative circles - light mode only */}
-                <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-violet-500/10 to-purple-500/10 rounded-full -translate-y-16 -translate-x-16 dark:hidden" />
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-full -translate-y-16 translate-x-16 dark:hidden" />
-                <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-emerald-500/10 to-teal-500/10 rounded-full translate-y-12 -translate-x-12 dark:hidden" />
-                <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tr from-amber-500/10 to-orange-500/10 rounded-full translate-y-12 translate-x-12 dark:hidden" />
                 <div className="relative z-10 bg-gradient-to-r from-purple-600 to-violet-600 p-6 text-white flex items-center justify-between shrink-0">
+                  <div className="h-1 absolute top-0 left-0 right-0 bg-gradient-to-r from-blue-500 via-purple-500 to-emerald-500" />
                   <div className="flex items-center gap-3">
                     <div className="h-12 w-12 rounded-xl bg-white/20 flex items-center justify-center">
                       <Package className="text-white" size={24} />
@@ -1100,27 +1123,27 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                 <div className="relative z-10 flex-1 overflow-auto p-6 scrollbar-hide">
                 <form id="packageForm" onSubmit={handleSubmit} className="space-y-8">
                     <div className={cn(
-                      "grid gap-4 bg-gradient-to-br from-purple-50 to-violet-50 p-6 rounded-2xl border border-purple-100",
+                      "grid gap-4 bg-white/5 backdrop-blur-xl p-6 rounded-2xl border border-white/10",
                       formData.work_type === 'target' ? "grid-cols-1 md:grid-cols-4" : "grid-cols-1 md:grid-cols-2"
                     )}>
                       <div className="space-y-1.5">
-                        <label className="text-xs font-black text-gray-500 flex items-center gap-1.5 uppercase tracking-wider">
-                          <Package size={12} className="text-purple-500" />
-                          {t('packageName')} <span className="text-red-500">*</span>
+                        <label className="text-xs font-black text-white/50 flex items-center gap-1.5 uppercase tracking-wider">
+                          <Package size={12} className="text-purple-400" />
+                          {t('packageName')} <span className="text-red-400">*</span>
                         </label>
                         <input
                           type="text"
                           value={formData.group_name}
                           onChange={(e) => setFormData({ ...formData, group_name: e.target.value })}
                           placeholder={t('enterPackageName')}
-                          className="w-full bg-white border-2 border-purple-100 rounded-xl py-3 px-4 text-sm font-bold text-gray-700 focus:border-purple-400 outline-none transition-all"
+                          className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold text-white placeholder-white/20 focus:border-purple-500/40 focus:ring-2 focus:ring-purple-500/20 outline-none transition-all"
                         />
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-xs font-black text-gray-500 flex items-center gap-1.5 uppercase tracking-wider">
-                          <Settings size={12} className="text-purple-500" />
-                          {t('workSystem')} <span className="text-red-500">*</span>
+                        <label className="text-xs font-black text-white/50 flex items-center gap-1.5 uppercase tracking-wider">
+                          <Settings size={12} className="text-purple-400" />
+                          {t('workSystem')} <span className="text-red-400">*</span>
                         </label>
                         <select
                           value={formData.work_type}
@@ -1128,49 +1151,49 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                             const wt = e.target.value;
                             setFormData({ ...formData, work_type: wt, monthly_target: wt === 'target' ? formData.monthly_target : 0, bonus_after_target: wt === 'target' ? formData.bonus_after_target : 0 });
                           }}
-                          className="w-full bg-white border-2 border-purple-100 rounded-xl py-3 px-4 text-sm font-bold text-gray-700 focus:border-purple-400 outline-none transition-all"
+                          className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold text-white focus:border-purple-500/40 outline-none transition-all"
                         >
-                          <option value="target">{t('targetSystemOption')}</option>
-                          <option value="salary">{t('salarySystemOption')}</option>
-                          <option value="commission">{t('commissionSystemOption')}</option>
+                          <option value="target" className="bg-slate-800">{t('targetSystemOption')}</option>
+                          <option value="salary" className="bg-slate-800">{t('salarySystemOption')}</option>
+                          <option value="commission" className="bg-slate-800">{t('commissionSystemOption')}</option>
                         </select>
                       </div>
 
                       {formData.work_type === 'target' && (
                         <>
                           <div className="space-y-1.5">
-                            <label className="text-xs font-black text-gray-500 flex items-center gap-1.5 uppercase tracking-wider">
-                              <Target size={12} className="text-purple-500" />
-                              {t('monthlyTarget')} <span className="text-red-500">*</span>
+                            <label className="text-xs font-black text-white/50 flex items-center gap-1.5 uppercase tracking-wider">
+                              <Target size={12} className="text-blue-400" />
+                              {t('monthlyTarget')} <span className="text-red-400">*</span>
                             </label>
                             <input
                               type="number"
                               value={formData.monthly_target}
                               onChange={(e) => setFormData({ ...formData, monthly_target: parseInt(e.target.value) || 0 })}
                               placeholder={t('enterMonthlyTarget')}
-                              className="w-full bg-white border-2 border-purple-100 rounded-xl py-3 px-4 text-sm font-bold text-gray-700 focus:border-purple-400 outline-none transition-all"
+                              className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold text-white placeholder-white/20 focus:border-blue-500/40 outline-none transition-all"
                             />
                           </div>
 
                           <div className="space-y-1.5">
-                            <label className="text-xs font-black text-gray-500 flex items-center gap-1.5 uppercase tracking-wider">
-                              <Trophy size={12} className="text-purple-500" />
-                              {t('bonusAfterTarget')} <span className="text-red-500">*</span>
+                            <label className="text-xs font-black text-white/50 flex items-center gap-1.5 uppercase tracking-wider">
+                              <Trophy size={12} className="text-amber-400" />
+                              {t('bonusAfterTarget')} <span className="text-red-400">*</span>
                             </label>
                             <input
                               type="number"
                               value={formData.bonus_after_target}
                               onChange={(e) => setFormData({ ...formData, bonus_after_target: parseFloat(e.target.value) || 0 })}
-                              className="w-full bg-white border-2 border-purple-100 rounded-xl py-3 px-4 text-sm font-bold text-gray-700 focus:border-purple-400 outline-none transition-all"
+                              className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold text-white focus:border-amber-500/40 outline-none transition-all"
                             />
                           </div>
                         </>
                       )}
 
                       {formData.work_type !== 'target' && (
-                        <div className="md:col-span-2 flex items-center gap-3 bg-blue-50 rounded-xl p-4 border border-blue-200">
-                          <Info size={18} className="text-blue-500 shrink-0" />
-                          <p className="text-xs font-bold text-blue-700">
+                        <div className="md:col-span-2 flex items-center gap-3 bg-blue-500/10 rounded-xl p-4 border border-blue-500/20">
+                          <Info size={18} className="text-blue-400 shrink-0" />
+                          <p className="text-xs font-bold text-blue-300">
                             {formData.work_type === 'salary' ? t('salaryPackageInfo') : t('commissionPackageInfo')}
                           </p>
                         </div>
@@ -1181,7 +1204,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="relative overflow-hidden rounded-2xl border border-indigo-100 bg-white shadow-[0_8px_40px_rgba(99,102,241,0.12)] p-6"
+                      className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-6"
                     >
                       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-violet-500"></div>
                       <div className="flex items-start gap-4 mb-5">
@@ -1189,13 +1212,13 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                           <FileSpreadsheet size={26} className="text-white" />
                         </div>
                         <div className="flex-1 space-y-1">
-                          <h4 className="text-base font-black text-gray-900">{t('excelImportTitle')}</h4>
-                          <p className="text-xs font-bold text-gray-500 leading-relaxed">{t('excelImportDesc')}</p>
+                          <h4 className="text-base font-black text-white">{t('excelImportTitle')}</h4>
+                          <p className="text-xs font-bold text-white/50 leading-relaxed">{t('excelImportDesc')}</p>
                         </div>
                       </div>
 
-                      <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-4 mb-5 border border-indigo-100">
-                        <p className="text-xs font-black text-indigo-600 text-center tracking-wide">{t('excelImportSteps')}</p>
+                      <div className="bg-indigo-500/10 rounded-xl p-4 mb-5 border border-indigo-500/20">
+                        <p className="text-xs font-black text-indigo-300 text-center tracking-wide">{t('excelImportSteps')}</p>
                       </div>
 
                       <div className="flex flex-col sm:flex-row items-stretch gap-3 mb-4">
@@ -1216,18 +1239,18 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                         </label>
                       </div>
 
-                      <div className="flex items-start gap-2.5 bg-amber-50 rounded-xl p-3 border border-amber-200">
-                        <AlertTriangle size={16} className="text-amber-500 shrink-0 mt-0.5" />
-                        <p className="text-[11px] font-bold text-amber-700 leading-relaxed">{t('excelImportWarning')}</p>
+                      <div className="flex items-start gap-2.5 bg-amber-500/10 rounded-xl p-3 border border-amber-500/20">
+                        <AlertTriangle size={16} className="text-amber-400 shrink-0 mt-0.5" />
+                        <p className="text-[11px] font-bold text-amber-300 leading-relaxed">{t('excelImportWarning')}</p>
                       </div>
                     </motion.div>
 
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <h4 className="text-lg font-black text-gray-900 flex items-center gap-2">
-                          <Users size={20} className="text-purple-500" />
+                        <h4 className="text-lg font-black text-white flex items-center gap-2">
+                          <Users size={20} className="text-purple-400" />
                           {t('employeesData')} ({formData.work_type === 'target' ? t('targetSystemLabel') : formData.work_type === 'salary' ? t('salarySystemLabel') : t('commissionSystemLabel')})
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-purple-100 text-purple-700 border border-purple-200">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-purple-500/15 text-purple-300 border border-purple-500/20">
                             <Users size={14} />
                             {employees.filter(e => e.name.trim()).length || employees.length} {t('employeesCount')}
                           </span>
@@ -1237,14 +1260,14 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                         whileTap={{ scale: 0.98 }}
                         type="button"
                         onClick={() => addEmployeeRow(false)}
-                        className="flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-600 rounded-xl text-xs font-black hover:bg-purple-200 transition-all"
+                        className="flex items-center gap-2 px-4 py-2 bg-purple-500/15 text-purple-300 rounded-xl text-xs font-black hover:bg-purple-500/25 border border-purple-500/20 transition-all"
                       >
                         <Plus size={16} />
                         {t('addEmployee')}
                       </motion.button>
                     </div>
 
-                    <div className="overflow-x-auto rounded-2xl border border-gray-100 bg-white shadow-sm">
+                    <div className="overflow-x-auto rounded-2xl border border-white/10 bg-slate-900/50 shadow-sm">
                       <table className={cn("w-full border-collapse", isRTL ? "text-right" : "text-left")}>
                           <thead className="bg-gradient-to-r from-purple-600 to-violet-600 text-white">
                             <tr>
@@ -1268,16 +1291,16 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                               <th className="p-4 text-xs font-black whitespace-nowrap">{t('actions')}</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-gray-200">
+                          <tbody className="divide-y divide-white/5">
                             {employees.map((emp, idx) => (
-                              <tr key={idx} className="hover:bg-purple-50/30 transition-colors">
+                              <tr key={idx} className="hover:bg-white/5 transition-colors border-b border-white/5">
                               <td className="p-2">
                                 <input
                                   type="text"
                                   placeholder={t('employeeName')}
                                   value={emp.name}
                                   onChange={(e) => updateEmployee(idx, "name", e.target.value, false)}
-                                  className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
+                                  className="w-full bg-white/5 border border-white/10 focus:ring-2 focus:ring-purple-500/30 text-sm font-black text-white px-3 py-2 rounded-lg hover:bg-white/8 focus:border-purple-500/40 placeholder:text-white/20 placeholder:font-medium transition-all outline-none"
                                 />
                               </td>
                               <td className="p-2">
@@ -1286,7 +1309,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                   placeholder={t('nameEn')}
                                   value={emp.name_en}
                                   onChange={(e) => updateEmployee(idx, "name_en", e.target.value, false)}
-                                  className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
+                                  className="w-full bg-white/5 border border-white/10 focus:ring-2 focus:ring-purple-500/30 text-sm font-black text-white px-3 py-2 rounded-lg hover:bg-white/8 focus:border-purple-500/40 placeholder:text-white/20 placeholder:font-medium transition-all outline-none"
                                 />
                               </td>
                               <td className="p-2">
@@ -1295,7 +1318,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                   placeholder={t('identityNumber')}
                                   value={emp.iqama_number}
                                   onChange={(e) => updateEmployee(idx, "iqama_number", e.target.value, false)}
-                                  className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
+                                  className="w-full bg-white/5 border border-white/10 focus:ring-2 focus:ring-purple-500/30 text-sm font-black text-white px-3 py-2 rounded-lg hover:bg-white/8 focus:border-purple-500/40 placeholder:text-white/20 placeholder:font-medium transition-all outline-none"
                                 />
                               </td>
                               {formData.work_type === 'salary' ? (
@@ -1305,7 +1328,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                     placeholder={t('jobTitle')}
                                     value={emp.job_title}
                                     onChange={(e) => updateEmployee(idx, "job_title", e.target.value, false)}
-                                    className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
+                                    className="w-full bg-white/5 border border-white/10 focus:ring-2 focus:ring-purple-500/30 text-sm font-black text-white px-3 py-2 rounded-lg hover:bg-white/8 focus:border-purple-500/40 placeholder:text-white/20 placeholder:font-medium transition-all outline-none"
                                   />
                                 </td>
                               ) : (
@@ -1315,7 +1338,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                     placeholder={t('userCode')}
                                     value={emp.user_code}
                                     onChange={(e) => updateEmployee(idx, "user_code", e.target.value, false)}
-                                    className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
+                                    className="w-full bg-white/5 border border-white/10 focus:ring-2 focus:ring-purple-500/30 text-sm font-black text-white px-3 py-2 rounded-lg hover:bg-white/8 focus:border-purple-500/40 placeholder:text-white/20 placeholder:font-medium transition-all outline-none"
                                   />
                                 </td>
                               )}
@@ -1325,7 +1348,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                   placeholder={t('nationality')}
                                   value={emp.nationality}
                                   onChange={(e) => updateEmployee(idx, "nationality", e.target.value, false)}
-                                  className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
+                                  className="w-full bg-white/5 border border-white/10 focus:ring-2 focus:ring-purple-500/30 text-sm font-black text-white px-3 py-2 rounded-lg hover:bg-white/8 focus:border-purple-500/40 placeholder:text-white/20 placeholder:font-medium transition-all outline-none"
                                 />
                               </td>
                               <td className="p-2">
@@ -1334,7 +1357,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                   placeholder="966XXXXXXXXX"
                                   value={emp.phone}
                                   onChange={(e) => updateEmployee(idx, "phone", e.target.value, false)}
-                                  className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
+                                  className="w-full bg-white/5 border border-white/10 focus:ring-2 focus:ring-purple-500/30 text-sm font-black text-white px-3 py-2 rounded-lg hover:bg-white/8 focus:border-purple-500/40 placeholder:text-white/20 placeholder:font-medium transition-all outline-none"
                                 />
                               </td>
                               <td className="p-2">
@@ -1343,7 +1366,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                   placeholder="example@mail.com"
                                   value={emp.email}
                                   onChange={(e) => updateEmployee(idx, "email", e.target.value, false)}
-                                  className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
+                                  className="w-full bg-white/5 border border-white/10 focus:ring-2 focus:ring-purple-500/30 text-sm font-black text-white px-3 py-2 rounded-lg hover:bg-white/8 focus:border-purple-500/40 placeholder:text-white/20 placeholder:font-medium transition-all outline-none"
                                 />
                               </td>
                               <td className="p-2">
@@ -1352,7 +1375,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                   placeholder="0.00"
                                   value={emp.basic_salary}
                                   onChange={(e) => updateEmployee(idx, "basic_salary", parseFloat(e.target.value), false)}
-                                  className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
+                                  className="w-full bg-white/5 border border-white/10 focus:ring-2 focus:ring-purple-500/30 text-sm font-black text-white px-3 py-2 rounded-lg hover:bg-white/8 focus:border-purple-500/40 placeholder:text-white/20 placeholder:font-medium transition-all outline-none"
                                 />
                               </td>
                               <td className="p-2">
@@ -1361,7 +1384,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                   placeholder="0.00"
                                   value={emp.housing_allowance}
                                   onChange={(e) => updateEmployee(idx, "housing_allowance", parseFloat(e.target.value), false)}
-                                  className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
+                                  className="w-full bg-white/5 border border-white/10 focus:ring-2 focus:ring-purple-500/30 text-sm font-black text-white px-3 py-2 rounded-lg hover:bg-white/8 focus:border-purple-500/40 placeholder:text-white/20 placeholder:font-medium transition-all outline-none"
                                 />
                               </td>
                               {formData.work_type !== 'salary' && (
@@ -1371,7 +1394,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                     placeholder={t('vehiclePlate')}
                                     value={emp.vehicle_plate}
                                     onChange={(e) => updateEmployee(idx, "vehicle_plate", e.target.value, false)}
-                                    className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
+                                    className="w-full bg-white/5 border border-white/10 focus:ring-2 focus:ring-purple-500/30 text-sm font-black text-white px-3 py-2 rounded-lg hover:bg-white/8 focus:border-purple-500/40 placeholder:text-white/20 placeholder:font-medium transition-all outline-none"
                                   />
                                 </td>
                               )}
@@ -1381,7 +1404,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                   placeholder="SA..."
                                   value={emp.iban}
                                   onChange={(e) => updateEmployee(idx, "iban", e.target.value, false)}
-                                  className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
+                                  className="w-full bg-white/5 border border-white/10 focus:ring-2 focus:ring-purple-500/30 text-sm font-black text-white px-3 py-2 rounded-lg hover:bg-white/8 focus:border-purple-500/40 placeholder:text-white/20 placeholder:font-medium transition-all outline-none"
                                 />
                               </td>
                               <td className="p-4">
@@ -1390,7 +1413,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                   whileTap={{ scale: 0.9 }}
                                   type="button"
                                   onClick={() => removeEmployeeRow(idx, false)}
-                                  className="h-8 w-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all"
+                                  className="h-8 w-8 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center hover:bg-red-500/50 hover:text-white transition-all border border-red-500/20"
                                 >
                                   <Trash2 size={14} />
                                 </motion.button>
@@ -1406,7 +1429,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 }}
-                        className="mt-6 relative overflow-hidden rounded-2xl border-2 border-amber-200 bg-gradient-to-r from-amber-50 via-yellow-50 to-orange-50 p-5"
+                        className="mt-6 relative overflow-hidden rounded-2xl border border-amber-500/20 bg-amber-500/5 p-5"
                       >
                         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-400 via-yellow-500 to-orange-400"></div>
                         <div className="flex items-start gap-4">
@@ -1414,11 +1437,11 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                             <Sparkles size={22} className="text-white" />
                           </div>
                           <div className="space-y-1">
-                            <h4 className="text-sm font-black text-amber-900">{t('employeeDataNoteTitle')}</h4>
-                            <p className="text-xs font-bold text-amber-700 leading-relaxed">{t('employeeDataNoteDesc')}</p>
+                            <h4 className="text-sm font-black text-amber-300">{t('employeeDataNoteTitle')}</h4>
+                            <p className="text-xs font-bold text-amber-400/70 leading-relaxed">{t('employeeDataNoteDesc')}</p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 mt-3 text-[10px] font-black text-amber-500 uppercase tracking-widest">
+                        <div className="flex items-center gap-2 mt-3 text-[10px] font-black text-amber-400/70 uppercase tracking-widest">
                           <span className="text-red-500">*</span> {t('requiredFieldsIndicator')}
                         </div>
                       </motion.div>
@@ -1426,7 +1449,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                   </form>
                 </div>
 
-                  <div className="relative z-10 p-6 bg-violet-50/50 dark:bg-slate-800 border-t border-violet-200/40 dark:border-slate-700 flex gap-4 shrink-0">
+                  <div className="relative z-10 p-6 bg-slate-900/80 border-t border-white/10 flex gap-4 shrink-0">
                     <motion.button
                       whileHover={{ scale: 1.01 }}
                       whileTap={{ scale: 0.99 }}
@@ -1450,8 +1473,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                       whileTap={{ scale: 0.99 }}
                       type="button"
                       onClick={() => setIsModalOpen(false)}
-                      className="px-8 py-4 rounded-2xl text-base font-black transition-all border-2"
-                      style={{ background: '#fff', color: '#6b7280', borderColor: 'rgba(196,181,253,0.6)' }}
+                      className="px-8 py-4 rounded-2xl text-base font-black transition-all border border-white/10 bg-white/5 text-white/60 hover:bg-white/10"
                   >
                     {t('cancel')}
                   </motion.button>
@@ -1473,15 +1495,11 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                className="relative w-full max-w-[95vw] h-[90vh] bg-gradient-to-r from-violet-50/80 via-purple-50/50 to-indigo-50/80 dark:bg-slate-900 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 rounded-3xl shadow-2xl overflow-hidden flex flex-col border-2 border-violet-200/60 dark:border-slate-700"
+                className="relative w-full max-w-[95vw] h-[90vh] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl shadow-2xl overflow-hidden flex flex-col border border-white/10"
                 dir={isRTL ? 'rtl' : 'ltr'}
               >
-                {/* Decorative circles - light mode only */}
-                <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-violet-500/10 to-purple-500/10 rounded-full -translate-y-16 -translate-x-16 dark:hidden" />
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-full -translate-y-16 translate-x-16 dark:hidden" />
-                <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-emerald-500/10 to-teal-500/10 rounded-full translate-y-12 -translate-x-12 dark:hidden" />
-                <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tr from-amber-500/10 to-orange-500/10 rounded-full translate-y-12 translate-x-12 dark:hidden" />
                 <div className="relative z-10 bg-gradient-to-r from-purple-600 to-violet-600 p-6 text-white flex items-center justify-between shrink-0">
+                  <div className="h-1 absolute top-0 left-0 right-0 bg-gradient-to-r from-blue-500 via-purple-500 to-emerald-500" />
                   <div className="flex items-center gap-3">
                     <div className="h-12 w-12 rounded-xl bg-white/20 flex items-center justify-center">
                       <UserPlus className="text-white" size={24} />
@@ -1505,7 +1523,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="relative overflow-hidden rounded-2xl border border-indigo-100 bg-white shadow-[0_8px_40px_rgba(99,102,241,0.12)] p-6"
+                      className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-6"
                     >
                       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-violet-500"></div>
                       <div className="flex items-start gap-4 mb-5">
@@ -1513,13 +1531,13 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                           <FileSpreadsheet size={26} className="text-white" />
                         </div>
                         <div className="flex-1 space-y-1">
-                          <h4 className="text-base font-black text-gray-900">{t('excelImportTitle')}</h4>
-                          <p className="text-xs font-bold text-gray-500 leading-relaxed">{t('excelImportDesc')}</p>
+                          <h4 className="text-base font-black text-white">{t('excelImportTitle')}</h4>
+                          <p className="text-xs font-bold text-white/50 leading-relaxed">{t('excelImportDesc')}</p>
                         </div>
                       </div>
 
-                      <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-4 mb-5 border border-indigo-100">
-                        <p className="text-xs font-black text-indigo-600 text-center tracking-wide">{t('excelImportSteps')}</p>
+                      <div className="bg-indigo-500/10 rounded-xl p-4 mb-5 border border-indigo-500/20">
+                        <p className="text-xs font-black text-indigo-300 text-center tracking-wide">{t('excelImportSteps')}</p>
                       </div>
 
                       <div className="flex flex-col sm:flex-row items-stretch gap-3 mb-4">
@@ -1540,18 +1558,18 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                         </label>
                       </div>
 
-                      <div className="flex items-start gap-2.5 bg-amber-50 rounded-xl p-3 border border-amber-200">
-                        <AlertTriangle size={16} className="text-amber-500 shrink-0 mt-0.5" />
-                        <p className="text-[11px] font-bold text-amber-700 leading-relaxed">{t('excelImportWarning')}</p>
+                      <div className="flex items-start gap-2.5 bg-amber-500/10 rounded-xl p-3 border border-amber-500/20">
+                        <AlertTriangle size={16} className="text-amber-400 shrink-0 mt-0.5" />
+                        <p className="text-[11px] font-bold text-amber-300 leading-relaxed">{t('excelImportWarning')}</p>
                       </div>
                     </motion.div>
 
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <h4 className="text-lg font-black text-gray-900 flex items-center gap-2">
-                          <Users size={20} className="text-purple-500" />
+                        <h4 className="text-lg font-black text-white flex items-center gap-2">
+                          <Users size={20} className="text-purple-400" />
                           {t('addedEmployeesData')}
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-purple-100 text-purple-700 border border-purple-200">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-purple-500/15 text-purple-300 border border-purple-500/20">
                             <Users size={14} />
                             {addEmployeesData.filter(e => e.name.trim()).length || addEmployeesData.length} {t('employeesCount')}
                           </span>
@@ -1561,14 +1579,14 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                         whileTap={{ scale: 0.98 }}
                         type="button"
                         onClick={() => addEmployeeRow(true)}
-                        className="flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-600 rounded-xl text-xs font-black hover:bg-purple-200 transition-all"
+                        className="flex items-center gap-2 px-4 py-2 bg-purple-500/15 text-purple-300 rounded-xl text-xs font-black hover:bg-purple-500/25 border border-purple-500/20 transition-all"
                       >
                         <Plus size={16} />
                         {t('addNewEmployee')}
                       </motion.button>
                     </div>
 
-                    <div className="overflow-x-auto rounded-2xl border border-gray-100 bg-white shadow-sm">
+                    <div className="overflow-x-auto rounded-2xl border border-white/10 bg-slate-900/50 shadow-sm">
                       <table className={cn("w-full border-collapse", isRTL ? "text-right" : "text-left")}>
                           <thead className="bg-gradient-to-r from-purple-600 to-violet-600 text-white">
                             <tr>
@@ -1592,16 +1610,16 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                               <th className="p-4 text-xs font-black whitespace-nowrap">{t('actions')}</th>
                             </tr>
                           </thead>
-                        <tbody className="divide-y divide-gray-200">
+                        <tbody className="divide-y divide-white/5">
                           {addEmployeesData.map((emp, idx) => (
-                            <tr key={idx} className="hover:bg-purple-50/30 transition-colors">
+                            <tr key={idx} className="hover:bg-white/5 transition-colors border-b border-white/5">
                               <td className="p-2">
                                 <input
                                   type="text"
                                   placeholder={t('employeeName')}
                                   value={emp.name}
                                   onChange={(e) => updateEmployee(idx, "name", e.target.value, true)}
-                                  className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
+                                  className="w-full bg-white/5 border border-white/10 focus:ring-2 focus:ring-purple-500/30 text-sm font-black text-white px-3 py-2 rounded-lg hover:bg-white/8 focus:border-purple-500/40 placeholder:text-white/20 placeholder:font-medium transition-all outline-none"
                                 />
                               </td>
                               <td className="p-2">
@@ -1610,7 +1628,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                   placeholder={t('nameEn')}
                                   value={emp.name_en}
                                   onChange={(e) => updateEmployee(idx, "name_en", e.target.value, true)}
-                                  className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
+                                  className="w-full bg-white/5 border border-white/10 focus:ring-2 focus:ring-purple-500/30 text-sm font-black text-white px-3 py-2 rounded-lg hover:bg-white/8 focus:border-purple-500/40 placeholder:text-white/20 placeholder:font-medium transition-all outline-none"
                                 />
                               </td>
                               <td className="p-2">
@@ -1619,7 +1637,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                   placeholder={t('identityNumber')}
                                   value={emp.iqama_number}
                                   onChange={(e) => updateEmployee(idx, "iqama_number", e.target.value, true)}
-                                  className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
+                                  className="w-full bg-white/5 border border-white/10 focus:ring-2 focus:ring-purple-500/30 text-sm font-black text-white px-3 py-2 rounded-lg hover:bg-white/8 focus:border-purple-500/40 placeholder:text-white/20 placeholder:font-medium transition-all outline-none"
                                 />
                               </td>
                               {selectedPackage.work_type === 'salary' ? (
@@ -1629,7 +1647,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                     placeholder={t('jobTitle')}
                                     value={emp.job_title}
                                     onChange={(e) => updateEmployee(idx, "job_title", e.target.value, true)}
-                                    className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
+                                    className="w-full bg-white/5 border border-white/10 focus:ring-2 focus:ring-purple-500/30 text-sm font-black text-white px-3 py-2 rounded-lg hover:bg-white/8 focus:border-purple-500/40 placeholder:text-white/20 placeholder:font-medium transition-all outline-none"
                                   />
                                 </td>
                               ) : (
@@ -1639,7 +1657,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                     placeholder={t('userCode')}
                                     value={emp.user_code}
                                     onChange={(e) => updateEmployee(idx, "user_code", e.target.value, true)}
-                                    className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
+                                    className="w-full bg-white/5 border border-white/10 focus:ring-2 focus:ring-purple-500/30 text-sm font-black text-white px-3 py-2 rounded-lg hover:bg-white/8 focus:border-purple-500/40 placeholder:text-white/20 placeholder:font-medium transition-all outline-none"
                                   />
                                 </td>
                               )}
@@ -1649,7 +1667,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                   placeholder={t('nationality')}
                                   value={emp.nationality}
                                   onChange={(e) => updateEmployee(idx, "nationality", e.target.value, true)}
-                                  className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
+                                  className="w-full bg-white/5 border border-white/10 focus:ring-2 focus:ring-purple-500/30 text-sm font-black text-white px-3 py-2 rounded-lg hover:bg-white/8 focus:border-purple-500/40 placeholder:text-white/20 placeholder:font-medium transition-all outline-none"
                                 />
                               </td>
                               <td className="p-2">
@@ -1658,7 +1676,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                   placeholder="966XXXXXXXXX"
                                   value={emp.phone}
                                   onChange={(e) => updateEmployee(idx, "phone", e.target.value, true)}
-                                  className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
+                                  className="w-full bg-white/5 border border-white/10 focus:ring-2 focus:ring-purple-500/30 text-sm font-black text-white px-3 py-2 rounded-lg hover:bg-white/8 focus:border-purple-500/40 placeholder:text-white/20 placeholder:font-medium transition-all outline-none"
                                 />
                               </td>
                               <td className="p-2">
@@ -1667,7 +1685,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                   placeholder="example@mail.com"
                                   value={emp.email}
                                   onChange={(e) => updateEmployee(idx, "email", e.target.value, true)}
-                                  className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
+                                  className="w-full bg-white/5 border border-white/10 focus:ring-2 focus:ring-purple-500/30 text-sm font-black text-white px-3 py-2 rounded-lg hover:bg-white/8 focus:border-purple-500/40 placeholder:text-white/20 placeholder:font-medium transition-all outline-none"
                                 />
                               </td>
                               <td className="p-2">
@@ -1676,7 +1694,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                   placeholder="0.00"
                                   value={emp.basic_salary}
                                   onChange={(e) => updateEmployee(idx, "basic_salary", parseFloat(e.target.value), true)}
-                                  className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
+                                  className="w-full bg-white/5 border border-white/10 focus:ring-2 focus:ring-purple-500/30 text-sm font-black text-white px-3 py-2 rounded-lg hover:bg-white/8 focus:border-purple-500/40 placeholder:text-white/20 placeholder:font-medium transition-all outline-none"
                                 />
                               </td>
                               <td className="p-2">
@@ -1685,7 +1703,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                   placeholder="0.00"
                                   value={emp.housing_allowance}
                                   onChange={(e) => updateEmployee(idx, "housing_allowance", parseFloat(e.target.value), true)}
-                                  className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
+                                  className="w-full bg-white/5 border border-white/10 focus:ring-2 focus:ring-purple-500/30 text-sm font-black text-white px-3 py-2 rounded-lg hover:bg-white/8 focus:border-purple-500/40 placeholder:text-white/20 placeholder:font-medium transition-all outline-none"
                                 />
                               </td>
                               {selectedPackage.work_type !== 'salary' && (
@@ -1695,7 +1713,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                     placeholder={t('vehiclePlate')}
                                     value={emp.vehicle_plate}
                                     onChange={(e) => updateEmployee(idx, "vehicle_plate", e.target.value, true)}
-                                    className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
+                                    className="w-full bg-white/5 border border-white/10 focus:ring-2 focus:ring-purple-500/30 text-sm font-black text-white px-3 py-2 rounded-lg hover:bg-white/8 focus:border-purple-500/40 placeholder:text-white/20 placeholder:font-medium transition-all outline-none"
                                   />
                                 </td>
                               )}
@@ -1705,7 +1723,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                   placeholder="SA..."
                                   value={emp.iban}
                                   onChange={(e) => updateEmployee(idx, "iban", e.target.value, true)}
-                                  className="w-full bg-gray-50/80 border border-gray-200 focus:ring-2 focus:ring-purple-300 text-sm font-black text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 focus:bg-white placeholder:text-gray-400 placeholder:font-medium transition-all"
+                                  className="w-full bg-white/5 border border-white/10 focus:ring-2 focus:ring-purple-500/30 text-sm font-black text-white px-3 py-2 rounded-lg hover:bg-white/8 focus:border-purple-500/40 placeholder:text-white/20 placeholder:font-medium transition-all outline-none"
                                 />
                               </td>
                               <td className="p-4">
@@ -1714,7 +1732,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                   whileTap={{ scale: 0.9 }}
                                   type="button"
                                   onClick={() => removeEmployeeRow(idx, true)}
-                                  className="h-8 w-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all"
+                                  className="h-8 w-8 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center hover:bg-red-500/50 hover:text-white transition-all border border-red-500/20"
                                 >
                                   <Trash2 size={14} />
                                 </motion.button>
@@ -1730,7 +1748,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 }}
-                        className="mt-6 relative overflow-hidden rounded-2xl border-2 border-amber-200 bg-gradient-to-r from-amber-50 via-yellow-50 to-orange-50 p-5"
+                        className="mt-6 relative overflow-hidden rounded-2xl border border-amber-500/20 bg-amber-500/5 p-5"
                       >
                         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-400 via-yellow-500 to-orange-400"></div>
                         <div className="flex items-start gap-4">
@@ -1738,11 +1756,11 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                             <Sparkles size={22} className="text-white" />
                           </div>
                           <div className="space-y-1">
-                            <h4 className="text-sm font-black text-amber-900">{t('employeeDataNoteTitle')}</h4>
-                            <p className="text-xs font-bold text-amber-700 leading-relaxed">{t('employeeDataNoteDesc')}</p>
+                            <h4 className="text-sm font-black text-amber-300">{t('employeeDataNoteTitle')}</h4>
+                            <p className="text-xs font-bold text-amber-400/70 leading-relaxed">{t('employeeDataNoteDesc')}</p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 mt-3 text-[10px] font-black text-amber-500 uppercase tracking-widest">
+                        <div className="flex items-center gap-2 mt-3 text-[10px] font-black text-amber-400/70 uppercase tracking-widest">
                           <span className="text-red-500">*</span> {t('requiredFieldsIndicator')}
                         </div>
                       </motion.div>
@@ -1750,7 +1768,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                   </form>
                 </div>
 
-                  <div className="relative z-10 p-6 bg-violet-50/50 dark:bg-slate-800 border-t border-violet-200/40 dark:border-slate-700 flex gap-4 shrink-0">
+                  <div className="relative z-10 p-6 bg-slate-900/80 border-t border-white/10 flex gap-4 shrink-0">
                     <motion.button
                       whileHover={{ scale: 1.01 }}
                       whileTap={{ scale: 0.99 }}
@@ -1774,8 +1792,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                       whileTap={{ scale: 0.99 }}
                       type="button"
                       onClick={() => setIsAddEmployeesModalOpen(false)}
-                      className="px-8 py-4 rounded-2xl text-base font-black transition-all border-2"
-                      style={{ background: '#fff', color: '#6b7280', borderColor: 'rgba(196,181,253,0.6)' }}
+                      className="px-8 py-4 rounded-2xl text-base font-black transition-all border border-white/10 bg-white/5 text-white/60 hover:bg-white/10"
                   >
                     {t('cancel')}
                   </motion.button>
@@ -1801,14 +1818,9 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.8, y: 50 }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                  className="relative w-full max-w-lg bg-gradient-to-r from-violet-50/80 via-purple-50/50 to-indigo-50/80 dark:bg-slate-900 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 rounded-[3rem] shadow-[0_0_100px_rgba(239,68,68,0.3)] overflow-hidden border-2 border-violet-200/60 dark:border-red-500/20"
+                  className="relative w-full max-w-lg bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-[3rem] shadow-[0_0_100px_rgba(239,68,68,0.3)] overflow-hidden border border-red-500/20"
                   dir={isRTL ? 'rtl' : 'ltr'}
                 >
-                  {/* Decorative circles - light mode only */}
-                  <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-violet-500/10 to-purple-500/10 rounded-full -translate-y-16 -translate-x-16 dark:hidden" />
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-full -translate-y-16 translate-x-16 dark:hidden" />
-                  <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-emerald-500/10 to-teal-500/10 rounded-full translate-y-12 -translate-x-12 dark:hidden" />
-                  <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tr from-amber-500/10 to-orange-500/10 rounded-full translate-y-12 translate-x-12 dark:hidden" />
                   <div className="relative z-10 bg-gradient-to-br from-red-500 via-rose-600 to-red-700 p-10 text-white text-center overflow-hidden">
                   <div className="absolute inset-0 opacity-10">
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
@@ -1847,16 +1859,16 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                 </div>
 
                   <div className="relative z-10 p-8 text-center space-y-6">
-                    <div className="bg-red-50 dark:bg-red-950/30 rounded-2xl p-6 border-2 border-red-100 dark:border-red-900/50">
-                    <p className="text-slate-700 dark:text-slate-300 font-bold text-lg leading-relaxed">
+                    <div className="bg-red-500/10 rounded-2xl p-6 border border-red-500/20">
+                    <p className="text-white/80 font-bold text-lg leading-relaxed">
                       {t('confirmDeleteQuestion')}
                     </p>
-                    <p className="text-red-600 dark:text-red-400 font-black text-xl mt-2 truncate">
+                    <p className="text-red-400 font-black text-xl mt-2 truncate">
                       &quot;{deleteConfirmModal.item?.group_name}&quot;
                     </p>
                   </div>
 
-                  <p className="text-slate-500 font-bold text-sm">
+                  <p className="text-white/50 font-bold text-sm">
                     {t('permanentDeleteWarning')}
                   </p>
 
@@ -1865,7 +1877,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setDeleteConfirmModal({ isOpen: false, item: null })}
-                      className="flex-1 flex items-center justify-center gap-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 py-4 rounded-2xl font-black text-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                      className="flex-1 flex items-center justify-center gap-3 bg-white/5 text-white/70 py-4 rounded-2xl font-black text-lg hover:bg-white/10 transition-colors border border-white/10"
                     >
                       <X size={20} />
                       {t('cancel')}
@@ -1910,18 +1922,13 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                 exit={{ opacity: 0, scale: 0.5 }}
                 transition={{ type: "spring", damping: 20, stiffness: 300 }}
                   className={cn(
-                    "relative w-full max-w-lg bg-gradient-to-r from-violet-50/80 via-purple-50/50 to-indigo-50/80 dark:bg-slate-900 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 rounded-[3rem] shadow-2xl overflow-hidden border-2 border-violet-200/60",
-                    successModal.type === 'delete' 
-                      ? "dark:border-emerald-500/20 shadow-[0_0_100px_rgba(16,185,129,0.3)]" 
-                      : "dark:border-blue-500/20 shadow-[0_0_100px_rgba(59,130,246,0.3)]"
+                    "relative w-full max-w-lg bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-[3rem] shadow-2xl overflow-hidden border",
+                    successModal.type === 'delete'
+                      ? "border-emerald-500/20 shadow-[0_0_100px_rgba(16,185,129,0.3)]"
+                      : "border-blue-500/20 shadow-[0_0_100px_rgba(59,130,246,0.3)]"
                   )}
                   dir={isRTL ? 'rtl' : 'ltr'}
                 >
-                  {/* Decorative circles - light mode only */}
-                  <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-violet-500/10 to-purple-500/10 rounded-full -translate-y-16 -translate-x-16 dark:hidden" />
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-full -translate-y-16 translate-x-16 dark:hidden" />
-                  <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-emerald-500/10 to-teal-500/10 rounded-full translate-y-12 -translate-x-12 dark:hidden" />
-                  <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tr from-amber-500/10 to-orange-500/10 rounded-full translate-y-12 translate-x-12 dark:hidden" />
                   <div className={cn(
                     "relative z-10 p-10 text-white text-center overflow-hidden",
                   successModal.type === 'delete'
@@ -1991,18 +1998,18 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.6 }}
                       className={cn(
-                        "rounded-2xl p-6 border-2",
+                        "rounded-2xl p-6 border",
                         successModal.type === 'delete'
-                          ? "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-100 dark:border-emerald-900/50"
-                          : "bg-blue-50 dark:bg-blue-950/30 border-blue-100 dark:border-blue-900/50"
+                          ? "bg-emerald-500/10 border-emerald-500/20"
+                          : "bg-blue-500/10 border-blue-500/20"
                       )}
                   >
-                    <p className="text-slate-500 font-bold text-sm mb-2">
+                    <p className="text-white/50 font-bold text-sm mb-2">
                       {successModal.type === 'delete' ? t('deletedItem') : t('createdItem')}
                     </p>
                     <p className={cn(
                       "font-black text-xl truncate",
-                      successModal.type === 'delete' ? "text-emerald-600 dark:text-emerald-400" : "text-blue-600 dark:text-blue-400"
+                      successModal.type === 'delete' ? "text-emerald-400" : "text-blue-400"
                     )}>
                       &quot;{successModal.title}&quot;
                     </p>
@@ -2046,14 +2053,9 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.8, y: 50 }}
                   transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                    className="relative w-full max-w-lg bg-gradient-to-r from-violet-50/80 via-purple-50/50 to-indigo-50/80 dark:bg-slate-900 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 rounded-[2rem] shadow-[0_0_100px_rgba(99,102,241,0.3)] overflow-hidden border-2 border-violet-200/60 dark:border-indigo-500/20"
+                    className="relative w-full max-w-lg bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-[2rem] shadow-[0_0_100px_rgba(99,102,241,0.3)] overflow-hidden border border-indigo-500/20"
                     dir={isRTL ? 'rtl' : 'ltr'}
                   >
-                    {/* Decorative circles - light mode only */}
-                    <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-violet-500/10 to-purple-500/10 rounded-full -translate-y-16 -translate-x-16 dark:hidden" />
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-full -translate-y-16 translate-x-16 dark:hidden" />
-                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-emerald-500/10 to-teal-500/10 rounded-full translate-y-12 -translate-x-12 dark:hidden" />
-                    <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tr from-amber-500/10 to-orange-500/10 rounded-full translate-y-12 translate-x-12 dark:hidden" />
                     <div className="relative z-10 bg-gradient-to-br from-indigo-500 via-purple-600 to-violet-700 p-8 text-white text-center overflow-hidden">
                     <div className="absolute inset-0 overflow-hidden">
                       {[...Array(4)].map((_, i) => (
@@ -2083,14 +2085,14 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
 
                     <form onSubmit={handleEditSubmit} className="relative z-10 p-8 space-y-5">
                     {/* Package number info */}
-                    <div className="flex items-center gap-3 bg-indigo-50 rounded-xl p-4 border border-indigo-100">
-                      <Info size={18} className="text-indigo-500 shrink-0" />
-                      <p className="text-xs font-bold text-indigo-700">{t('editPackageNote')} <span className="font-black">#{editModal.pkg.id}</span></p>
+                    <div className="flex items-center gap-3 bg-indigo-500/10 rounded-xl p-4 border border-indigo-500/20">
+                      <Info size={18} className="text-indigo-400 shrink-0" />
+                      <p className="text-xs font-bold text-indigo-300">{t('editPackageNote')} <span className="font-black">#{editModal.pkg.id}</span></p>
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-black text-gray-500 flex items-center gap-1.5 uppercase tracking-wider">
-                        <Package size={12} className="text-indigo-500" />
+                      <label className="text-xs font-black text-white/50 flex items-center gap-1.5 uppercase tracking-wider">
+                        <Package size={12} className="text-indigo-400" />
                         {t('packageName')}
                       </label>
                       <input
@@ -2098,13 +2100,13 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                         required
                         value={editFormData.group_name}
                         onChange={(e) => setEditFormData({ ...editFormData, group_name: e.target.value })}
-                        className="w-full bg-gray-50 border-2 border-gray-200 rounded-xl py-3 px-4 text-sm font-bold text-gray-700 focus:border-indigo-400 outline-none transition-all"
+                        className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold text-white placeholder-white/20 focus:border-indigo-500/40 outline-none transition-all"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                        <label className="text-xs font-black text-gray-500 flex items-center gap-1.5 uppercase tracking-wider">
-                          <Settings size={12} className="text-indigo-500" />
+                        <label className="text-xs font-black text-white/50 flex items-center gap-1.5 uppercase tracking-wider">
+                          <Settings size={12} className="text-indigo-400" />
                           {t('workSystem')}
                         </label>
                         <select
@@ -2113,47 +2115,47 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                             const wt = e.target.value;
                             setEditFormData({ ...editFormData, work_type: wt, monthly_target: wt === 'target' ? editFormData.monthly_target : 0, bonus_after_target: wt === 'target' ? editFormData.bonus_after_target : 0 });
                           }}
-                          className="w-full bg-gray-50 border-2 border-gray-200 rounded-xl py-3 px-4 text-sm font-bold text-gray-700 focus:border-indigo-400 outline-none transition-all"
+                          className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold text-white focus:border-indigo-500/40 outline-none transition-all"
                         >
-                          <option value="target">{t('targetSystemOption')}</option>
-                          <option value="salary">{t('salarySystemOption')}</option>
-                          <option value="commission">{t('commissionSystemOption')}</option>
+                          <option value="target" className="bg-slate-800">{t('targetSystemOption')}</option>
+                          <option value="salary" className="bg-slate-800">{t('salarySystemOption')}</option>
+                          <option value="commission" className="bg-slate-800">{t('commissionSystemOption')}</option>
                         </select>
                       </div>
 
                       {editFormData.work_type === 'target' && (
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-1.5">
-                            <label className="text-xs font-black text-gray-500 flex items-center gap-1.5 uppercase tracking-wider">
-                              <Target size={12} className="text-indigo-500" />
-                              {t('monthlyTarget')} <span className="text-red-500">*</span>
+                            <label className="text-xs font-black text-white/50 flex items-center gap-1.5 uppercase tracking-wider">
+                              <Target size={12} className="text-blue-400" />
+                              {t('monthlyTarget')} <span className="text-red-400">*</span>
                             </label>
                             <input
                               type="number"
                               value={editFormData.monthly_target}
                               onChange={(e) => setEditFormData({ ...editFormData, monthly_target: parseInt(e.target.value) || 0 })}
-                              className="w-full bg-gray-50 border-2 border-gray-200 rounded-xl py-3 px-4 text-sm font-bold text-gray-700 focus:border-indigo-400 outline-none transition-all"
+                              className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold text-white focus:border-blue-500/40 outline-none transition-all"
                             />
                           </div>
                           <div className="space-y-1.5">
-                            <label className="text-xs font-black text-gray-500 flex items-center gap-1.5 uppercase tracking-wider">
-                              <Trophy size={12} className="text-indigo-500" />
-                              {t('bonusAfterTarget')} <span className="text-red-500">*</span>
+                            <label className="text-xs font-black text-white/50 flex items-center gap-1.5 uppercase tracking-wider">
+                              <Trophy size={12} className="text-amber-400" />
+                              {t('bonusAfterTarget')} <span className="text-red-400">*</span>
                             </label>
                             <input
                               type="number"
                               value={editFormData.bonus_after_target}
                               onChange={(e) => setEditFormData({ ...editFormData, bonus_after_target: parseFloat(e.target.value) || 0 })}
-                              className="w-full bg-gray-50 border-2 border-gray-200 rounded-xl py-3 px-4 text-sm font-bold text-gray-700 focus:border-indigo-400 outline-none transition-all"
+                              className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold text-white focus:border-amber-500/40 outline-none transition-all"
                             />
                           </div>
                         </div>
                       )}
 
                       {editFormData.work_type !== 'target' && (
-                        <div className="flex items-center gap-3 bg-blue-50 rounded-xl p-4 border border-blue-200">
-                          <Info size={18} className="text-blue-500 shrink-0" />
-                          <p className="text-xs font-bold text-blue-700">
+                        <div className="flex items-center gap-3 bg-blue-500/10 rounded-xl p-4 border border-blue-500/20">
+                          <Info size={18} className="text-blue-400 shrink-0" />
+                          <p className="text-xs font-bold text-blue-300">
                             {editFormData.work_type === 'salary' ? t('salaryPackageInfo') : t('commissionPackageInfo')}
                           </p>
                         </div>
@@ -2165,7 +2167,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                         whileTap={{ scale: 0.98 }}
                         type="button"
                         onClick={() => setEditModal({ isOpen: false, pkg: null })}
-                        className="flex-1 flex items-center justify-center gap-2 bg-gray-100 text-gray-600 py-4 rounded-2xl font-black text-base hover:bg-gray-200 transition-all"
+                        className="flex-1 flex items-center justify-center gap-2 bg-white/5 text-white/60 py-4 rounded-2xl font-black text-base hover:bg-white/10 border border-white/10 transition-all"
                       >
                         <X size={18} />
                         {t('cancel')}
@@ -2209,20 +2211,15 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                   exit={{ opacity: 0, scale: 0.5, y: 50 }}
                   transition={{ type: "spring", damping: 20, stiffness: 300 }}
                     className={cn(
-                      "relative w-full max-w-lg bg-gradient-to-r from-violet-50/80 via-purple-50/50 to-indigo-50/80 dark:bg-slate-900 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 rounded-[3rem] shadow-2xl overflow-hidden border-2 border-violet-200/60",
+                      "relative w-full max-w-lg bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-[3rem] shadow-2xl overflow-hidden border",
                       excelScanModal.phase === 'scanning'
-                        ? "dark:border-blue-500/20 shadow-[0_0_100px_rgba(59,130,246,0.3)]"
+                        ? "border-blue-500/20 shadow-[0_0_100px_rgba(59,130,246,0.3)]"
                         : excelScanModal.phase === 'found'
-                        ? "dark:border-purple-500/20 shadow-[0_0_100px_rgba(147,51,234,0.3)]"
-                        : "dark:border-emerald-500/20 shadow-[0_0_100px_rgba(16,185,129,0.3)]"
+                        ? "border-purple-500/20 shadow-[0_0_100px_rgba(147,51,234,0.3)]"
+                        : "border-emerald-500/20 shadow-[0_0_100px_rgba(16,185,129,0.3)]"
                     )}
                     dir={isRTL ? 'rtl' : 'ltr'}
                   >
-                    {/* Decorative circles - light mode only */}
-                    <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-violet-500/10 to-purple-500/10 rounded-full -translate-y-16 -translate-x-16 dark:hidden" />
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-full -translate-y-16 translate-x-16 dark:hidden" />
-                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-emerald-500/10 to-teal-500/10 rounded-full translate-y-12 -translate-x-12 dark:hidden" />
-                    <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tr from-amber-500/10 to-orange-500/10 rounded-full translate-y-12 translate-x-12 dark:hidden" />
                     {/* Header */}
                     <div className={cn(
                       "relative z-10 p-10 text-white text-center overflow-hidden transition-all duration-700",
@@ -2335,12 +2332,12 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: i * 0.2 }}
                           className={cn(
-                            "flex items-center gap-4 p-4 rounded-2xl border-2 transition-all duration-500",
+                            "flex items-center gap-4 p-4 rounded-2xl border transition-all duration-500",
                             step.done
-                              ? "bg-emerald-50 border-emerald-200"
+                              ? "bg-emerald-500/10 border-emerald-500/20"
                               : step.active
-                              ? "bg-blue-50 border-blue-200"
-                              : "bg-gray-50 border-gray-100"
+                              ? "bg-blue-500/10 border-blue-500/20"
+                              : "bg-white/5 border-white/10"
                           )}
                         >
                           <div className={cn(
@@ -2349,7 +2346,7 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                               ? "bg-gradient-to-br from-emerald-500 to-teal-600"
                               : step.active
                               ? "bg-gradient-to-br from-blue-500 to-indigo-600"
-                              : "bg-gray-200"
+                              : "bg-white/10 border border-white/10"
                           )}>
                             {step.done ? (
                               <CheckCircle2 size={20} className="text-white" />
@@ -2361,12 +2358,12 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                                 <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full" />
                               </motion.div>
                             ) : (
-                              <div className="h-3 w-3 rounded-full bg-gray-400" />
+                              <div className="h-3 w-3 rounded-full bg-white/20" />
                             )}
                           </div>
                           <span className={cn(
                             "font-black text-sm transition-all duration-500",
-                            step.done ? "text-emerald-700" : step.active ? "text-blue-700" : "text-gray-400"
+                            step.done ? "text-emerald-300" : step.active ? "text-blue-300" : "text-white/30"
                           )}>
                             {step.label}
                           </span>
@@ -2382,21 +2379,21 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                         className="flex items-center justify-center"
                       >
                         <div className={cn(
-                          "inline-flex items-center gap-3 px-8 py-4 rounded-2xl border-2",
+                          "inline-flex items-center gap-3 px-8 py-4 rounded-2xl border",
                           excelScanModal.phase === 'done'
-                            ? "bg-emerald-50 border-emerald-200"
-                            : "bg-purple-50 border-purple-200"
+                            ? "bg-emerald-500/10 border-emerald-500/20"
+                            : "bg-purple-500/10 border-purple-500/20"
                         )}>
-                          <Users size={24} className={excelScanModal.phase === 'done' ? "text-emerald-600" : "text-purple-600"} />
+                          <Users size={24} className={excelScanModal.phase === 'done' ? "text-emerald-400" : "text-purple-400"} />
                           <span className={cn(
                             "text-4xl font-black",
-                            excelScanModal.phase === 'done' ? "text-emerald-700" : "text-purple-700"
+                            excelScanModal.phase === 'done' ? "text-emerald-300" : "text-purple-300"
                           )}>
                             {excelScanModal.count}
                           </span>
                           <span className={cn(
                             "text-sm font-black",
-                            excelScanModal.phase === 'done' ? "text-emerald-600" : "text-purple-600"
+                            excelScanModal.phase === 'done' ? "text-emerald-400" : "text-purple-400"
                           )}>
                             {t('excelEmployeesFound')}
                           </span>

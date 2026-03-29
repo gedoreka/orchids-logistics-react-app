@@ -1,29 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Edit,
-  Building2, 
-  User, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  FileText, 
-  Receipt,
-  Hash,
-  Globe,
-  Building,
-  MapPinned,
-  ArrowRight,
-  ArrowLeft,
-  Wallet,
-  Calculator,
-  Save,
-  Loader2,
-  Power,
-  Eye,
-  Route
+import { motion } from "framer-motion";
+import {
+  Edit, Building2, User, Mail, Phone, MapPin, FileText, Receipt,
+  Hash, Globe, Building, MapPinned, ArrowRight, Wallet, Calculator,
+  Save, Loader2, Power, Eye, Route, LayoutDashboard, Users
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -82,7 +64,6 @@ export function EditCustomerClient({ customer, accounts, costCenters, companyId 
   const [loadingModal, setLoadingModal] = useState(false);
   const [errorModal, setErrorModal] = useState<{ isOpen: boolean; title: string; message: string }>({ isOpen: false, title: '', message: '' });
 
-  // Map country name back to code if possible, default to SA
   const countryCode = locationLibrary.countries.find(c => c.nativeName === customer.country)?.code || "SA";
 
   const [formData, setFormData] = useState({
@@ -94,7 +75,7 @@ export function EditCustomerClient({ customer, accounts, costCenters, companyId 
     email: customer.email || "",
     phone: customer.phone || "",
     country: countryCode,
-    region: "", // Regions aren't stored in DB, we'll try to match city if needed or just let user re-select
+    region: "",
     city: customer.city || "",
     district: customer.district || "",
     street_name: customer.street_name || "",
@@ -113,8 +94,6 @@ export function EditCustomerClient({ customer, accounts, costCenters, companyId 
     if (formData.country) {
       const countryRegions = locationLibrary.getRegions(formData.country);
       setRegions(countryRegions);
-      
-      // If we have a city, try to find which region it belongs to
       if (formData.city) {
         for (const region of countryRegions) {
           const regionCities = locationLibrary.getCities(formData.country, region.code);
@@ -141,50 +120,36 @@ export function EditCustomerClient({ customer, accounts, costCenters, companyId 
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({ 
-      ...prev, 
-      [name]: type === "checkbox" ? checked : value 
-    }));
+    setFormData(prev => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
   };
 
   const handleSelectChange = (name: string, value: string | number) => {
     setFormData(prev => {
       const newData = { ...prev, [name]: value };
-      if (name === "country") {
-        newData.region = "";
-        newData.city = "";
-        newData.district = "";
-      } else if (name === "region") {
-        newData.city = "";
-        newData.district = "";
-      } else if (name === "city") {
-        newData.district = "";
-      }
+      if (name === "country") { newData.region = ""; newData.city = ""; newData.district = ""; }
+      else if (name === "region") { newData.city = ""; newData.district = ""; }
+      else if (name === "city") { newData.district = ""; }
       return newData;
     });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!formData.company_name || !formData.commercial_number || !formData.vat_number) {
-      setErrorModal({ isOpen: true, title: "خطأ في البيانات", message: "يرجى ملء جميع الحقول الإجبارية (اسم المنشأة، السجل التجاري، الرقم الضريبي)" });
+      setErrorModal({ isOpen: true, title: "خطأ في البيانات", message: "يرجى ملء الحقول الإجبارية: اسم المنشأة، السجل التجاري، الرقم الضريبي" });
       return;
     }
-
     if (!formData.account_id) {
-      setErrorModal({ isOpen: true, title: "خطأ في البيانات", message: "يرجى اختيار شجرة الحسابات - هذا الحقل إجباري" });
+      setErrorModal({ isOpen: true, title: "خطأ في البيانات", message: "يرجى اختيار شجرة الحسابات" });
       return;
     }
-
     if (!formData.cost_center_id) {
-      setErrorModal({ isOpen: true, title: "خطأ في البيانات", message: "يرجى اختيار مركز التكلفة - هذا الحقل إجباري" });
+      setErrorModal({ isOpen: true, title: "خطأ في البيانات", message: "يرجى اختيار مركز التكلفة" });
       return;
     }
 
     setLoading(true);
     setLoadingModal(true);
-
     try {
       const res = await fetch(`/api/customers/${customer.id}`, {
         method: "PUT",
@@ -197,15 +162,10 @@ export function EditCustomerClient({ customer, accounts, costCenters, companyId 
           country: locationLibrary.countries.find(c => c.code === formData.country)?.nativeName || formData.country
         })
       });
-
       setLoadingModal(false);
-
       if (res.ok) {
         setSuccessModal({ isOpen: true, type: 'update', title: formData.company_name || formData.customer_name });
-        setTimeout(() => {
-          router.push(`/customers/${customer.id}`);
-          router.refresh();
-        }, 2000);
+        setTimeout(() => { router.push(`/customers/${customer.id}`); router.refresh(); }, 2000);
       } else {
         const data = await res.json();
         setErrorModal({ isOpen: true, title: "فشل الحفظ", message: data.error || "فشل تحديث بيانات العميل" });
@@ -219,349 +179,235 @@ export function EditCustomerClient({ customer, accounts, costCenters, companyId 
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0d1525] relative overflow-hidden">
-      {/* Dynamic Background Elements */}
-      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-blue-600/5 rounded-full blur-[150px] -mr-96 -mt-96 pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-purple-600/5 rounded-full blur-[150px] -ml-96 -mb-96 pointer-events-none" />
-      
+    <div className="w-full px-2 pt-4 pb-6">
       {/* Modals */}
-      <SuccessModal
-        isOpen={successModal.isOpen}
-        type={successModal.type}
-        title={successModal.title}
-        onClose={() => setSuccessModal({ isOpen: false, type: null, title: '' })}
-      />
+      <SuccessModal isOpen={successModal.isOpen} type={successModal.type} title={successModal.title} onClose={() => setSuccessModal({ isOpen: false, type: null, title: '' })} />
       <LoadingModal isOpen={loadingModal} title="جاري الحفظ" message="جاري تحديث بيانات العميل..." />
-      <ErrorModal
-        isOpen={errorModal.isOpen}
-        title={errorModal.title}
-        message={errorModal.message}
-        onClose={() => setErrorModal({ isOpen: false, title: '', message: '' })}
-      />
+      <ErrorModal isOpen={errorModal.isOpen} title={errorModal.title} message={errorModal.message} onClose={() => setErrorModal({ isOpen: false, title: '', message: '' })} />
 
-      <div className="relative z-10 flex-1 p-4 md:p-10">
-        <div className="max-w-[1200px] mx-auto space-y-10">
-          {/* Header Card */}
-          <div className="relative overflow-hidden bg-white/5 backdrop-blur-2xl rounded-[3rem] p-10 md:p-14 text-white shadow-2xl border border-white/10">
-            <div className="relative z-10">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-10">
-                <div className="flex items-center gap-8">
-                  <div className="h-24 w-28 rounded-[2rem] bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20 rotate-3 border border-white/20">
-                    <Edit size={48} strokeWidth={2.5} className="-rotate-3" />
-                  </div>
-                  <div>
-                    <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-3">تعديل بيانات العميل</h1>
-                    <div className="flex items-center gap-3">
-                      <span className="px-4 py-1.5 rounded-full bg-amber-500/10 text-amber-400 text-sm font-black border border-amber-500/20">
-                        {customer.customer_name || customer.company_name}
-                      </span>
-                      <p className="text-slate-400 text-xl font-bold">تحديث معلومات الحساب</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex gap-4">
-                  <Link href={`/customers/${customer.id}`}>
-                    <button className="group flex items-center gap-4 px-8 py-5 rounded-2xl bg-white/5 text-white font-black text-lg hover:bg-white/10 transition-all border border-white/10 backdrop-blur-xl">
-                      <Eye size={24} />
-                      <span>عرض العميل</span>
-                    </button>
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="bg-gradient-to-br from-slate-800 via-slate-700 to-slate-600 rounded-[3rem] shadow-2xl border border-slate-500/30 overflow-hidden"
+      >
+        {/* Rainbow bar */}
+        <div className="h-1.5 w-full bg-gradient-to-r from-amber-500 via-orange-500 via-blue-500 via-indigo-500 to-amber-500" />
+
+        <div className="p-5 md:p-8 space-y-5">
+
+          {/* ── Compact Header ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+            className="bg-white/5 backdrop-blur-xl px-6 py-5 rounded-[1.75rem] border border-white/10 shadow-lg flex items-center justify-between"
+          >
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-md shadow-amber-500/25 flex-shrink-0">
+                <Edit size={22} strokeWidth={2.5} className="text-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 mb-1">
+                  <Link href="/dashboard" className="hover:text-blue-400 transition-colors flex items-center gap-1">
+                    <LayoutDashboard size={11} />لوحة التحكم
                   </Link>
-                  <Link href="/customers">
-                    <button className="group flex items-center gap-4 px-8 py-5 rounded-2xl bg-white/5 text-white font-black text-lg hover:bg-white/10 transition-all border border-white/10 backdrop-blur-xl">
-                      <ArrowRight size={24} className="group-hover:-translate-x-1 transition-transform" />
-                      <span>العودة للقائمة</span>
-                    </button>
+                  <ArrowRight size={11} className="text-slate-500 rotate-180" />
+                  <Link href="/customers" className="hover:text-blue-400 transition-colors flex items-center gap-1">
+                    <Users size={11} />العملاء
                   </Link>
+                  <ArrowRight size={11} className="text-slate-500 rotate-180" />
+                  <span className="text-amber-400">تعديل</span>
                 </div>
+                <h1 className="text-xl font-black text-white tracking-tight">
+                  {customer.company_name || customer.customer_name}
+                </h1>
+                <p className="text-white/40 text-xs font-semibold mt-0.5">
+                  {[formData.city, formData.district && `حي ${formData.district}`, formData.street_name && `شارع ${formData.street_name}`].filter(Boolean).join(' ') || 'تحديث معلومات الحساب'}
+                </p>
               </div>
             </div>
-          </div>
+            <div className="flex items-center gap-2">
+              <Link href={`/customers/${customer.id}`}>
+                <motion.button
+                  whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500/10 text-blue-400 font-bold text-sm hover:bg-blue-500/20 transition-all border border-blue-500/20"
+                >
+                  <Eye size={15} />
+                  <span>عرض</span>
+                </motion.button>
+              </Link>
+              <Link href="/customers">
+                <motion.button
+                  whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 text-white/70 font-bold text-sm hover:bg-white/10 hover:text-white transition-all border border-white/10"
+                >
+                  <ArrowRight size={15} className="rotate-180" />
+                  <span>العودة</span>
+                </motion.button>
+              </Link>
+            </div>
+          </motion.div>
 
-          <form onSubmit={handleSubmit} className="space-y-10">
-            {/* Basic Info */}
-            <Section title="المعلومات الأساسية للمنشأة" icon={<Building2 size={28} />} color="blue">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <FormField 
-                  icon={<User size={20} />} 
-                  label="اسم العميل الكامل" 
-                  name="customer_name"
-                  value={formData.customer_name}
-                  onChange={handleChange}
-                  placeholder="أدخل الاسم الرباعي"
-                />
-                <FormField 
-                  icon={<Building2 size={20} />} 
-                  label="اسم المنشأة" 
-                  name="company_name"
-                  value={formData.company_name}
-                  onChange={handleChange}
-                  placeholder="المسمى الرسمي في السجل"
-                  required
-                />
-                <FormField 
-                  icon={<FileText size={20} />} 
-                  label="رقم السجل التجاري" 
-                  name="commercial_number"
-                  value={formData.commercial_number}
-                  onChange={handleChange}
-                  placeholder="رقم السجل (10 أرقام)"
-                  required
-                />
-                <FormField 
-                  icon={<Receipt size={20} />} 
-                  label="الرقم الضريبي" 
-                  name="vat_number"
-                  value={formData.vat_number}
-                  onChange={handleChange}
-                  placeholder="الرقم الضريبي (15 رقم)"
-                  required
-                />
-                <FormField 
-                  icon={<Hash size={20} />} 
-                  label="الرقم الموحد" 
-                  name="unified_number"
-                  value={formData.unified_number}
-                  onChange={handleChange}
-                  placeholder="700xxxxxxx"
-                />
-              </div>
-            </Section>
+          <form onSubmit={handleSubmit} className="space-y-5">
 
-            {/* Contact Info */}
-            <Section title="بيانات التواصل السريع" icon={<Phone size={28} />} color="emerald">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <FormField 
-                  icon={<Mail size={20} />} 
-                  label="البريد الإلكتروني" 
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="example@zoolspeed.com"
-                />
-                <FormField 
-                  icon={<Phone size={20} />} 
-                  label="رقم الجوال" 
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  placeholder="05xxxxxxxx"
-                />
-              </div>
-            </Section>
-
-            {/* Address */}
-            <Section title="تفاصيل العنوان الوطني الشامل" icon={<MapPin size={28} />} color="purple">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <LuxurySearchableSelect
-                  label="الدولة"
-                  icon={<Globe size={20} />}
-                  value={formData.country}
-                  onChange={(val) => handleSelectChange("country", val as string)}
-                  options={locationLibrary.countries.map(c => ({ value: c.code, label: c.nativeName }))}
-                  placeholder="اختر الدولة"
-                />
-                <LuxurySearchableSelect
-                  label="المنطقة / الولاية"
-                  icon={<MapPinned size={20} />}
-                  value={formData.region}
-                  onChange={(val) => handleSelectChange("region", val as string)}
-                  options={regions.map(r => ({ value: r.code, label: r.name }))}
-                  placeholder="اختر المنطقة"
-                  disabled={!formData.country}
-                />
-                <LuxurySearchableSelect
-                  label="المدينة"
-                  icon={<Building size={20} />}
-                  value={formData.city}
-                  onChange={(val) => handleSelectChange("city", val as string)}
-                  options={cities.map(c => ({ value: c.name, label: c.name }))}
-                  placeholder="اختر المدينة"
-                  disabled={!formData.region}
-                />
-                <LuxurySearchableSelect
-                  label="الحي"
-                  icon={<MapPinned size={20} />}
-                  value={formData.district}
-                  onChange={(val) => handleSelectChange("district", val as string)}
-                  options={districts.map(d => ({ value: d, label: d }))}
-                  placeholder="اختر الحي"
-                  disabled={!formData.city}
-                />
-                <FormField 
-                  icon={<Route size={20} />} 
-                  label="اسم الشارع والمبنى" 
-                  name="street_name"
-                  value={formData.street_name}
-                  onChange={handleChange}
-                  placeholder="الشارع، رقم المبنى"
-                />
-                <FormField 
-                  icon={<Hash size={20} />} 
-                  label="الرمز البريدي" 
-                  name="postal_code"
-                  value={formData.postal_code}
-                  onChange={handleChange}
-                  placeholder="5 أرقام"
-                />
-              </div>
-            </Section>
-
-              {/* Financial Info */}
-              <Section title="الإعدادات المالية (شجرة الحسابات)" icon={<Wallet size={28} />} color="orange">
-                <div className="space-y-8">
-                  <div>
-                    <HierarchicalSearchableSelect
-                      label="شجرة الحسابات"
-                      icon={<Wallet size={20} />}
-                      value={formData.account_id}
-                      onSelect={(val) => handleSelectChange("account_id", val)}
-                      items={accounts.map(a => ({
-                        id: a.id,
-                        code: a.account_code,
-                        name: a.account_name,
-                        type: a.account_type as any,
-                        parent_id: a.parent_id
-                      }))}
-                      placeholder="ابحث بالاسم أو رقم الحساب"
-                    />
-                    {!formData.account_id && (
-                      <p className="text-red-400 text-xs font-bold mt-2 mr-1">* هذا الحقل إجباري</p>
-                    )}
-                  </div>
-                  <div>
-                    <HierarchicalSearchableSelect
-                      label="مركز التكلفة"
-                      icon={<Calculator size={20} />}
-                      value={formData.cost_center_id}
-                      onSelect={(val) => handleSelectChange("cost_center_id", val)}
-                      items={costCenters.map(c => ({
-                        id: c.id,
-                        code: c.center_code,
-                        name: c.center_name,
-                        type: c.center_type as any,
-                        parent_id: c.parent_id
-                      }))}
-                      placeholder="ابحث بالاسم أو كود المركز"
-                    />
-                    {!formData.cost_center_id && (
-                      <p className="text-red-400 text-xs font-bold mt-2 mr-1">* هذا الحقل إجباري</p>
-                    )}
-                  </div>
+            {/* ── Row 1: Basic Info + Contact (side by side) ── */}
+            <div className="grid grid-cols-1 xl:grid-cols-5 gap-5">
+              {/* Basic Info — wider (3/5) */}
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="xl:col-span-3 bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 shadow-lg overflow-hidden"
+              >
+                <SectionHeader title="المعلومات الأساسية للمنشأة" icon={<Building2 size={16} />} color="blue" />
+                <div className="p-5 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                  <Field icon={<User size={14} />} label="اسم العميل" name="customer_name" value={formData.customer_name} onChange={handleChange} placeholder="الاسم الرباعي" />
+                  <Field icon={<Building2 size={14} />} label="اسم المنشأة *" name="company_name" value={formData.company_name} onChange={handleChange} placeholder="المسمى الرسمي" required />
+                  <Field icon={<FileText size={14} />} label="السجل التجاري *" name="commercial_number" value={formData.commercial_number} onChange={handleChange} placeholder="10 أرقام" required />
+                  <Field icon={<Receipt size={14} />} label="الرقم الضريبي *" name="vat_number" value={formData.vat_number} onChange={handleChange} placeholder="15 رقم" required />
+                  <Field icon={<Hash size={14} />} label="الرقم الموحد" name="unified_number" value={formData.unified_number} onChange={handleChange} placeholder="700xxxxxxx" />
                 </div>
-              </Section>
+              </motion.div>
 
-            {/* Status & Submit */}
-            <div className="flex flex-col lg:flex-row gap-10 items-stretch pb-20">
-              <div className="flex-1 bg-white/5 backdrop-blur-xl rounded-[2.5rem] border border-white/10 shadow-2xl p-10 flex items-center justify-between">
-                <div className="flex items-center gap-6">
-                  <div className="h-16 w-16 rounded-[1.25rem] bg-white/5 flex items-center justify-center text-slate-400 border border-white/10">
-                    <Power size={32} />
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-black text-white mb-1">حالة الحساب</h3>
-                    <p className="text-slate-400 font-bold text-lg">تفعيل ظهور العميل في الفواتير</p>
-                  </div>
+              {/* Contact Info — narrower (2/5) */}
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.13 }}
+                className="xl:col-span-2 bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 shadow-lg overflow-hidden"
+              >
+                <SectionHeader title="بيانات التواصل السريع" icon={<Phone size={16} />} color="emerald" />
+                <div className="p-5 space-y-4">
+                  <Field icon={<Mail size={14} />} label="البريد الإلكتروني" name="email" type="email" value={formData.email} onChange={handleChange} placeholder="example@domain.com" />
+                  <Field icon={<Phone size={14} />} label="رقم الجوال" name="phone" value={formData.phone} onChange={handleChange} placeholder="05xxxxxxxx" />
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer scale-[1.5]">
-                  <input
-                    type="checkbox"
-                    name="is_active"
-                    checked={formData.is_active}
-                    onChange={handleChange}
-                    className="sr-only peer"
-                  />
-                  <div className="w-14 h-8 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:start-[4px] after:bg-white after:border-white/20 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-emerald-500 shadow-inner"></div>
+              </motion.div>
+            </div>
+
+            {/* ── Row 2: Address ── */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.16 }}
+              className="bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 shadow-lg overflow-hidden"
+            >
+              <SectionHeader title="تفاصيل العنوان الوطني" icon={<MapPin size={16} />} color="purple" />
+              <div className="p-5 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-7 gap-4">
+                <LuxurySearchableSelect label="الدولة" icon={<Globe size={14} />} value={formData.country} onChange={(val) => handleSelectChange("country", val as string)} options={locationLibrary.countries.map(c => ({ value: c.code, label: c.nativeName }))} placeholder="الدولة" />
+                <LuxurySearchableSelect label="المنطقة" icon={<MapPinned size={14} />} value={formData.region} onChange={(val) => handleSelectChange("region", val as string)} options={regions.map(r => ({ value: r.code, label: r.name }))} placeholder="المنطقة" disabled={!formData.country} />
+                <LuxurySearchableSelect label="المدينة" icon={<Building size={14} />} value={formData.city} onChange={(val) => handleSelectChange("city", val as string)} options={cities.map(c => ({ value: c.name, label: c.name }))} placeholder="المدينة" disabled={!formData.region} />
+                <LuxurySearchableSelect label="الحي" icon={<MapPinned size={14} />} value={formData.district} onChange={(val) => handleSelectChange("district", val as string)} options={districts.map(d => ({ value: d, label: d }))} placeholder="الحي" disabled={!formData.city} />
+                <Field icon={<Route size={14} />} label="اسم الشارع" name="street_name" value={formData.street_name} onChange={handleChange} placeholder="اسم الشارع" />
+                <Field icon={<Hash size={14} />} label="الرمز البريدي" name="postal_code" value={formData.postal_code} onChange={handleChange} placeholder="5 أرقام" />
+                <Field icon={<MapPin size={14} />} label="العنوان المختصر" name="short_address" value={formData.short_address} onChange={handleChange} placeholder="RREE1234" />
+              </div>
+            </motion.div>
+
+            {/* ── Row 3: Financial (2 cols) ── */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.19 }}
+              className="bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 shadow-lg overflow-hidden"
+            >
+              <SectionHeader title="الإعدادات المالية" icon={<Wallet size={16} />} color="orange" />
+              <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <HierarchicalSearchableSelect label="شجرة الحسابات *" icon={<Wallet size={16} />} value={formData.account_id} onSelect={(val) => handleSelectChange("account_id", val)} items={accounts.map(a => ({ id: a.id, code: a.account_code, name: a.account_name, type: a.account_type as any, parent_id: a.parent_id }))} placeholder="ابحث بالاسم أو رقم الحساب" />
+                  {!formData.account_id && <p className="text-red-400 text-[11px] font-bold mt-1.5 mr-1">* إجباري</p>}
+                </div>
+                <div>
+                  <HierarchicalSearchableSelect label="مركز التكلفة *" icon={<Calculator size={16} />} value={formData.cost_center_id} onSelect={(val) => handleSelectChange("cost_center_id", val)} items={costCenters.map(c => ({ id: c.id, code: c.center_code, name: c.center_name, type: c.center_type as any, parent_id: c.parent_id }))} placeholder="ابحث بالاسم أو كود المركز" />
+                  {!formData.cost_center_id && <p className="text-red-400 text-[11px] font-bold mt-1.5 mr-1">* إجباري</p>}
+                </div>
+              </div>
+            </motion.div>
+
+            {/* ── Row 4: Status + Actions ── */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.22 }}
+              className="bg-white/5 backdrop-blur-xl rounded-[1.75rem] border border-white/10 shadow-lg px-6 py-4 flex flex-col sm:flex-row items-center gap-4"
+            >
+              {/* Status toggle */}
+              <div className="flex items-center gap-3 flex-1">
+                <div className="h-9 w-9 rounded-xl bg-white/5 flex items-center justify-center text-slate-400 border border-white/10">
+                  <Power size={16} />
+                </div>
+                <div>
+                  <p className="text-sm font-black text-white">حالة الحساب</p>
+                  <p className="text-white/40 text-xs font-medium">تفعيل ظهور العميل في الفواتير</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer mr-2">
+                  <input type="checkbox" name="is_active" checked={formData.is_active} onChange={handleChange} className="sr-only peer" />
+                  <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[3px] after:start-[3px] after:bg-white after:border-white/20 after:border after:rounded-full after:h-[18px] after:w-[18px] after:transition-all peer-checked:bg-emerald-500 shadow-inner"></div>
                 </label>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-6 lg:min-w-[500px]">
-                <Link href="/customers" className="flex-1">
-                  <button type="button" className="w-full h-full px-10 py-6 rounded-[2rem] bg-white/5 text-white font-black text-xl hover:bg-white/10 transition-all border border-white/10 shadow-2xl active:scale-95">
+              {/* Buttons */}
+              <div className="flex items-center gap-3">
+                <Link href="/customers">
+                  <motion.button
+                    type="button"
+                    whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+                    className="px-5 py-2.5 rounded-xl bg-white/5 text-white/70 font-bold text-sm hover:bg-white/10 hover:text-white transition-all border border-white/10"
+                  >
                     إلغاء
-                  </button>
+                  </motion.button>
                 </Link>
-                <button
+                <motion.button
                   type="submit"
                   disabled={loading}
-                  className="flex-[2] flex items-center justify-center gap-4 px-12 py-6 rounded-[2rem] bg-amber-500 text-white font-black text-2xl hover:bg-amber-600 transition-all shadow-[0_20px_50px_rgba(245,158,11,0.4)] active:scale-95 disabled:opacity-50"
+                  whileHover={{ scale: loading ? 1 : 1.04, boxShadow: "0 8px 24px rgba(245,158,11,0.35)" }}
+                  whileTap={{ scale: 0.96 }}
+                  className="flex items-center gap-2.5 px-7 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 text-white font-black text-sm shadow-lg shadow-amber-500/25 hover:from-amber-400 hover:to-orange-500 transition-all disabled:opacity-50"
                 >
-                  {loading ? (
-                    <Loader2 size={32} className="animate-spin" />
-                  ) : (
-                    <Save size={32} strokeWidth={2.5} />
-                  )}
+                  {loading ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} strokeWidth={2.5} />}
                   <span>{loading ? "جاري الحفظ..." : "حفظ التعديلات"}</span>
-                </button>
+                </motion.button>
               </div>
-            </div>
+            </motion.div>
+
           </form>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
 
-function Section({ title, icon, color, children }: { 
-  title: string; 
-  icon: React.ReactNode; 
-  color: "blue" | "emerald" | "purple" | "orange" | "gray";
-  children: React.ReactNode;
-}) {
-  const colors = {
-    blue: "from-blue-600 to-blue-400 shadow-blue-500/20",
-    emerald: "from-emerald-600 to-emerald-400 shadow-emerald-500/20",
-    purple: "from-purple-600 to-purple-400 shadow-purple-500/20",
-    orange: "from-orange-600 to-orange-400 shadow-orange-500/20",
-    gray: "from-slate-600 to-slate-400 shadow-slate-500/20"
+function SectionHeader({ title, icon, color }: { title: string; icon: React.ReactNode; color: "blue" | "emerald" | "purple" | "orange" }) {
+  const gradients = {
+    blue: "from-blue-600 to-indigo-600",
+    emerald: "from-emerald-600 to-teal-600",
+    purple: "from-purple-600 to-violet-600",
+    orange: "from-orange-500 to-amber-600",
   };
-
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      className="bg-white/5 backdrop-blur-3xl rounded-[3rem] border border-white/10 shadow-2xl overflow-hidden"
-    >
-      <div className={`bg-gradient-to-r ${colors[color]} px-10 py-7 flex items-center gap-6 text-white shadow-xl relative overflow-hidden border-b border-white/10`}>
-        <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-xl border border-white/20 relative z-10">
-          {icon}
-        </div>
-        <h3 className="text-2xl font-black tracking-tight relative z-10">{title}</h3>
-        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl" />
-      </div>
-      <div className="p-10 md:p-12">
-        {children}
-      </div>
-    </motion.div>
+    <div className={`bg-gradient-to-r ${gradients[color]} px-5 py-3.5 flex items-center gap-3 text-white relative overflow-hidden`}>
+      <div className="p-1.5 bg-white/20 rounded-lg backdrop-blur-xl border border-white/20 relative z-10">{icon}</div>
+      <h3 className="text-sm font-black tracking-tight relative z-10">{title}</h3>
+      <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10 blur-xl pointer-events-none" />
+    </div>
   );
 }
 
-function FormField({ icon, label, name, value, onChange, placeholder, required, type = "text" }: {
-  icon: React.ReactNode;
-  label: string;
-  name: string;
-  value: string;
+function Field({ icon, label, name, value, onChange, placeholder, required, type = "text" }: {
+  icon: React.ReactNode; label: string; name: string; value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  placeholder?: string;
-  required?: boolean;
-  type?: string;
+  placeholder?: string; required?: boolean; type?: string;
 }) {
   return (
-    <div className="space-y-3">
-      <label className="flex items-center gap-2.5 text-[14px] font-black text-white mr-1.5">
-        <span className="text-emerald-400">{icon}</span>
+    <div className="space-y-1.5">
+      <label className="flex items-center gap-1.5 text-[12px] font-black text-white/70">
+        <span className="text-amber-400">{icon}</span>
         {label}
-        {required && <span className="text-red-500">*</span>}
       </label>
       <input
-        type={type}
-        name={name}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        required={required}
-        className="w-full px-6 py-4.5 rounded-[1.25rem] border-2 border-white/10 bg-white/5 focus:bg-white/10 focus:border-emerald-500 focus:ring-[6px] focus:ring-emerald-500/5 outline-none transition-all text-[16px] font-black text-white placeholder:text-white/20 placeholder:font-bold shadow-sm"
+        type={type} name={name} value={value} onChange={onChange}
+        placeholder={placeholder} required={required}
+        className="w-full px-4 py-2.5 rounded-xl border border-white/10 bg-white/5 focus:bg-white/10 focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/10 outline-none transition-all text-sm font-bold text-white placeholder:text-white/20 placeholder:font-medium"
       />
     </div>
   );

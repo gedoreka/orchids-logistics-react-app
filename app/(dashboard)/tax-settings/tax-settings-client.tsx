@@ -7,9 +7,10 @@ import {
   ShoppingBag, Archive, X, Loader2, AlertTriangle,
   CheckCircle2, AlertCircle, Printer, RefreshCw, Eye,
   Shield, Zap, Globe, ToggleLeft, ChevronDown, ChevronUp,
-  Hash, Calendar, Target, Activity
+  Hash, Calendar, Target, Activity, LayoutDashboard, ArrowRight
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 
 // ─── Types ───────────────────────────────────────────────────────
 interface TaxType {
@@ -597,7 +598,7 @@ export function TaxSettingsClient({ companyId }: TaxSettingsClientProps) {
                     { label: "افتراضي", value: modal.taxData.is_default ? "نعم" : "لا", color: "text-white" },
                     { label: "الوصف", value: modal.taxData.description || "-", color: "text-white/60" },
                   ].map((item, i) => (
-                    <div key={i} className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
+                    <div key={i} className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/10">
                       <span className="text-white/40 font-bold text-xs uppercase tracking-wider">{item.label}</span>
                       <span className={`font-black text-sm ${item.color}`}>{item.value}</span>
                     </div>
@@ -783,20 +784,44 @@ export function TaxSettingsClient({ companyId }: TaxSettingsClientProps) {
       </AnimatePresence>
 
       {/* ═══════════ Page Content ═══════════ */}
-      <div className="p-4 md:p-6 max-w-[1400px] mx-auto space-y-6" style={{ zoom: "0.9" }}>
+      <div className="w-full px-2 pt-6 pb-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="bg-gradient-to-br from-slate-800 via-slate-700 to-slate-600 rounded-[3rem] shadow-2xl border border-slate-500/30 overflow-hidden"
+        >
+          {/* Rainbow top bar */}
+          <div className="h-2 w-full bg-gradient-to-r from-blue-500 via-indigo-500 via-purple-500 via-emerald-500 to-blue-500" />
+          <div className="p-6 md:p-10 space-y-6">
 
         {/* ── Header ── */}
-        <div className="relative group">
-          <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-3xl blur opacity-25 group-hover:opacity-40 transition duration-1000" />
-          <div className="relative bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-3xl p-6 md:p-8">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div className="flex items-center gap-4">
-                <div className="p-4 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-2xl border border-blue-500/20 shadow-lg shadow-blue-500/10">
-                  <Settings className="w-8 h-8 text-blue-400" />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+          className="bg-white/5 backdrop-blur-xl p-8 rounded-[2rem] border border-white/10 shadow-xl relative overflow-hidden"
+        >
+          <div className="absolute -bottom-8 -right-8 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -top-8 -left-8 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+              <div>
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-300 mb-3">
+                  <Link href="/dashboard" className="hover:text-blue-400 transition-colors flex items-center gap-1">
+                    <LayoutDashboard size={13} />
+                    لوحة التحكم
+                  </Link>
+                  <ArrowRight size={13} className="text-slate-500 rotate-180" />
+                  <span className="text-blue-400">إعدادات الضريبة</span>
                 </div>
-                <div>
-                  <h1 className="text-3xl font-black text-white tracking-tight">إعدادات الضريبة</h1>
-                  <p className="text-white/40 font-medium mt-0.5">إدارة شاملة لأنواع الضرائب والإعدادات العامة</p>
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-lg shadow-blue-500/25">
+                    <Settings className="w-7 h-7 text-white" />
+                  </div>
+                  <div>
+                    <h1 className="text-3xl font-black text-white tracking-tight">إعدادات الضريبة</h1>
+                    <p className="text-slate-400 font-medium mt-0.5 text-sm">إدارة شاملة لأنواع الضرائب والإعدادات العامة</p>
+                  </div>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -825,8 +850,7 @@ export function TaxSettingsClient({ companyId }: TaxSettingsClientProps) {
                 </motion.button>
               </div>
             </div>
-          </div>
-        </div>
+        </motion.div>
 
         {/* ── Stats Cards ── */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -843,22 +867,24 @@ export function TaxSettingsClient({ companyId }: TaxSettingsClientProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.08 }}
             >
-              <div className={`relative group bg-slate-900/60 backdrop-blur-xl border border-white/5 rounded-2xl p-5 hover:border-white/10 transition-all duration-300 overflow-hidden`}>
-                <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />
-                <div className="relative z-10">
-                  <div className={`p-2.5 ${card.iconBg} rounded-xl border ${card.iconBorder} w-fit mb-3`}>
-                    <card.icon className="w-5 h-5 text-white/70" />
+              <div className={`relative overflow-hidden rounded-3xl bg-gradient-to-br ${card.gradient} p-6 shadow-2xl transition-all group cursor-default hover:-translate-y-1`}>
+                <div className="flex items-start justify-between relative z-10">
+                  <div className="text-white/90 bg-white/10 p-2.5 rounded-xl backdrop-blur-md border border-white/10">
+                    <card.icon className="w-5 h-5" />
                   </div>
-                  <h3 className="text-2xl font-black text-white">{card.value}</h3>
-                  <p className="text-white/30 font-bold text-[10px] uppercase tracking-widest mt-1">{card.label}</p>
                 </div>
+                <div className="mt-4 relative z-10">
+                  <p className="text-white/70 text-[10px] font-black uppercase tracking-widest">{card.label}</p>
+                  <p className="text-3xl font-black text-white mt-1">{card.value}</p>
+                </div>
+                <div className="absolute -bottom-6 -left-6 w-28 h-28 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-all" />
               </div>
             </motion.div>
           ))}
         </div>
 
         {/* ── Main Tabs ── */}
-        <div className="flex items-center gap-2 bg-slate-900/60 backdrop-blur-xl border border-white/5 rounded-2xl p-1.5">
+        <div className="flex items-center gap-2 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-1.5">
           {[
             { key: "types" as const, label: "أنواع الضرائب", icon: Tags, color: "text-blue-400" },
             { key: "settings" as const, label: "الإعدادات العامة", icon: Settings, color: "text-emerald-400" },
@@ -884,7 +910,7 @@ export function TaxSettingsClient({ companyId }: TaxSettingsClientProps) {
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
             {/* Status filter + search */}
             <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex items-center gap-2 bg-slate-900/60 backdrop-blur-xl border border-white/5 rounded-2xl p-1.5 flex-shrink-0">
+              <div className="flex items-center gap-2 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-1.5 flex-shrink-0">
                 {statusTabs.map((tab) => (
                   <button
                     key={tab.key}
@@ -910,7 +936,7 @@ export function TaxSettingsClient({ companyId }: TaxSettingsClientProps) {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="بحث بالاسم أو الرمز..."
-                  className="w-full bg-slate-900/60 border border-white/5 rounded-2xl pe-11 ps-4 py-3 text-white placeholder-white/20 font-bold text-sm focus:border-blue-500/30 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all"
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl pe-11 ps-4 py-3 text-white placeholder-white/20 font-bold text-sm focus:border-blue-500/30 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all"
                 />
               </div>
             </div>
@@ -925,7 +951,7 @@ export function TaxSettingsClient({ companyId }: TaxSettingsClientProps) {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, x: -100 }}
                     transition={{ delay: index * 0.05 }}
-                    className="group relative bg-slate-900/60 backdrop-blur-xl border border-white/5 rounded-2xl p-5 hover:border-white/10 transition-all duration-300 overflow-hidden"
+                    className="group relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 hover:border-white/10 transition-all duration-300 overflow-hidden"
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-transparent to-indigo-500/0 group-hover:from-blue-500/5 group-hover:to-indigo-500/5 transition-all duration-500" />
                     <div className="relative z-10 flex items-center gap-5">
@@ -993,7 +1019,7 @@ export function TaxSettingsClient({ companyId }: TaxSettingsClientProps) {
               </AnimatePresence>
 
               {filteredTaxTypes.length === 0 && (
-                <div className="bg-slate-900/60 backdrop-blur-xl border border-white/5 rounded-2xl p-16 text-center">
+                <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-16 text-center">
                   <div className="inline-flex p-5 rounded-full bg-white/5 border border-white/10 mb-4">
                     <Percent className="w-10 h-10 text-white/15" />
                   </div>
@@ -1014,7 +1040,7 @@ export function TaxSettingsClient({ companyId }: TaxSettingsClientProps) {
         {activeTab === "settings" && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Settings Card */}
-            <div className="bg-slate-900/60 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden">
+            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2rem] overflow-hidden shadow-xl">
               <div className="p-6 border-b border-white/5">
                 <div className="flex items-center gap-3">
                   <div className="p-2.5 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
@@ -1032,7 +1058,7 @@ export function TaxSettingsClient({ companyId }: TaxSettingsClientProps) {
                   { key: "tax_calculation_status", label: "حالة حساب الضريبة", desc: "تفعيل أو تعطيل حساب الضرائب على جميع العمليات", icon: Zap, color: "emerald" },
                   { key: "tax_included", label: "الضريبة مشمولة في السعر", desc: "تضمين الضريبة في أسعار المنتجات والخدمات", icon: Tags, color: "blue" },
                 ].map((item) => (
-                  <div key={item.key} className="flex items-center justify-between p-4 bg-white/[0.03] rounded-2xl border border-white/5 hover:bg-white/[0.05] transition-all group">
+                  <div key={item.key} className="flex items-center justify-between p-4 bg-white/[0.03] rounded-2xl border border-white/10 hover:bg-white/[0.05] transition-all group">
                     <div className="flex items-center gap-3">
                       <div className={`p-2 bg-${item.color}-500/10 rounded-xl border border-${item.color}-500/20`}>
                         <item.icon size={16} className={`text-${item.color}-400`} />
@@ -1065,7 +1091,7 @@ export function TaxSettingsClient({ companyId }: TaxSettingsClientProps) {
                       { key: "vendor_tax", label: "ضريبة الموردين", icon: Users },
                       { key: "tax_on_packaging", label: "ضريبة التغليف", icon: Archive },
                     ].map((item) => (
-                      <div key={item.key} className="flex items-center justify-between p-3.5 bg-white/[0.03] rounded-xl border border-white/5 hover:bg-white/[0.05] transition-all">
+                      <div key={item.key} className="flex items-center justify-between p-3.5 bg-white/[0.03] rounded-xl border border-white/10 hover:bg-white/[0.05] transition-all">
                         <div className="flex items-center gap-2.5">
                           <item.icon size={14} className="text-white/40" />
                           <span className="text-white/70 font-bold text-xs">{item.label}</span>
@@ -1102,7 +1128,7 @@ export function TaxSettingsClient({ companyId }: TaxSettingsClientProps) {
             </div>
 
             {/* Guide Card */}
-            <div className="bg-slate-900/60 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden relative">
+            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2rem] overflow-hidden relative shadow-xl">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5 pointer-events-none" />
               <div className="p-6 border-b border-white/5 relative z-10">
                 <div className="flex items-center gap-3">
@@ -1122,7 +1148,7 @@ export function TaxSettingsClient({ companyId }: TaxSettingsClientProps) {
                   { title: "ربط مع زاتكا", desc: "اربط نظامك مع هيئة الزكاة والضريبة للفوترة الإلكترونية", icon: Shield, color: "purple" },
                   { title: "تقارير الضرائب", desc: "راجع تقارير الضرائب الشهرية والربع سنوية من صفحة الإقرارات الضريبية", icon: FileText, color: "amber" },
                 ].map((tip, i) => (
-                  <div key={i} className="flex gap-4 p-4 rounded-2xl bg-white/[0.03] border border-white/5 hover:bg-white/[0.05] transition-all">
+                  <div key={i} className="flex gap-4 p-4 rounded-2xl bg-white/[0.03] border border-white/10 hover:bg-white/[0.05] transition-all">
                     <div className={`flex-shrink-0 w-10 h-10 rounded-xl bg-${tip.color}-500/10 border border-${tip.color}-500/20 flex items-center justify-center`}>
                       <tip.icon size={16} className={`text-${tip.color}-400`} />
                     </div>
@@ -1148,6 +1174,8 @@ export function TaxSettingsClient({ companyId }: TaxSettingsClientProps) {
               showNotification={showNotification}
             />
           )}
+          </div>
+        </motion.div>
       </div>
     </div>
   );
@@ -1517,7 +1545,7 @@ function ZatcaTab({
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
       {/* ZATCA Header + Settings */}
-      <div className="relative bg-slate-900/60 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden">
+      <div className="relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-transparent to-blue-500/5 pointer-events-none" />
         <div className="relative z-10 p-6 md:p-8">
           <div className="flex items-center gap-4 mb-6">
@@ -1531,7 +1559,7 @@ function ZatcaTab({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex items-center justify-between p-4 bg-white/[0.03] rounded-2xl border border-white/5">
+            <div className="flex items-center justify-between p-4 bg-white/[0.03] rounded-2xl border border-white/10">
               <div className="flex items-center gap-3">
                 <Zap size={18} className="text-purple-400" />
                 <div>
@@ -1546,7 +1574,7 @@ function ZatcaTab({
                 <div className={`absolute top-0.5 w-6 h-6 rounded-full bg-white shadow-lg transition-all duration-300 ${settings.zatca_enabled ? "left-7" : "left-0.5"}`} />
               </button>
             </div>
-            <div className="flex items-center justify-between p-4 bg-white/[0.03] rounded-2xl border border-white/5">
+            <div className="flex items-center justify-between p-4 bg-white/[0.03] rounded-2xl border border-white/10">
               <div className="flex items-center gap-3">
                 <Globe size={18} className="text-blue-400" />
                 <div>
@@ -1621,7 +1649,7 @@ function ZatcaTab({
       </div>
 
       {/* ─── Onboarding Wizard ─── */}
-      <div className="bg-slate-900/60 backdrop-blur-xl border border-white/5 rounded-2xl p-6 md:p-8">
+      <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 md:p-8">
         <h3 className="text-xl font-black text-white mb-2 flex items-center gap-3">
           <Shield size={20} className="text-purple-400" />
           الربط مع هيئة الزكاة والضريبة
@@ -1668,7 +1696,7 @@ function ZatcaTab({
                       <span className="w-7 h-7 bg-purple-500 rounded-lg flex items-center justify-center text-xs text-white font-black">1</span>
                       إنشاء مفاتيح التشفير وشهادة CSR
                     </h4>
-                    <div className="bg-white/[0.03] rounded-2xl border border-white/5 p-6 space-y-4">
+                    <div className="bg-white/[0.03] rounded-2xl border border-white/10 p-6 space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <label className="text-white/40 font-bold text-xs">اسم المنشأة *</label>
@@ -1737,7 +1765,7 @@ function ZatcaTab({
                       <span className="w-7 h-7 bg-blue-500 rounded-lg flex items-center justify-center text-xs text-white font-black">2</span>
                       التسجيل في بوابة ZATCA (رمز OTP)
                     </h4>
-                    <div className="bg-white/[0.03] rounded-2xl border border-white/5 p-6 space-y-4">
+                    <div className="bg-white/[0.03] rounded-2xl border border-white/10 p-6 space-y-4">
                       <p className="text-white/50 text-xs leading-relaxed">
                         أدخل رمز OTP الذي حصلت عليه من بوابة هيئة الزكاة والضريبة والجمارك.
                         بعد الإدخال سيتم الحصول على شهادة المطابقة (CCSID) المؤقتة.
@@ -1868,7 +1896,7 @@ function ZatcaTab({
 
             {/* Current status indicator */}
             {credentials && (
-              <div className="bg-white/[0.02] rounded-xl border border-white/5 p-4 mt-4">
+              <div className="bg-white/[0.02] rounded-xl border border-white/10 p-4 mt-4">
                 <div className="flex items-center justify-between">
                   <span className="text-white/40 text-xs font-bold">الحالة الحالية</span>
                   <span className={`px-3 py-1 rounded-lg text-xs font-black ${
@@ -1904,14 +1932,14 @@ function ZatcaTab({
 
       {/* ─── Recent Submissions ─── */}
       {submissions.length > 0 && (
-        <div className="bg-slate-900/60 backdrop-blur-xl border border-white/5 rounded-2xl p-6">
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
           <h3 className="text-white font-black text-lg mb-4 flex items-center gap-2">
             <FileText size={18} className="text-blue-400" />
             آخر الإرسالات
           </h3>
           <div className="space-y-2">
             {submissions.map((sub: any) => (
-              <div key={sub.id} className="flex items-center justify-between p-3 bg-white/[0.03] rounded-xl border border-white/5">
+              <div key={sub.id} className="flex items-center justify-between p-3 bg-white/[0.03] rounded-xl border border-white/10">
                 <div className="flex items-center gap-3">
                   <span className={`px-2 py-1 rounded-lg text-[10px] font-black border ${statusColors[sub.submission_status] || statusColors.pending}`}>
                     {sub.submission_status === "success" ? "ناجح" :
