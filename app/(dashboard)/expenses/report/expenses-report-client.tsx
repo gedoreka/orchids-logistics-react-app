@@ -658,15 +658,15 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
     <div className="min-h-screen bg-transparent rtl print:bg-white" dir="rtl">
       <div className="max-w-[97%] w-[97%] mx-auto py-4 space-y-2 print:w-full print:p-2">
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="print:shadow-none">
-          <Card className="preserve-colors overflow-hidden border-none shadow-xl bg-gradient-to-r from-blue-500 via-blue-400 to-blue-500 dark:bg-gradient-to-br dark:from-[#1e293b] dark:via-[#334155] dark:to-[#1e293b] text-white rounded-3xl print:rounded-none print:shadow-none" style={{ background: 'linear-gradient(to right, #3b82f6, #60a5fa, #3b82f6)' }}>
-              <div className="h-1 bg-gradient-to-r from-blue-300 via-blue-200 to-blue-300 dark:from-blue-500 dark:via-emerald-500 dark:via-rose-500 dark:via-amber-500 dark:via-purple-500 dark:to-blue-500 animate-gradient-x print:hidden" />
+          <Card className="overflow-hidden border-none shadow-xl bg-gradient-to-br from-slate-900/80 via-slate-800/80 to-slate-900/80 text-white rounded-3xl print:rounded-none print:shadow-none border border-white/10">
+              <div className="h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 via-purple-500 via-emerald-500 to-blue-500 print:hidden" />
               <CardContent className="p-5">
                 <div className="flex flex-col items-center justify-center gap-2">
-                    <h1 className="text-xl lg:text-2xl font-black flex items-center justify-center gap-3 text-black dark:text-white drop-shadow-sm">
-                      <TrendingUp className="w-7 h-7 text-black dark:text-amber-400" />
+                  <h1 className="text-xl lg:text-2xl font-black flex items-center justify-center gap-3 text-white drop-shadow-sm">
+                    <TrendingUp className="w-7 h-7 text-amber-400" />
                     {t("report.title")}
                   </h1>
-                  <p className="text-blue-100 dark:text-blue-200 text-sm">{t("report.subtitle")}</p>
+                  <p className="text-white/50 text-sm">{t("report.subtitle")}</p>
                 </div>
               </CardContent>
             </Card>
@@ -680,22 +680,22 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
                 { label: t("dashboard.grandTotal"), value: stats.totalAll, count: stats.expensesCount + stats.deductionsCount + stats.payrollsCount, icon: Calculator, gradient: "from-amber-600 to-amber-700", accent: "amber", lightBg: "#fff8eb", borderColor: "#f5c862" },
               ].map((stat, idx) => (
                 <motion.div key={idx} whileHover={{ y: -5, scale: 1.02 }} onClick={() => stat.link && (window.location.href = stat.link)} className={`relative group ${stat.link ? "cursor-pointer" : ""}`}>
-                  <Card className={`shadow-xl rounded-[2.5rem] overflow-hidden ${isDark ? 'border-none bg-white/5' : ''} h-full`} style={isDark ? {} : { backgroundColor: stat.lightBg, borderColor: stat.borderColor, borderWidth: '2px' }}>
+                  <Card className="shadow-xl rounded-[2.5rem] overflow-hidden border-none bg-white/5 backdrop-blur-xl border border-white/10 h-full">
                     <CardContent className="p-6">
                       <div className="flex flex-col items-center text-center space-y-4">
                         <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center shadow-lg`}>
                           <stat.icon className="w-7 h-7 text-white" />
                         </div>
                         <div className="space-y-1">
-                          <p className={`text-sm font-bold text-slate-700 dark:text-slate-300`}>{stat.label}</p>
+                          <p className="text-sm font-bold text-white/60">{stat.label}</p>
                           <div className="flex items-baseline justify-center gap-1">
-                            <span className="text-2xl font-black text-slate-800 dark:text-white">{formatNumber(stat.value)}</span>
-                            <span className="text-[10px] font-bold text-slate-400">SAR</span>
+                            <span className="text-2xl font-black text-white">{formatNumber(stat.value)}</span>
+                            <span className="text-[10px] font-bold text-white/40">SAR</span>
                           </div>
                         </div>
-                        <div className={`w-full pt-3 border-t dark:border-slate-700 flex items-center justify-between`} style={isDark ? {} : { borderColor: `${stat.borderColor}80` }}>
-                          <span className="text-xs font-bold text-slate-600 dark:text-slate-400">{stat.count}</span>
-                          <Info className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+                        <div className="w-full pt-3 border-t border-white/10 flex items-center justify-between">
+                          <span className="text-xs font-bold text-white/40">{stat.count}</span>
+                          <Info className="w-3.5 h-3.5 text-white/30" />
                         </div>
                       </div>
                     </CardContent>
@@ -705,15 +705,15 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="print:hidden">
-          <div className="bg-[#edd3de] dark:bg-white/5 backdrop-blur-xl p-2 rounded-[3rem] shadow-inner border border-pink-200/50 dark:border-slate-700 inline-flex w-full">
+          <div className="bg-white/5 backdrop-blur-xl p-2 rounded-[3rem] border border-white/10 inline-flex w-full">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2 w-full">
                 {[
                   { id: "expenses", label: t("dashboard.expensesReport"), icon: Wallet, color: "blue", gradient: "from-blue-500 to-blue-700" },
                   { id: "deductions", label: t("dashboard.deductionsReport"), icon: HandCoins, color: "rose", gradient: "from-rose-500 to-rose-700" },
                   { id: "all", label: t("report.title"), icon: BarChart3, color: "purple", gradient: "from-blue-600 via-purple-600 to-rose-600" }
                 ].map((tab) => (
-                <button key={tab.id} onClick={() => setReportType(tab.id as any)} className={`relative flex items-center justify-center gap-4 p-4 rounded-[2.2rem] transition-all duration-500 ${reportType === tab.id ? `bg-gradient-to-r ${tab.gradient} text-white shadow-2xl scale-[1.02]` : "bg-transparent text-slate-600 hover:bg-white/60"}`}>
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${reportType === tab.id ? "bg-white/20" : `bg-${tab.color}-100 text-${tab.color}-600`}`}>
+                <button key={tab.id} onClick={() => setReportType(tab.id as any)} className={`relative flex items-center justify-center gap-4 p-4 rounded-[2.2rem] transition-all duration-500 ${reportType === tab.id ? `bg-gradient-to-r ${tab.gradient} text-white shadow-2xl scale-[1.02]` : "bg-transparent text-white/40 hover:bg-white/10"}`}>
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${reportType === tab.id ? "bg-white/20" : "bg-white/10 text-white/50"}`}>
                     <tab.icon className="w-6 h-6" />
                   </div>
                   <span className="text-base font-bold">{tab.label}</span>
@@ -724,44 +724,44 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="print:hidden">
-          <Card className="border-none shadow-md rounded-[2rem] bg-[#edd3de] dark:bg-white/5 backdrop-blur-md border border-pink-200/50 dark:border-slate-700">
+          <Card className="border-none shadow-md rounded-[2rem] bg-white/5 backdrop-blur-xl border border-white/10">
             <CardContent className="p-3">
               <div className="flex flex-col lg:flex-row items-center justify-center gap-6">
                 <div className="flex items-center gap-3 flex-wrap">
-                  <div className="flex items-center gap-2 text-slate-700 text-sm font-bold bg-white/80 px-5 py-2.5 rounded-[1.5rem] border border-slate-100 shadow-sm">
-                    <Filter className="w-4 h-4 text-blue-600" />
-                    <span>{t("report.filters")}:</span>
+                  <div className="flex items-center gap-2 text-white text-sm font-bold bg-white/10 px-5 py-2.5 rounded-[1.5rem] border border-white/15">
+                    <Filter className="w-4 h-4 text-blue-400" />
+                    <span className="text-white/70">{t("report.filters")}:</span>
                     <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                      <SelectTrigger className="w-[180px] border-none bg-transparent font-black focus:ring-0 text-slate-800">
+                      <SelectTrigger className="w-[180px] border-none bg-transparent font-black focus:ring-0 text-white">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="rounded-2xl border-slate-100 shadow-2xl bg-white/95 backdrop-blur-lg">
+                      <SelectContent className="rounded-2xl border-white/10 shadow-2xl bg-slate-800 backdrop-blur-lg">
                         {monthOptions.map((opt) => (
-                          <SelectItem key={opt.value} value={opt.value} className="font-bold text-slate-700">{opt.label}</SelectItem>
+                          <SelectItem key={opt.value} value={opt.value} className="font-bold text-white/80">{opt.label}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
-                  <Button onClick={fetchReportData} className="bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white rounded-[1.5rem] px-8 py-6 shadow-xl shadow-blue-200 transition-all active:scale-95 font-bold">
+                  <Button onClick={fetchReportData} className="bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white rounded-[1.5rem] px-8 py-6 shadow-xl shadow-blue-500/20 transition-all active:scale-95 font-bold">
                     <Search className="w-5 h-5 ml-2" />
                     {t("report.search")}
                   </Button>
                 </div>
-                <div className="flex items-center gap-1 flex-wrap bg-white p-1.5 rounded-[1.8rem] border border-slate-100 shadow-inner">
-                  <Button onClick={handlePrint} variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl px-5 h-10 font-bold">
+                <div className="flex items-center gap-1 flex-wrap bg-white/10 p-1.5 rounded-[1.8rem] border border-white/10">
+                  <Button onClick={handlePrint} variant="ghost" size="sm" className="text-blue-400 hover:text-blue-300 hover:bg-white/10 rounded-xl px-5 h-10 font-bold">
                     <Printer className="w-4 h-4 ml-2" />
                     {t("fleet.print")}
                   </Button>
-                  <Button onClick={handleExportExcel} variant="ghost" size="sm" className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-xl px-5 h-10 font-bold">
+                  <Button onClick={handleExportExcel} variant="ghost" size="sm" className="text-emerald-400 hover:text-emerald-300 hover:bg-white/10 rounded-xl px-5 h-10 font-bold">
                     <FileSpreadsheet className="w-4 h-4 ml-2" />
                     {t("report.export")}
                   </Button>
-                  <Button onClick={() => setShowAnalysisModal(true)} variant="ghost" size="sm" className="text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-xl px-5 h-10 font-bold">
+                  <Button onClick={() => setShowAnalysisModal(true)} variant="ghost" size="sm" className="text-amber-400 hover:text-amber-300 hover:bg-white/10 rounded-xl px-5 h-10 font-bold">
                     <BarChart3 className="w-4 h-4 ml-2" />
                     {t("dashboard.analytics")}
                   </Button>
-                  <div className="w-px h-8 bg-slate-200 mx-2" />
-                  <Button onClick={() => (window.location.href = "/expenses")} variant="ghost" size="sm" className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-xl px-5 h-10 font-bold">
+                  <div className="w-px h-8 bg-white/15 mx-2" />
+                  <Button onClick={() => (window.location.href = "/expenses")} variant="ghost" size="sm" className="text-rose-400 hover:text-rose-300 hover:bg-white/10 rounded-xl px-5 h-10 font-bold">
                     <Home className="w-4 h-4 ml-2" />
                     {t("form.backToCenter")}
                   </Button>
@@ -774,7 +774,7 @@ export function ExpensesReportClient({ companyId }: ExpensesReportClientProps) {
         {/* Expenses Table */}
         {(reportType === "expenses" || reportType === "all") && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-            <Card className="border-none shadow-lg rounded-3xl overflow-hidden bg-[#edd3de] dark:bg-white/5">
+            <Card className="border-none shadow-lg rounded-3xl overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10">
               <CardContent className="p-4 space-y-4">
                 {Object.keys(expensesGrouped).length > 0 ? (
 Object.entries(expensesGrouped).map(([group, expenses], groupIdx) => {
@@ -782,7 +782,7 @@ Object.entries(expensesGrouped).map(([group, expenses], groupIdx) => {
                       const isExpanded = expandedGroups[groupKey] !== false;
                       const groupTotal = expenses.reduce((sum, e) => sum + parseFloat(String(e.amount || 0)), 0);
                       return (
-                        <div key={`expense-group-${group}-${groupIdx}`} className="border border-slate-200 rounded-3xl overflow-hidden">
+                        <div key={`expense-group-${group}-${groupIdx}`} className="border border-white/10 rounded-3xl overflow-hidden">
                         <button onClick={() => toggleGroup(groupKey)} className="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white p-3 flex items-center justify-between hover:opacity-95 transition-all">
                           <div className="flex items-center gap-3">
                             <Folder className="w-5 h-5" />
@@ -797,69 +797,75 @@ Object.entries(expensesGrouped).map(([group, expenses], groupIdx) => {
                         <AnimatePresence>
                           {isExpanded && (
                             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
-                              <div className="max-h-[300px] overflow-y-auto bg-white">
+                              <div className="max-h-[300px] overflow-y-auto bg-slate-900/50">
                                     <table className="w-full text-sm">
-                                        <thead className="bg-blue-50/50 sticky top-0 z-10 border-b-2 border-blue-100 text-[10px] text-blue-900/70 uppercase tracking-wider">
+                                        <thead className="bg-white/5 sticky top-0 z-10 border-b border-white/10 text-[10px] text-white/50 uppercase tracking-wider">
                                           <tr>
-                                            <th className="p-2 text-center font-black w-[40px] border-l border-blue-100/50">#</th>
-                                            <th className="p-2 text-center font-black border-l border-blue-100/50">{t("form.date")}</th>
-                                            <th className="p-2 text-center font-black border-l border-blue-100/50">{t("form.employee")}</th>
-                                            <th className="p-2 text-center font-black border-l border-blue-100/50">{t("form.iqamaNumber")}</th>
-                                            <th className="p-2 text-center font-black border-l border-blue-100/50">{t("form.amount")}</th>
-                                            <th className="p-2 text-center font-black border-l border-blue-100/50">{t("form.tax")}</th>
-                                            <th className="p-2 text-center font-black border-l border-blue-100/50">{t("form.net")}</th>
-                                            <th className="p-2 text-center font-black border-l border-blue-100/50">{t("form.account")}</th>
-                                            <th className="p-2 text-center font-black border-l border-blue-100/50">{t("form.costCenter")}</th>
+                                            <th className="p-2 text-center font-black w-[40px] border-l border-white/10">#</th>
+                                            <th className="p-2 text-center font-black border-l border-white/10">{t("form.date")}</th>
+                                            <th className="p-2 text-center font-black border-l border-white/10">{t("form.employee")}</th>
+                                            <th className="p-2 text-center font-black border-l border-white/10">{t("form.iqamaNumber")}</th>
+                                            <th className="p-2 text-center font-black border-l border-white/10">{t("form.amount")}</th>
+                                            <th className="p-2 text-center font-black border-l border-white/10">{t("form.tax")}</th>
+                                            <th className="p-2 text-center font-black border-l border-white/10">{t("form.net")}</th>
+                                            <th className="p-2 text-center font-black border-l border-white/10">{t("form.account")}</th>
+                                            <th className="p-2 text-center font-black border-l border-white/10">{t("form.costCenter")}</th>
                                             <th className="p-2 text-center font-black print:hidden w-[150px]">{t("actions.title")}</th>
                                           </tr>
                                         </thead>
                                         <tbody>
 {expenses.map((expense, idx) => (
-                                              <tr key={`expense-${expense.id}-${idx}`} className="border-b border-slate-100 hover:bg-blue-50/30 transition-colors bg-white text-[11px]">
-                                              <td className="p-1 text-center border-l border-slate-50">{idx + 1}</td>
-                                              <td className="p-1 text-center border-l border-slate-50">{formatDate(expense.expense_date)}</td>
-                                              <td className="p-1 text-center font-bold border-l border-slate-50">{expense.employee_name || "-"}</td>
-                                              <td className="p-1 text-center border-l border-slate-50">{expense.employee_iqama || "-"}</td>
-                                              <td className="p-1 text-center font-black text-red-600 border-l border-slate-50">{formatNumber(expense.amount || 0)}</td>
-                                              <td className="p-1 text-center font-bold text-red-500 border-l border-slate-50">{formatNumber(expense.tax_value || 0)}</td>
-                                              <td className="p-1 text-center font-black text-red-700 border-l border-slate-50">{formatNumber(expense.net_amount || expense.amount || 0)}</td>
-                                                <td className="p-1 text-center border-l border-slate-50">
+                                              <tr key={`expense-${expense.id}-${idx}`} className="border-b border-white/5 hover:bg-white/5 transition-colors text-[11px]">
+                                              <td className="p-1 text-center border-l border-white/5 text-white/60">{idx + 1}</td>
+                                              <td className="p-1 text-center border-l border-white/5 text-white/60">{formatDate(expense.expense_date)}</td>
+                                              <td className="p-1 text-center font-bold border-l border-white/5 text-white">{expense.employee_name || "-"}</td>
+                                              <td className="p-1 text-center border-l border-white/5 text-white/60">{expense.employee_iqama || "-"}</td>
+                                              <td className="p-1 text-center font-black text-red-400 border-l border-white/5">{formatNumber(expense.amount || 0)}</td>
+                                              <td className="p-1 text-center font-bold text-amber-400 border-l border-white/5">{formatNumber(expense.tax_value || 0)}</td>
+                                              <td className="p-1 text-center font-black text-rose-400 border-l border-white/5">{formatNumber(expense.net_amount || expense.amount || 0)}</td>
+                                                <td className="p-1 text-center border-l border-white/5">
                                                     <div className="flex flex-col">
-                                                      <span className="font-black text-blue-700 text-[10px]">{expense.account_code || "-"}</span>
-                                                      <span className="font-bold text-slate-600 text-[10px]">{expense.account_name || "-"}</span>
+                                                      <span className="font-black text-blue-400 text-[10px]">{expense.account_code || "-"}</span>
+                                                      <span className="font-bold text-white/40 text-[10px]">{expense.account_name || "-"}</span>
                                                     </div>
                                                   </td>
-                                                  <td className="p-1 text-center border-l border-slate-50">
+                                                  <td className="p-1 text-center border-l border-white/5">
                                                     <div className="flex flex-col">
-                                                      <span className="font-black text-purple-700 text-[10px]">{expense.center_code || expense.cost_center_code || "-"}</span>
-                                                      <span className="font-bold text-slate-600 text-[10px]">{expense.center_name || "-"}</span>
+                                                      <span className="font-black text-purple-400 text-[10px]">{expense.center_code || expense.cost_center_code || "-"}</span>
+                                                      <span className="font-bold text-white/40 text-[10px]">{expense.center_name || "-"}</span>
                                                     </div>
                                                   </td>
-                                                  <td className="p-1 text-center print:hidden">
-                                                    <div className="flex items-center justify-center -space-x-px">
-                                                        <Button 
-                                                          variant="outline" 
-                                                          onClick={() => showItemDetails(expense)} 
-                                                          className="h-9 px-4 text-xs font-black text-white bg-blue-500 border-blue-500 rounded-none rounded-r-md hover:bg-blue-600 hover:border-blue-600 shadow-sm z-10"
-                                                        >
-                                                          {t("actions.view")}
-                                                        </Button>
-                                                        <Button 
-                                                          variant="outline" 
-                                                          onClick={() => handleEditClick(expense)} 
-                                                          className="h-9 px-4 text-xs font-black text-white bg-amber-500 border-amber-500 rounded-none border-r-0 hover:bg-amber-600 hover:border-amber-600 shadow-sm z-20"
-                                                        >
-                                                          {t("actions.edit")}
-                                                        </Button>
-                                                        <Button 
-                                                          variant="outline" 
-                                                          onClick={() => handleDeleteClick(expense)} 
-                                                          className="h-9 px-4 text-xs font-black text-white bg-rose-500 border-rose-500 rounded-none rounded-l-md border-r-0 hover:bg-rose-600 hover:border-rose-600 shadow-sm z-30"
-                                                        >
-                                                          {t("actions.delete")}
-                                                        </Button>
-                                                    </div>
-                                                  </td>
+                                                    <td className="p-1 text-center print:hidden">
+                                                      <div className="flex items-center justify-center gap-1.5">
+                                                          <Button 
+                                                            variant="ghost" 
+                                                            size="sm"
+                                                            onClick={() => showItemDetails(expense)} 
+                                                            className="h-7 px-2 rounded-lg bg-blue-500/10 hover:bg-blue-500 text-blue-400 hover:text-white transition-all duration-300 shadow-sm border border-blue-500/20 text-[10px] font-bold gap-1"
+                                                          >
+                                                            <Eye className="w-3.5 h-3.5" />
+                                                            <span>عرض</span>
+                                                          </Button>
+                                                          <Button 
+                                                            variant="ghost" 
+                                                            size="sm"
+                                                            onClick={() => handleEditClick(expense)} 
+                                                            className="h-7 px-2 rounded-lg bg-amber-500/10 hover:bg-amber-500 text-amber-400 hover:text-white transition-all duration-300 shadow-sm border border-amber-500/20 text-[10px] font-bold gap-1"
+                                                          >
+                                                            <Pencil className="w-3.5 h-3.5" />
+                                                            <span>تعديل</span>
+                                                          </Button>
+                                                          <Button 
+                                                            variant="ghost" 
+                                                            size="sm"
+                                                            onClick={() => handleDeleteClick(expense)} 
+                                                            className="h-7 px-2 rounded-lg bg-rose-500/10 hover:bg-rose-500 text-rose-400 hover:text-white transition-all duration-300 shadow-sm border border-rose-500/20 text-[10px] font-bold gap-1"
+                                                          >
+                                                            <Trash2 className="w-3.5 h-3.5" />
+                                                            <span>حذف</span>
+                                                          </Button>
+                                                      </div>
+                                                    </td>
                                             </tr>
                                           ))}
                                         </tbody>
@@ -873,8 +879,8 @@ Object.entries(expensesGrouped).map(([group, expenses], groupIdx) => {
                   })
                 ) : (
                   <div className="text-center py-10">
-                    <Wallet className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                    <p className="text-sm font-bold text-slate-600">{t("dashboard.noActivity")}</p>
+                    <Wallet className="w-10 h-10 text-white/20 mx-auto mb-2" />
+                    <p className="text-sm font-bold text-white/40">{t("dashboard.noActivity")}</p>
                   </div>
                 )}
               </CardContent>
@@ -885,11 +891,11 @@ Object.entries(expensesGrouped).map(([group, expenses], groupIdx) => {
         {/* Deductions Table */}
         {(reportType === "deductions" || reportType === "all") && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-            <Card className="border-none shadow-lg rounded-3xl overflow-hidden bg-[#edd3de] dark:bg-white/5 dark:backdrop-blur-sm">
-              <CardHeader className="bg-[#e4c0ce] dark:bg-rose-900/30 p-4 border-b border-pink-200/50 dark:border-rose-800/50">
+            <Card className="border-none shadow-lg rounded-3xl overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10">
+              <CardHeader className="bg-rose-500/10 p-4 border-b border-rose-500/20">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2 text-base font-extrabold">
-                    <HandCoins className="w-5 h-5 text-rose-600" />
+                  <CardTitle className="flex items-center gap-2 text-base font-extrabold text-white">
+                    <HandCoins className="w-5 h-5 text-rose-400" />
                       {t("dashboard.totalDeductions")}
                   </CardTitle>
                     <Badge className="bg-rose-600 text-white text-sm px-3 py-1">
@@ -904,7 +910,7 @@ Object.entries(deductionsGrouped).map(([group, deductions], groupIdx) => {
                       const isExpanded = expandedGroups[groupKey] !== false;
                       const groupTotal = deductions.reduce((sum, d) => sum + parseFloat(String(d.amount || 0)), 0);
                       return (
-                        <div key={`deduction-group-${group}-${groupIdx}`} className="border border-slate-200 rounded-3xl overflow-hidden">
+                        <div key={`deduction-group-${group}-${groupIdx}`} className="border border-white/10 rounded-3xl overflow-hidden">
                         <button onClick={() => toggleGroup(groupKey)} className="w-full bg-gradient-to-r from-rose-500 via-red-500 to-orange-500 text-white p-3 flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <Folder className="w-5 h-5" />
@@ -919,39 +925,39 @@ Object.entries(deductionsGrouped).map(([group, deductions], groupIdx) => {
                         <AnimatePresence>
                           {isExpanded && (
                             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
-                              <div className="max-h-[300px] overflow-y-auto bg-white">
+                              <div className="max-h-[300px] overflow-y-auto bg-slate-900/50">
                                     <table className="w-full text-sm">
-                                        <thead className="bg-rose-50/50 sticky top-0 z-10 border-b-2 border-rose-100 text-[10px] text-rose-900/70 uppercase tracking-wider">
+                                        <thead className="bg-white/5 sticky top-0 z-10 border-b border-white/10 text-[10px] text-white/50 uppercase tracking-wider">
                                           <tr>
-                                            <th className="p-2 text-center font-black w-[40px] border-l border-rose-100/50">#</th>
-                                            <th className="p-2 text-center font-black border-l border-rose-100/50">{t("form.date")}</th>
-                                            <th className="p-2 text-center font-black border-l border-rose-100/50">{t("form.employee")}</th>
-                                            <th className="p-2 text-center font-black border-l border-rose-100/50">{t("form.iqamaNumber")}</th>
-                                            <th className="p-2 text-center font-black border-l border-rose-100/50">{t("form.amount")}</th>
-                                            <th className="p-2 text-center font-black border-l border-rose-100/50">{t("form.account")}</th>
-                                            <th className="p-2 text-center font-black border-l border-rose-100/50">{t("form.costCenter")}</th>
-                                            <th className="p-2 text-center font-black border-l border-rose-100/50">{t("common.status")}</th>
+                                            <th className="p-2 text-center font-black w-[40px] border-l border-white/10">#</th>
+                                            <th className="p-2 text-center font-black border-l border-white/10">{t("form.date")}</th>
+                                            <th className="p-2 text-center font-black border-l border-white/10">{t("form.employee")}</th>
+                                            <th className="p-2 text-center font-black border-l border-white/10">{t("form.iqamaNumber")}</th>
+                                            <th className="p-2 text-center font-black border-l border-white/10">{t("form.amount")}</th>
+                                            <th className="p-2 text-center font-black border-l border-white/10">{t("form.account")}</th>
+                                            <th className="p-2 text-center font-black border-l border-white/10">{t("form.costCenter")}</th>
+                                            <th className="p-2 text-center font-black border-l border-white/10">{t("common.status")}</th>
                                             <th className="p-2 text-center font-black print:hidden w-[150px]">{t("actions.title")}</th>
                                           </tr>
                                         </thead>
                                         <tbody>
 {deductions.map((deduction, idx) => (
-                                              <tr key={`deduction-${deduction.id}-${idx}`} className="border-b border-slate-100 hover:bg-rose-50/30 transition-colors bg-white text-[11px]">
-                                              <td className="p-1 text-center border-l border-slate-50">{idx + 1}</td>
-                                              <td className="p-1 text-center border-l border-slate-50">{formatDate(deduction.expense_date)}</td>
-                                              <td className="p-1 text-center font-bold border-l border-slate-50">{deduction.employee_name || "-"}</td>
-                                              <td className="p-1 text-center border-l border-slate-50">{deduction.employee_iqama || "-"}</td>
-                                              <td className="p-1 text-center font-black text-red-600 border-l border-slate-50">{formatNumber(deduction.amount || 0)}</td>
-                                                <td className="p-1 text-center border-l border-slate-50">
+                                              <tr key={`deduction-${deduction.id}-${idx}`} className="border-b border-white/5 hover:bg-white/5 transition-colors text-[11px]">
+                                              <td className="p-1 text-center border-l border-white/5 text-white/60">{idx + 1}</td>
+                                              <td className="p-1 text-center border-l border-white/5 text-white/60">{formatDate(deduction.expense_date)}</td>
+                                              <td className="p-1 text-center font-bold border-l border-white/5 text-white">{deduction.employee_name || "-"}</td>
+                                              <td className="p-1 text-center border-l border-white/5 text-white/60">{deduction.employee_iqama || "-"}</td>
+                                              <td className="p-1 text-center font-black text-red-400 border-l border-white/5">{formatNumber(deduction.amount || 0)}</td>
+                                                <td className="p-1 text-center border-l border-white/5">
                                                     <div className="flex flex-col">
-                                                      <span className="font-black text-blue-700 text-[10px]">{deduction.account_code || "-"}</span>
-                                                      <span className="font-bold text-slate-600 text-[10px]">{deduction.account_name || "-"}</span>
+                                                      <span className="font-black text-blue-400 text-[10px]">{deduction.account_code || "-"}</span>
+                                                      <span className="font-bold text-white/40 text-[10px]">{deduction.account_name || "-"}</span>
                                                     </div>
                                                   </td>
-                                                  <td className="p-1 text-center border-l border-slate-50">
+                                                  <td className="p-1 text-center border-l border-white/5">
                                                     <div className="flex flex-col">
-                                                      <span className="font-black text-purple-700 text-[10px]">{deduction.center_code || "-"}</span>
-                                                      <span className="font-bold text-slate-600 text-[10px]">{deduction.center_name || "-"}</span>
+                                                      <span className="font-black text-purple-400 text-[10px]">{deduction.center_code || "-"}</span>
+                                                      <span className="font-bold text-white/40 text-[10px]">{deduction.center_name || "-"}</span>
                                                     </div>
                                                   </td>
                                               <td className="p-1 text-center border-l border-slate-50">
@@ -978,31 +984,37 @@ Object.entries(deductionsGrouped).map(([group, deductions], groupIdx) => {
                                                   </motion.div>
                                                 </div>
                                               </td>
-                                                <td className="p-1 text-center print:hidden">
-                                                  <div className="flex items-center justify-center -space-x-px">
-                                                      <Button 
-                                                        variant="outline" 
-                                                        onClick={() => showItemDetails(deduction)} 
-                                                        className="h-9 px-4 text-xs font-black text-white bg-blue-500 border-blue-500 rounded-none rounded-r-md hover:bg-blue-600 hover:border-blue-600 shadow-sm z-10"
-                                                      >
-                                                        {t("actions.view")}
-                                                      </Button>
-                                                      <Button 
-                                                        variant="outline" 
-                                                        onClick={() => handleEditClick(deduction)} 
-                                                        className="h-9 px-4 text-xs font-black text-white bg-amber-500 border-amber-500 rounded-none border-r-0 hover:bg-amber-600 hover:border-amber-600 shadow-sm z-20"
-                                                      >
-                                                        {t("actions.edit")}
-                                                      </Button>
-                                                      <Button 
-                                                        variant="outline" 
-                                                        onClick={() => handleDeleteClick(deduction)} 
-                                                        className="h-9 px-4 text-xs font-black text-white bg-rose-500 border-rose-500 rounded-none rounded-l-md border-r-0 hover:bg-rose-600 hover:border-rose-600 shadow-sm z-30"
-                                                      >
-                                                        {t("actions.delete")}
-                                                    </Button>
-                                                  </div>
-                                                </td>
+                                                    <td className="p-1 text-center print:hidden">
+                                                      <div className="flex items-center justify-center gap-1.5">
+                                                          <Button 
+                                                            variant="ghost" 
+                                                            size="sm"
+                                                            onClick={() => showItemDetails(deduction)} 
+                                                            className="h-7 px-2 rounded-lg bg-blue-500/10 hover:bg-blue-500 text-blue-400 hover:text-white transition-all duration-300 shadow-sm border border-blue-500/20 text-[10px] font-bold gap-1"
+                                                          >
+                                                            <Eye className="w-3.5 h-3.5" />
+                                                            <span>عرض</span>
+                                                          </Button>
+                                                          <Button 
+                                                            variant="ghost" 
+                                                            size="sm"
+                                                            onClick={() => handleEditClick(deduction)} 
+                                                            className="h-7 px-2 rounded-lg bg-amber-500/10 hover:bg-amber-500 text-amber-400 hover:text-white transition-all duration-300 shadow-sm border border-amber-500/20 text-[10px] font-bold gap-1"
+                                                          >
+                                                            <Pencil className="w-3.5 h-3.5" />
+                                                            <span>تعديل</span>
+                                                          </Button>
+                                                          <Button 
+                                                            variant="ghost" 
+                                                            size="sm"
+                                                            onClick={() => handleDeleteClick(deduction)} 
+                                                            className="h-7 px-2 rounded-lg bg-rose-500/10 hover:bg-rose-500 text-rose-400 hover:text-white transition-all duration-300 shadow-sm border border-rose-500/20 text-[10px] font-bold gap-1"
+                                                          >
+                                                            <Trash2 className="w-3.5 h-3.5" />
+                                                            <span>حذف</span>
+                                                          </Button>
+                                                      </div>
+                                                    </td>
                                             </tr>
                                           ))}
                                         </tbody>
@@ -1039,232 +1051,231 @@ Object.entries(deductionsGrouped).map(([group, deductions], groupIdx) => {
 
         {/* Dialogs & Notifications */}
         <Dialog open={showDetailsModal} onOpenChange={setShowDetailsModal}>
-          <DialogContent className="max-w-2xl rtl" dir="rtl">
-            <DialogHeader className="bg-gradient-to-r from-blue-600 via-purple-600 to-rose-600 text-white p-4 -m-6 mb-4 rounded-t-lg">
-              <DialogTitle className="flex items-center gap-2 text-lg font-bold"><Eye className="w-6 h-6" /> {t("common.details")}</DialogTitle>
-            </DialogHeader>
-            {selectedItem && (
-              <div className="space-y-4 p-3">
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
-                      <div className="p-3 bg-white border rounded-xl shadow-sm">
-                        <p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("common.type")}</p>
-                        <p className="font-bold text-slate-800">
-                          {translateType("expense_type" in selectedItem ? selectedItem.expense_type : selectedItem.deduction_type)}
+            <DialogContent className="max-w-2xl rtl border-none bg-slate-900/95 backdrop-blur-2xl text-white rounded-[2.5rem] shadow-2xl overflow-hidden p-0" dir="rtl">
+              <DialogHeader className="bg-gradient-to-r from-blue-600 via-purple-600 to-rose-600 text-white p-6 border-b border-white/10">
+                <DialogTitle className="flex items-center gap-3 text-xl font-black"><Eye className="w-7 h-7" /> {t("common.details")}</DialogTitle>
+              </DialogHeader>
+              {selectedItem && (
+                <div className="space-y-6 p-6 overflow-y-auto max-h-[80vh]">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <div className="p-4 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-sm">
+                          <p className="text-[10px] text-white/40 font-black mb-1 uppercase tracking-wider">{t("common.type")}</p>
+                          <p className="font-bold text-white">
+                            {translateType("expense_type" in selectedItem ? selectedItem.expense_type : (selectedItem as any).deduction_type)}
+                          </p>
+                        </div>
+                      <div className="p-4 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-sm"><p className="text-[10px] text-white/40 font-black mb-1 uppercase tracking-wider">{t("form.date")}</p><p className="font-bold text-white">{formatDate(selectedItem.expense_date)}</p></div>
+                    <div className="p-4 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-sm"><p className="text-[10px] text-white/40 font-black mb-1 uppercase tracking-wider">{t("form.employee")}</p><p className="font-bold text-white">{selectedItem.employee_name || "-"}</p></div>
+                    <div className="p-4 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-sm"><p className="text-[10px] text-white/40 font-black mb-1 uppercase tracking-wider">{t("form.iqamaNumber")}</p><p className="font-bold text-white">{selectedItem.employee_iqama || "-"}</p></div>
+                      <div className="p-4 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-sm">
+                        <p className="text-[10px] text-white/40 font-black mb-1 uppercase tracking-wider">{t("form.account")}</p>
+                        <p className="font-black text-blue-400 text-sm">{selectedItem.account_code || "-"}</p>
+                        <p className="font-bold text-white/60 text-xs">{selectedItem.account_name || "-"}</p>
+                      </div>
+                      <div className="p-4 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-sm">
+                        <p className="text-[10px] text-white/40 font-black mb-1 uppercase tracking-wider">{t("form.costCenter")}</p>
+                        <p className="font-black text-purple-400 text-sm">{selectedItem.center_code || "-"}</p>
+                        <p className="font-bold text-white/60 text-xs">{selectedItem.center_name || "-"}</p>
+                      </div>
+                      <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-2xl"><p className="text-[10px] text-blue-400 font-black mb-1 uppercase tracking-wider">{t("form.amount")}</p><p className="font-black text-xl text-blue-400">{formatNumber(selectedItem.amount || 0)} SAR</p></div>
+                  </div>
+                  
+                  {selectedItem.description && (
+                    <div className="p-5 bg-white/5 border border-white/10 rounded-[2rem]">
+                      <p className="text-[10px] text-white/40 font-black mb-3 uppercase tracking-wider">{t("form.description")}</p>
+                      <p className="text-sm font-medium text-white/80 leading-relaxed">{selectedItem.description}</p>
+                    </div>
+                  )}
+  
+                  {"status" in selectedItem && (
+                    <div className="p-5 bg-rose-500/10 border border-rose-500/20 rounded-[2rem] flex items-center justify-between gap-4">
+                      <div>
+                        <p className="text-[10px] text-rose-400 font-black mb-1 uppercase tracking-wider">{t("common.status")}</p>
+                        <p className={`text-base font-black ${selectedItem.status === "completed" ? "text-emerald-400" : "text-rose-400"}`}>
+                          {selectedItem.status === "completed" ? "تم الخصم (مدفوع)" : "لم يتم الخصم (غير مدفوع)"}
                         </p>
                       </div>
-                    <div className="p-3 bg-white border rounded-xl shadow-sm"><p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("form.date")}</p><p className="font-bold text-slate-800">{formatDate(selectedItem.expense_date)}</p></div>
-                  <div className="p-3 bg-white border rounded-xl shadow-sm"><p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("form.employee")}</p><p className="font-bold text-slate-800">{selectedItem.employee_name || "-"}</p></div>
-                  <div className="p-3 bg-white border rounded-xl shadow-sm"><p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("form.iqamaNumber")}</p><p className="font-bold text-slate-800">{selectedItem.employee_iqama || "-"}</p></div>
-                    <div className="p-3 bg-white border rounded-xl shadow-sm">
-                      <p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("form.account")}</p>
-                      <p className="font-black text-blue-700 text-sm">{selectedItem.account_code || "-"}</p>
-                      <p className="font-bold text-slate-600 text-xs">{selectedItem.account_name || "-"}</p>
+                      <Button 
+                        onClick={() => handleToggleDeductionStatus(selectedItem as DeductionItem)}
+                        disabled={statusUpdating === selectedItem.id}
+                        className={`${selectedItem.status === "completed" ? "bg-rose-600 hover:bg-rose-700" : "bg-emerald-600 hover:bg-emerald-700"} text-white rounded-[1.5rem] px-8 font-black h-14 shadow-xl shadow-rose-500/20 transition-all active:scale-95`}
+                      >
+                        {statusUpdating === selectedItem.id ? <Loader2 className="animate-spin w-6 h-6" /> : (selectedItem.status === "completed" ? "تغيير لغير مدفوع" : "تأكيد السداد")}
+                      </Button>
                     </div>
-                    <div className="p-3 bg-white border rounded-xl shadow-sm">
-                      <p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">{t("form.costCenter")}</p>
-                      <p className="font-black text-purple-700 text-sm">{selectedItem.center_code || "-"}</p>
-                      <p className="font-bold text-slate-600 text-xs">{selectedItem.center_name || "-"}</p>
-                    </div>
-                    <div className="p-3 bg-blue-50 border border-blue-100 rounded-xl shadow-sm"><p className="text-[10px] text-blue-600 font-bold mb-1 uppercase tracking-wider">{t("form.amount")}</p><p className="font-bold text-lg text-blue-700">{formatNumber(selectedItem.amount || 0)} SAR</p></div>
-                </div>
-                
-                {selectedItem.description && (
-                  <div className="p-4 bg-slate-50 border rounded-2xl">
-                    <p className="text-[10px] text-slate-500 font-bold mb-2 uppercase tracking-wider">{t("form.description")}</p>
-                    <p className="text-sm font-medium text-slate-700 leading-relaxed">{selectedItem.description}</p>
-                  </div>
-                )}
-
-                {"status" in selectedItem && (
-                  <div className="p-4 bg-rose-50 border border-rose-100 rounded-2xl flex items-center justify-between">
-                    <div>
-                      <p className="text-[10px] text-rose-500 font-bold mb-1 uppercase tracking-wider">{t("common.status")}</p>
-                      <p className={`text-base font-black ${selectedItem.status === "completed" ? "text-emerald-600" : "text-rose-600"}`}>
-                        {selectedItem.status === "completed" ? "تم الخصم (مدفوع)" : "لم يتم الخصم (غير مدفوع)"}
-                      </p>
-                    </div>
-                    <Button 
-                      onClick={() => handleToggleDeductionStatus(selectedItem as DeductionItem)}
-                      disabled={statusUpdating === selectedItem.id}
-                      className={`${selectedItem.status === "completed" ? "bg-rose-600 hover:bg-rose-700" : "bg-emerald-600 hover:bg-emerald-700"} text-white rounded-xl px-6 font-bold h-12 shadow-lg transition-all active:scale-95`}
-                    >
-                      {statusUpdating === selectedItem.id ? <Loader2 className="animate-spin w-5 h-5" /> : (selectedItem.status === "completed" ? "تغيير لغير مدفوع" : "تأكيد السداد")}
-                    </Button>
-                  </div>
-                )}
-
-                {selectedItem.attachment && (
-                  <div className="p-4 bg-blue-50 border border-blue-100 rounded-2xl">
-                    <p className="text-[10px] text-blue-500 font-bold mb-3 uppercase tracking-wider">{t("form.document")}</p>
-                    <div className="flex flex-col gap-4">
-                      {isImageFile(selectedItem.attachment) ? (
-                        <div className="relative group overflow-hidden rounded-xl border border-blue-200 bg-white">
-                          <img 
-                            src={getAttachmentUrl(selectedItem.attachment) || ''} 
-                            alt="Attachment" 
-                            className="max-h-[300px] w-full object-contain p-2"
-                          />
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <Button 
-                              variant="secondary" 
-                              onClick={() => window.open(getAttachmentUrl(selectedItem.attachment) || '', '_blank')}
-                              className="rounded-full h-12 w-12 p-0"
-                            >
-                              <ExternalLink className="w-6 h-6" />
-                            </Button>
+                  )}
+  
+                  {selectedItem.attachment && (
+                    <div className="p-5 bg-blue-500/10 border border-blue-500/20 rounded-[2rem]">
+                      <p className="text-[10px] text-blue-400 font-black mb-4 uppercase tracking-wider">{t("form.document")}</p>
+                      <div className="flex flex-col gap-4">
+                        {isImageFile(selectedItem.attachment) ? (
+                          <div className="relative group overflow-hidden rounded-[1.5rem] border border-white/10 bg-black/20">
+                            <img 
+                              src={getAttachmentUrl(selectedItem.attachment) || ''} 
+                              alt="Attachment" 
+                              className="max-h-[350px] w-full object-contain p-4"
+                            />
+                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+                              <Button 
+                                variant="secondary" 
+                                onClick={() => window.open(getAttachmentUrl(selectedItem.attachment) || '', '_blank')}
+                                className="rounded-full h-16 w-16 p-0 bg-white/20 hover:bg-white/30 text-white border-none backdrop-blur-md"
+                              >
+                                <ExternalLink className="w-8 h-8" />
+                              </Button>
+                            </div>
                           </div>
-                        </div>
-                      ) : (
-                        <Button 
-                          variant="outline" 
-                          className="w-full h-16 rounded-xl border-blue-200 bg-white hover:bg-blue-50 flex items-center justify-center gap-3 text-blue-700 font-bold"
-                          onClick={() => window.open(getAttachmentUrl(selectedItem.attachment) || '', '_blank')}
-                        >
-                          <FileText className="w-6 h-6" />
-                          <span>عرض وتحميل الملف المرفق</span>
-                          <ExternalLink className="w-4 h-4 mr-auto" />
-                        </Button>
-                      )}
+                        ) : (
+                          <Button 
+                            variant="outline" 
+                            className="w-full h-20 rounded-[1.5rem] border-blue-500/30 bg-white/5 hover:bg-blue-500/10 flex items-center justify-center gap-4 text-blue-400 font-black transition-all"
+                            onClick={() => window.open(getAttachmentUrl(selectedItem.attachment) || '', '_blank')}
+                          >
+                            <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
+                              <FileText className="w-6 h-6" />
+                            </div>
+                            <span className="text-base">عرض وتحميل الملف المرفق</span>
+                            <ExternalLink className="w-5 h-5 mr-auto opacity-40" />
+                          </Button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </DialogContent>
+                  )}
+                </div>
+              )}
+            </DialogContent>
           </Dialog>
 
         <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
-          <DialogContent className="max-w-3xl rtl" dir="rtl">
-            <DialogHeader className="bg-gradient-to-r from-amber-500 to-amber-600 text-white p-4 -m-6 mb-4 rounded-t-lg">
-              <DialogTitle className="flex items-center gap-2 text-lg font-bold">
-                <Pencil className="w-6 h-6" /> {t("actions.edit")}
-              </DialogTitle>
+          <DialogContent className="max-w-3xl rtl border-none bg-slate-900/95 backdrop-blur-2xl text-white rounded-[2.5rem] shadow-2xl overflow-hidden p-0" dir="rtl">
+            <DialogHeader className="bg-gradient-to-r from-amber-500 to-amber-700 text-white p-6 border-b border-white/10">
+              <DialogTitle className="flex items-center gap-3 text-xl font-black"><Pencil className="w-7 h-7" /> {t("actions.edit")}</DialogTitle>
             </DialogHeader>
-            <div className="grid grid-cols-2 gap-4 p-2 max-h-[70vh] overflow-y-auto">
-              <div className="space-y-2">
-                <Label className="text-gray-900 font-semibold">{t("form.date")}</Label>
-                <Input 
-                  type="date" 
-                  value={editForm.expense_date || ""} 
-                  onChange={(e) => setEditForm({...editForm, expense_date: e.target.value})}
-                  className="text-gray-900"
-                />
-              </div>
+            <div className="p-6 overflow-y-auto max-h-[80vh] space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label className="text-gray-900 font-semibold">{t("common.type")}</Label>
+                  <Label className="text-sm font-black text-white/60 mr-2">{t("form.date")}</Label>
                   <Input 
-                    disabled 
-                    value={translateType(editForm.expense_type)} 
-                    className="text-gray-900 bg-gray-50"
+                    type="date" 
+                    value={editForm.expense_date} 
+                    onChange={(e) => setEditForm({...editForm, expense_date: e.target.value})}
+                    className="h-14 bg-white/5 border-white/10 rounded-2xl focus:ring-amber-500/50 focus:border-amber-500 text-white font-bold"
                   />
                 </div>
-              <div className="space-y-2">
-                <Label className="text-gray-900 font-semibold">{t("form.employee")}</Label>
-                <Input 
-                  value={editForm.employee_name || ""} 
-                  onChange={(e) => setEditForm({...editForm, employee_name: e.target.value})}
-                  className="text-gray-900"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-gray-900 font-semibold">{t("form.iqamaNumber")}</Label>
-                <Input 
-                  value={editForm.employee_iqama || ""} 
-                  onChange={(e) => setEditForm({...editForm, employee_iqama: e.target.value})}
-                  className="text-gray-900"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-gray-900 font-semibold">{t("form.amount")}</Label>
-                <Input 
-                  type="number" 
-                  value={editForm.amount || 0} 
-                  onChange={(e) => {
-                    const val = parseFloat(e.target.value);
-                    const tax = "tax_value" in editForm ? val * 0.15 : 0;
-                    setEditForm({
-                      ...editForm, 
-                      amount: val, 
-                      tax_value: tax,
-                      net_amount: "tax_value" in editForm ? val - tax : val
-                    });
-                  }}
-                  className="text-gray-900"
-                />
-              </div>
-              {"tax_value" in editForm && (
-                <>
-                  <div className="space-y-2">
-                    <Label className="text-gray-900 font-semibold">{t("form.tax")}</Label>
-                    <Input disabled value={formatNumber(editForm.tax_value || 0)} className="text-gray-900 bg-gray-50" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-gray-900 font-semibold">{t("form.net")}</Label>
-                    <Input disabled value={formatNumber(editForm.net_amount || 0)} className="text-gray-900 bg-gray-50" />
-                  </div>
-                </>
-              )}
-              <div className="space-y-2">
-                <Label className="text-gray-900 font-semibold">{t("form.account")}</Label>
-                <HierarchicalSearchableSelect 
-                  value={editForm.account_code || ""}
-                  onSelect={(value) => setEditForm({...editForm, account_code: value})}
-                  items={accounts}
-                  placeholder={t("form.account")}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-gray-900 font-semibold">{t("form.costCenter")}</Label>
-                <HierarchicalSearchableSelect 
-                  value={editForm.cost_center_code || ""}
-                  onSelect={(value) => setEditForm({...editForm, cost_center_code: value})}
-                  items={costCenters}
-                  placeholder={t("form.costCenter")}
-                />
-              </div>
-              <div className="col-span-2 space-y-2">
-                <Label className="text-gray-900 font-semibold">{t("form.description")}</Label>
-                <Textarea 
-                  value={editForm.description || ""} 
-                  onChange={(e) => setEditForm({...editForm, description: e.target.value})}
-                  className="text-gray-900 min-h-[80px]"
-                />
-              </div>
-              <div className="col-span-2 space-y-2">
-                <Label className="text-gray-900 font-semibold">{t("form.document")}</Label>
                 <div className="space-y-2">
-                  {editForm.attachment && !editForm.newFile && (
-                    <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 px-4 py-2 rounded-lg border border-green-200">
-                      <Paperclip className="w-4 h-4" />
-                      <span className="font-semibold">مستند محفوظ مسبقاً</span>
-                    </div>
-                  )}
-                  {editForm.newFile && (
-                    <div className="flex items-center gap-2 text-sm text-blue-700 bg-blue-50 px-4 py-2 rounded-lg border border-blue-200">
-                      <FileText className="w-4 h-4" />
-                      <span className="font-semibold">مستند جديد: {editForm.newFile.name}</span>
-                    </div>
-                  )}
-                  <div className="flex flex-col gap-2">
-                    <Input 
-                      type="file" 
-                      onChange={(e) => setEditForm({...editForm, newFile: e.target.files?.[0] || null})}
-                      className="text-gray-900"
-                    />
-                    <p className="text-xs text-gray-600 bg-gray-50 px-3 py-2 rounded border border-gray-200">
-                      <strong>ملاحظة:</strong> المستند المحفوظ سيبقى كما هو إلا إذا قمت باختيار مستند جديد من جهازك.
-                    </p>
-                  </div>
+                  <Label className="text-sm font-black text-white/60 mr-2">{t("form.employee")}</Label>
+                  <Input 
+                    value={editForm.employee_name} 
+                    onChange={(e) => setEditForm({...editForm, employee_name: e.target.value})}
+                    className="h-14 bg-white/5 border-white/10 rounded-2xl focus:ring-amber-500/50 focus:border-amber-500 text-white font-bold"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-black text-white/60 mr-2">{t("form.iqamaNumber")}</Label>
+                  <Input 
+                    value={editForm.employee_iqama} 
+                    onChange={(e) => setEditForm({...editForm, employee_iqama: e.target.value})}
+                    className="h-14 bg-white/5 border-white/10 rounded-2xl focus:ring-amber-500/50 focus:border-amber-500 text-white font-bold"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-black text-white/60 mr-2">{t("form.amount")}</Label>
+                  <Input 
+                    type="number" 
+                    value={editForm.amount} 
+                    onChange={(e) => setEditForm({...editForm, amount: parseFloat(e.target.value)})}
+                    className="h-14 bg-white/5 border-white/10 rounded-2xl focus:ring-amber-500/50 focus:border-amber-500 text-white font-black text-lg"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-black text-white/60 mr-2">{t("form.account")}</Label>
+                  <HierarchicalSearchableSelect
+                    options={accounts}
+                    placeholder={t("form.selectAccount")}
+                    value={editForm.account_code}
+                    onChange={(val) => setEditForm({...editForm, account_code: val})}
+                    className="w-full"
+                    isDark={true}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-black text-white/60 mr-2">{t("form.costCenter")}</Label>
+                  <HierarchicalSearchableSelect
+                    options={costCenters}
+                    placeholder={t("form.selectCostCenter")}
+                    value={editForm.cost_center_code}
+                    onChange={(val) => setEditForm({...editForm, cost_center_code: val})}
+                    className="w-full"
+                    isDark={true}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-black text-white/60 mr-2">{t("form.description")}</Label>
+                <Textarea 
+                  value={editForm.description} 
+                  onChange={(e) => setEditForm({...editForm, description: e.target.value})}
+                  className="bg-white/5 border-white/10 rounded-[1.5rem] focus:ring-amber-500/50 focus:border-amber-500 text-white font-medium min-h-[100px]"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-black text-white/60 mr-2">{t("form.document")}</Label>
+                <div className="flex items-center gap-4">
+                  <Input 
+                    type="file" 
+                    onChange={(e) => setEditForm({...editForm, newFile: e.target.files?.[0] || null})}
+                    className="h-14 bg-white/5 border-white/10 rounded-2xl focus:ring-amber-500/50 focus:border-amber-500 text-white file:bg-amber-500 file:text-white file:border-none file:rounded-xl file:px-4 file:py-2 file:mr-4 file:font-black cursor-pointer"
+                  />
                 </div>
               </div>
             </div>
-            <DialogFooter className="gap-2">
-              <Button onClick={handleEditSubmit} disabled={editLoading} className="bg-amber-600 hover:bg-amber-700 text-white">
-                {editLoading ? <Loader2 className="animate-spin" /> : <Save className="w-4 h-4 ml-2" />}
-                {t("common.save")}
+            <DialogFooter className="p-6 bg-white/5 border-t border-white/10 gap-3">
+              <Button 
+                variant="ghost" 
+                onClick={() => setShowEditModal(false)}
+                className="rounded-2xl px-8 h-12 text-white/60 hover:text-white hover:bg-white/10 font-bold"
+              >
+                {t("actions.cancel")}
               </Button>
-              <Button onClick={() => setShowEditModal(false)} variant="outline">{t("common.cancel")}</Button>
+              <Button 
+                onClick={handleEditSubmit} 
+                disabled={editLoading}
+                className="bg-gradient-to-r from-amber-500 to-amber-700 hover:from-amber-600 hover:to-amber-800 text-white rounded-2xl px-12 h-12 font-black shadow-xl shadow-amber-500/20 active:scale-95 transition-all"
+              >
+                {editLoading ? <Loader2 className="animate-spin w-5 h-5" /> : t("actions.save")}
+              </Button>
             </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
+          <DialogContent className="max-w-md rtl border-none bg-slate-900/95 backdrop-blur-2xl text-white rounded-[2.5rem] shadow-2xl overflow-hidden p-0" dir="rtl">
+            <div className="p-8 text-center space-y-6">
+              <div className="w-20 h-20 bg-rose-500/20 rounded-[2rem] flex items-center justify-center mx-auto mb-2">
+                <Trash2 className="w-10 h-10 text-rose-500" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-2xl font-black text-white">{t("actions.confirmDelete")}</h3>
+                <p className="text-white/40 font-medium">هل أنت متأكد من حذف هذه العملية؟ لا يمكن التراجع عن هذا الإجراء.</p>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <Button 
+                  variant="ghost" 
+                  onClick={() => setShowDeleteModal(false)}
+                  className="rounded-2xl h-14 text-white/60 hover:text-white hover:bg-white/10 font-bold"
+                >
+                  {t("actions.cancel")}
+                </Button>
+                <Button 
+                  onClick={handleDelete} 
+                  disabled={deleteLoading}
+                  className="bg-rose-600 hover:bg-rose-700 text-white rounded-2xl h-14 font-black shadow-xl shadow-rose-500/20 active:scale-95 transition-all"
+                >
+                  {deleteLoading ? <Loader2 className="animate-spin w-5 h-5" /> : t("actions.delete")}
+                </Button>
+              </div>
+            </div>
           </DialogContent>
         </Dialog>
 

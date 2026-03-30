@@ -113,7 +113,7 @@ function EmployeeSelect({ row, type, metadata, updateRow, t }: {
       <div className="flex items-center space-x-2 space-x-reverse">
         <input 
           type="text" 
-          className="w-full bg-slate-100 border border-slate-200 rounded-lg px-2 py-1 text-sm text-gray-900 dark:text-white"
+          className="w-full bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-sm text-white placeholder:text-white/30"
           placeholder={t("form.employeeName")}
           value={row.employee_name || ""}
           onChange={(e) => updateRow(type, row.id, 'employee_name', e.target.value)}
@@ -136,12 +136,12 @@ function EmployeeSelect({ row, type, metadata, updateRow, t }: {
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
             <div 
-              className="w-full bg-white/50 border border-slate-200 cursor-pointer text-sm font-medium py-1.5 px-3 flex items-center justify-between min-h-[36px] hover:bg-white hover:border-blue-300 rounded-lg transition-all shadow-sm"
+              className="w-full bg-white/5 border border-white/15 cursor-pointer text-sm font-medium py-1.5 px-3 flex items-center justify-between min-h-[36px] hover:bg-white/10 hover:border-blue-500/40 rounded-lg transition-all"
             >
-              <span className={row.employee_name ? "text-gray-900 dark:text-white font-bold" : "text-slate-400"}>
+              <span className={row.employee_name ? "text-white font-bold" : "text-white/40"}>
                 {row.employee_name || t("form.selectEmployee")}
               </span>
-              <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180 text-blue-500' : ''}`} />
+              <ChevronDown className={`w-4 h-4 text-white/40 transition-transform duration-200 ${isOpen ? 'rotate-180 text-blue-400' : ''}`} />
             </div>
           </PopoverTrigger>
           <PopoverContent 
@@ -503,20 +503,21 @@ export default function ExpenseFormClient({ user }: { user: User }) {
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-[#edd3de] dark:bg-gradient-to-b dark:from-slate-800 dark:via-slate-700 dark:to-slate-600 rounded-3xl shadow-2xl overflow-hidden border border-rose-200/50 dark:border-slate-600/50"
+        className="relative bg-gradient-to-br from-slate-800 via-slate-700 to-slate-600 rounded-3xl shadow-2xl overflow-hidden border border-slate-500/30"
       >
-        <div className="relative overflow-hidden preserve-colors bg-gradient-to-r from-blue-500 via-blue-400 to-blue-500 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 p-8 text-white border-b border-blue-300/50 dark:border-slate-600/50">
+        <div className="h-1.5 w-full absolute top-0 left-0 bg-gradient-to-r from-blue-500 via-indigo-500 via-purple-500 via-emerald-500 to-blue-500 z-10" />
+        <div className="relative overflow-hidden bg-gradient-to-br from-slate-900/80 via-slate-800/80 to-slate-900/80 p-8 text-white border-b border-white/10">
+            <div className="absolute top-0 right-0 w-40 h-40 rounded-full -translate-y-12 translate-x-12 blur-3xl pointer-events-none bg-blue-500/10" />
             <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-4">
-              <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-sm">
+              <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-sm border border-white/15">
                 <Plus className="w-8 h-8 text-white" />
               </div>
-              <h1 className="text-2xl font-bold tracking-tight glow-text-white">{t("form.addMultiple")}</h1>
-              <p className="text-blue-100 dark:text-slate-400 max-w-2xl">{t("form.subtitle")}</p>
+              <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">{t("form.addMultiple")}</h1>
+              <p className="text-white/50 max-w-2xl">{t("form.subtitle")}</p>
             </div>
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-300 via-blue-200 to-blue-300 dark:from-red-500 dark:via-yellow-500 dark:to-green-500"></div>
         </div>
-  
-        <div className="p-6 space-y-6 bg-[#edd3de] dark:bg-transparent rounded-2xl">
+
+        <div className="p-6 space-y-6 rounded-2xl">
           <motion.div 
             className="bg-white/95 dark:bg-white/5 backdrop-blur-sm p-4 rounded-2xl shadow-lg border border-white/50 dark:border-white/10 flex flex-col md:flex-row items-center justify-between gap-4"
             initial={{ opacity: 0 }}
@@ -605,7 +606,7 @@ export default function ExpenseFormClient({ user }: { user: User }) {
           </motion.div>
         </div>
 
-        <div className="space-y-6 p-6 bg-[#edd3de] dark:bg-transparent rounded-2xl">
+        <div className="space-y-6 p-6 rounded-2xl">
           <AnimatePresence>
             {Object.entries(sections).map(([type, rows]) => (
               <motion.div 
@@ -615,17 +616,17 @@ export default function ExpenseFormClient({ user }: { user: User }) {
                 exit={{ opacity: 0, scale: 0.95 }}
 className="bg-white/95 dark:bg-white/5 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 dark:border-white/10 overflow-hidden"
                 >
-                  <div className="bg-slate-50 dark:bg-slate-800/50 p-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+                  <div className="bg-white/5 p-4 border-b border-white/10 flex items-center justify-between">
                     <div className="flex items-center space-x-3 space-x-reverse">
-                      <div className="p-2 bg-blue-100 dark:bg-blue-500/20 rounded-lg text-blue-600 dark:text-blue-400">
+                      <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400">
                         <Building2 className="w-4 h-4" />
                       </div>
-                      <h3 className="text-base font-bold text-slate-900 dark:text-white glow-text">{t(`types.${type}`)}</h3>
+                      <h3 className="text-base font-bold text-white">{t(`types.${type}`)}</h3>
                   </div>
-                  <button 
+                  <button
                     type="button"
                     onClick={() => removeSection(type)}
-                    className="text-red-500 hover:bg-red-50 p-1.5 rounded-lg transition-colors"
+                    className="text-red-400 hover:bg-red-500/20 p-1.5 rounded-lg transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -660,7 +661,7 @@ className="bg-white/95 dark:bg-white/5 backdrop-blur-sm rounded-2xl shadow-lg bo
                         </thead>
                         <tbody>
                           {rows.map((row) => (
-                            <tr key={row.id} className="bg-white dark:bg-slate-800/30 border-b border-slate-100 dark:border-slate-700 hover:bg-blue-50/30 dark:hover:bg-blue-500/10 transition-colors group">
+                            <tr key={row.id} className="border-b border-white/5 hover:bg-white/5 transition-colors group">
                               <td className="px-2 py-4">
 
                               <input 
@@ -707,7 +708,7 @@ className="bg-white/95 dark:bg-white/5 backdrop-blur-sm rounded-2xl shadow-lg bo
                                   />
                                 </td>
                                 <td className="px-2 py-4">
-                                  <span className="text-xs font-black text-green-700 bg-green-50 px-2 py-1 rounded-lg border border-green-100">{row.net_amount}</span>
+                                  <span className="text-xs font-black text-emerald-400 bg-emerald-500/20 px-2 py-1 rounded-lg border border-emerald-500/20">{row.net_amount}</span>
                                 </td>
                               </>
                             )}
@@ -810,11 +811,11 @@ className="bg-white/95 dark:bg-white/5 backdrop-blur-sm rounded-2xl shadow-lg bo
                     </tbody>
                   </table>
                 </div>
-                <div className="p-4 bg-slate-50/50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-700">
-                  <button 
+                <div className="p-4 bg-white/5 border-t border-white/10">
+                  <button
                     type="button"
                     onClick={() => addRow(type)}
-                    className="flex items-center space-x-2 space-x-reverse text-blue-600 hover:text-blue-700 font-semibold text-sm transition-colors"
+                    className="flex items-center space-x-2 space-x-reverse text-blue-400 hover:text-blue-300 font-semibold text-sm transition-colors"
                   >
                     <Plus className="w-4 h-4" />
                     <span>{t("form.addRow")}</span>

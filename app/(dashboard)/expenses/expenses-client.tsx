@@ -96,38 +96,34 @@ export function ExpensesClient({ companyId, companyInfo, stats, recentActivity, 
   };
 
   const statsData = [
-    { 
-      label: t("dashboard.totalExpenses"), 
-      value: stats.expenses, 
-      icon: TrendingDown, 
-      gradient: "from-blue-500 to-blue-600",
-        bgColor: "bg-white/60 border-blue-200/50",
-        textColor: "text-blue-600"
+    {
+      label: t("dashboard.totalExpenses"),
+      value: stats.expenses,
+      icon: TrendingDown,
+      gradient: "from-blue-500 to-indigo-600",
+      glow: "bg-blue-500/10",
     },
-      { 
-        label: t("dashboard.totalDeductions"), 
-        value: stats.deductions, 
-        icon: HandCoins, 
-        gradient: "from-rose-500 to-rose-600",
-        bgColor: "bg-white/60 border-rose-200/50",
-        textColor: "text-rose-600"
-      },
-      { 
-        label: t("dashboard.totalSalaries"), 
-        value: stats.payrolls, 
-        icon: Users, 
-        gradient: "from-amber-500 to-amber-600",
-        bgColor: "bg-white/60 border-amber-200/50",
-        textColor: "text-amber-600"
-      },
-      { 
-        label: t("dashboard.grandTotal"), 
-        value: stats.total, 
-        icon: Receipt, 
-        gradient: "from-emerald-500 to-emerald-600",
-        bgColor: "bg-white/60 border-emerald-200/50",
-        textColor: "text-emerald-600"
-      },
+    {
+      label: t("dashboard.totalDeductions"),
+      value: stats.deductions,
+      icon: HandCoins,
+      gradient: "from-rose-500 to-rose-600",
+      glow: "bg-rose-500/10",
+    },
+    {
+      label: t("dashboard.totalSalaries"),
+      value: stats.payrolls,
+      icon: Users,
+      gradient: "from-amber-500 to-orange-600",
+      glow: "bg-amber-500/10",
+    },
+    {
+      label: t("dashboard.grandTotal"),
+      value: stats.total,
+      icon: Receipt,
+      gradient: "from-emerald-500 to-teal-600",
+      glow: "bg-emerald-500/10",
+    },
   ];
 
 return (
@@ -139,15 +135,17 @@ return (
           variants={containerVariants}
         >
           {/* Main Card Container */}
-          <div className="bg-[#fafbfd] rounded-[3rem] p-6 md:p-8 shadow-2xl border border-slate-200/30">
+          <div className="relative bg-gradient-to-br from-slate-800 via-slate-700 to-slate-600 rounded-[3rem] p-6 md:p-8 shadow-2xl border border-slate-500/30 overflow-hidden">
+            <div className="h-1.5 w-full absolute top-0 left-0 bg-gradient-to-r from-blue-500 via-indigo-500 via-purple-500 via-emerald-500 to-blue-500" />
             <div className="space-y-6">
               {/* Header Banner */}
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#edd3de] via-[#f5e0ea] to-[#fce7f3] p-8 shadow-2xl border border-rose-200/50"
+                className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-slate-900/80 via-slate-800/80 to-slate-900/80 p-8 shadow-2xl border border-white/10"
               >
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-pink-500 via-rose-500 via-orange-400 via-pink-500 to-rose-500 animate-gradient-x" />
+                <div className="absolute top-0 right-0 w-48 h-48 rounded-full -translate-y-16 translate-x-16 blur-3xl pointer-events-none bg-indigo-500/10" />
+                <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full translate-y-16 -translate-x-16 blur-3xl pointer-events-none bg-blue-500/10" />
                 
                 <div className="relative z-10">
                   <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
@@ -162,37 +160,37 @@ return (
                           />
                         </div>
                       ) : (
-<div className="w-16 h-16 rounded-2xl bg-white/60 backdrop-blur-md flex items-center justify-center shadow-2xl border border-rose-200/50">
-                            <Building2 className="w-8 h-8 text-pink-600" />
+                        <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center shadow-2xl border border-white/15">
+                            <Building2 className="w-8 h-8 text-indigo-400" />
                         </div>
                       )}
                       <div className="space-y-1">
-                        <h1 className="text-2xl md:text-3xl font-black tracking-tight bg-gradient-to-r from-pink-600 via-rose-500 to-orange-500 bg-clip-text text-transparent">
+                        <h1 className="text-2xl md:text-3xl font-black tracking-tight bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
                           {t("dashboard.title")}
                         </h1>
-                        <p className="text-sm font-medium text-slate-600">{companyInfo.name || "Company Name"}</p>
+                        <p className="text-sm font-medium text-white/50">{companyInfo.name || "Company Name"}</p>
                       </div>
                     </div>
 
                     {/* Month Selector */}
                     <div className="flex items-center gap-3">
-<div className="flex items-center bg-white/60 backdrop-blur-md rounded-2xl border border-rose-200/50 overflow-hidden">
-                          <button 
+                      <div className="flex items-center bg-white/10 backdrop-blur-md rounded-2xl border border-white/15 overflow-hidden">
+                          <button
                             onClick={() => changeMonth('next')}
-                            className="p-3 hover:bg-white/40 transition-colors"
+                            className="p-3 hover:bg-white/10 transition-colors"
                           >
-                            <ChevronRight className="w-5 h-5 text-slate-700" />
+                            <ChevronRight className="w-5 h-5 text-white/70" />
                           </button>
                           <div className="px-5 py-2 flex items-center gap-2 min-w-[160px] justify-center">
-                            <Calendar className="w-4 h-4 text-pink-500" />
-                            <span className="font-bold text-slate-800 text-sm">{formatMonthDisplay(selectedMonth)}</span>
+                            <Calendar className="w-4 h-4 text-indigo-400" />
+                            <span className="font-bold text-white text-sm">{formatMonthDisplay(selectedMonth)}</span>
                           </div>
-                          <button 
+                          <button
                             onClick={() => changeMonth('prev')}
-                            className="p-3 hover:bg-white/40 transition-colors"
+                            className="p-3 hover:bg-white/10 transition-colors"
                           >
-                            <ChevronLeft className="w-5 h-5 text-slate-700" />
-                        </button>
+                            <ChevronLeft className="w-5 h-5 text-white/70" />
+                          </button>
                       </div>
                     </div>
                   </div>
@@ -200,18 +198,19 @@ return (
                   {/* Stats Grid */}
                   <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
                     {statsData.map((stat, idx) => (
-                      <div 
+                      <div
                         key={idx}
-                        className={`${stat.bgColor} backdrop-blur-md rounded-2xl p-4 border border-white/5 text-center group hover:scale-[1.02] transition-transform`}
+                        className="relative overflow-hidden bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10 text-center group hover:bg-white/8 hover:-translate-y-0.5 transition-all"
                       >
+                        <div className={`absolute top-0 right-0 w-20 h-20 rounded-full -translate-y-8 translate-x-8 blur-xl pointer-events-none ${stat.glow}`} />
                         <div className="flex flex-col items-center gap-2">
                           <div className={`p-2.5 rounded-xl bg-gradient-to-br ${stat.gradient} shadow-lg`}>
                             <stat.icon className="w-5 h-5 text-white" />
                           </div>
-                          <span className="text-2xl font-black text-slate-800 tabular-nums">
+                          <span className="text-2xl font-black text-white tabular-nums">
                             {new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(stat.value)}
                           </span>
-                          <span className={`text-[10px] font-bold ${stat.textColor} uppercase tracking-wider`}>{stat.label}</span>
+                          <span className="text-[10px] font-bold text-white/50 uppercase tracking-wider">{stat.label}</span>
                         </div>
                       </div>
                     ))}
@@ -219,8 +218,8 @@ return (
                 </div>
                 
                 {/* Decorative elements */}
-                  <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-pink-500/10 rounded-full blur-3xl" />
-                  <div className="absolute -top-12 -left-12 w-48 h-48 bg-rose-500/10 rounded-full blur-3xl" />
+                  <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+                  <div className="absolute -top-12 -left-12 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
               </motion.div>
 
               {/* Action Buttons Row */}
@@ -311,36 +310,36 @@ return (
                 {/* Recent Activity */}
                 <motion.div className="lg:col-span-2 space-y-4" variants={itemVariants}>
                   <div className="flex items-center justify-between px-2">
-                    <h2 className="text-xl font-bold text-slate-800 flex items-center gap-3">
-                        <History className="w-6 h-6 text-pink-500" />
-                        {t("dashboard.recentActivity")}
-                      </h2>
-                      <Button variant="ghost" className="text-pink-500 font-bold hover:bg-pink-50 h-8 text-sm">{t("dashboard.viewAll")}</Button>
+                    <h2 className="text-xl font-bold text-white flex items-center gap-3">
+                      <History className="w-6 h-6 text-indigo-400" />
+                      {t("dashboard.recentActivity")}
+                    </h2>
+                    <Button variant="ghost" className="text-indigo-400 font-bold hover:bg-white/10 h-8 text-sm">{t("dashboard.viewAll")}</Button>
                   </div>
-                  
-                  <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/90 backdrop-blur-xl">
+
+                  <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10">
                     <CardContent className="p-0">
-                      <div className="divide-y divide-slate-100">
+                      <div className="divide-y divide-white/5">
                         {recentActivity.length > 0 ? (
                           recentActivity.map((item, idx) => (
-                            <div key={idx} className="p-4 flex items-center justify-between hover:bg-slate-50/50 transition-colors group">
+                            <div key={idx} className="p-4 flex items-center justify-between hover:bg-white/5 transition-colors group">
                               <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 shadow-sm">
+                                <div className="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition-all duration-300">
                                   <Wallet className="w-5 h-5" />
                                 </div>
                                 <div className="space-y-0.5 text-start">
-                                  <h4 className="font-bold text-slate-800 text-sm">{item.expense_type}</h4>
-                                  <p className="text-xs text-slate-500 flex items-center gap-2">
+                                  <h4 className="font-bold text-white text-sm">{item.expense_type}</h4>
+                                  <p className="text-xs text-white/40 flex items-center gap-2">
                                     <span>{item.employee_name}</span>
-                                    <span className="w-1 h-1 rounded-full bg-slate-300" />
-                                    <span className="font-bold text-blue-600">
+                                    <span className="w-1 h-1 rounded-full bg-white/20" />
+                                    <span className="font-bold text-blue-400">
                                       {new Intl.NumberFormat('en-US').format(item.amount)} SAR
                                     </span>
                                   </p>
                                 </div>
                               </div>
                               <div className="text-end">
-                                <Badge variant="secondary" className="font-bold px-3 py-1 rounded-lg flex items-center gap-1 bg-slate-100 text-slate-600 border-none text-[10px]">
+                                <Badge variant="secondary" className="font-bold px-3 py-1 rounded-lg flex items-center gap-1 bg-white/10 text-white/60 border-none text-[10px]">
                                   <Calendar className="w-3 h-3" />
                                   {new Date(item.expense_date).toLocaleDateString('en-US')}
                                 </Badge>
@@ -349,10 +348,10 @@ return (
                           ))
                         ) : (
                           <div className="p-12 text-center space-y-4">
-                            <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto text-slate-300">
+                            <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto text-white/30">
                               <History className="w-8 h-8" />
                             </div>
-                            <p className="text-slate-400 font-medium text-sm">{t("dashboard.noActivity")}</p>
+                            <p className="text-white/40 font-medium text-sm">{t("dashboard.noActivity")}</p>
                           </div>
                         )}
                       </div>
@@ -362,31 +361,31 @@ return (
 
                 {/* Quick Actions */}
                 <motion.div className="space-y-4" variants={itemVariants}>
-                    <h2 className="text-xl font-bold text-slate-800 flex items-center gap-3 px-2">
-                      <PlusCircle className="w-6 h-6 text-pink-500" />
-                    {t("dashboard.quickActions")}
-                  </h2>
-                  
+                    <h2 className="text-xl font-bold text-white flex items-center gap-3 px-2">
+                      <PlusCircle className="w-6 h-6 text-indigo-400" />
+                      {t("dashboard.quickActions")}
+                    </h2>
+
                   <div className="grid grid-cols-1 gap-3">
                     {[
-                      { label: t("dashboard.addExpense"), icon: PlusCircle, color: "text-blue-600", bg: "bg-blue-50", link: "/expenses/new" },
-                      { label: t("dashboard.addDeduction"), icon: HandCoins, color: "text-rose-600", bg: "bg-rose-50", link: "/expenses/deductions" },
-                      { label: t("dashboard.expensesReport"), icon: FileText, color: "text-emerald-600", bg: "bg-emerald-50", link: "/expenses/report" },
-                      { label: t("dashboard.deductionsReport"), icon: ChartBar, color: "text-amber-600", bg: "bg-amber-50", link: "/expenses/report?type=deductions" },
+                      { label: t("dashboard.addExpense"), icon: PlusCircle, color: "text-blue-300", bg: "bg-blue-500/20", link: "/expenses/new" },
+                      { label: t("dashboard.addDeduction"), icon: HandCoins, color: "text-rose-300", bg: "bg-rose-500/20", link: "/expenses/deductions" },
+                      { label: t("dashboard.expensesReport"), icon: FileText, color: "text-emerald-300", bg: "bg-emerald-500/20", link: "/expenses/report" },
+                      { label: t("dashboard.deductionsReport"), icon: ChartBar, color: "text-amber-300", bg: "bg-amber-500/20", link: "/expenses/report?type=deductions" },
                     ].map((action, idx) => (
                       <motion.button
                         key={idx}
                         whileHover={{ x: 5 }}
-                        className="flex items-center justify-between p-4 bg-white shadow-md hover:shadow-lg rounded-2xl transition-all group w-full text-start border border-slate-100"
+                        className="flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 rounded-2xl transition-all group w-full text-start border border-white/10"
                         onClick={() => router.push(action.link)}
                       >
                         <div className="flex items-center gap-4">
                           <div className={`p-2.5 rounded-xl ${action.bg} ${action.color} group-hover:scale-110 transition-transform`}>
                             <action.icon className="w-5 h-5" />
                           </div>
-                          <span className="font-bold text-slate-700 text-sm">{action.label}</span>
+                          <span className="font-bold text-white/70 text-sm">{action.label}</span>
                         </div>
-                        <ArrowLeftRight className="w-4 h-4 text-slate-300 group-hover:text-blue-600 transition-colors" />
+                        <ArrowLeftRight className="w-4 h-4 text-white/20 group-hover:text-indigo-400 transition-colors" />
                       </motion.button>
                     ))}
                   </div>

@@ -83,39 +83,41 @@ import { useTranslations, useLocale } from "@/lib/locale-context";
 // ------------------------------------------------------------------------------------------------
 
 function DashboardStatCard({ title, value, icon, color, desc, alert }: any) {
-  const colorMap: any = {
-    blue: "bg-white/80 text-blue-500 border-blue-200/50",
-    emerald: "bg-white/80 text-emerald-500 border-emerald-200/50",
-    amber: "bg-white/80 text-amber-500 border-amber-200/50",
-    rose: "bg-white/80 text-rose-500 border-rose-200/50",
+  const iconMap: any = {
+    blue: "bg-gradient-to-br from-blue-500 to-indigo-600 shadow-blue-500/30",
+    emerald: "bg-gradient-to-br from-emerald-500 to-teal-600 shadow-emerald-500/30",
+    amber: "bg-gradient-to-br from-amber-500 to-orange-600 shadow-amber-500/30",
+    rose: "bg-gradient-to-br from-rose-500 to-pink-600 shadow-rose-500/30",
+  };
+  const glowMap: any = {
+    blue: "bg-blue-500/10",
+    emerald: "bg-emerald-500/10",
+    amber: "bg-amber-500/10",
+    rose: "bg-rose-500/10",
   };
 
-  const selected = colorMap[color] || colorMap.blue;
-
   return (
-    <motion.div 
+    <motion.div
       whileHover={{ y: -5, scale: 1.02 }}
-      className={cn(
-        "relative overflow-hidden backdrop-blur-xl rounded-[2rem] p-6 border shadow-lg transition-all group",
-        selected
-      )}
+      className="relative overflow-hidden bg-white/5 backdrop-blur-xl rounded-[2rem] p-6 border border-white/10 shadow-lg transition-all group hover:bg-white/8"
     >
-      <div className="flex justify-between items-start mb-4">
-        <div className="p-3 bg-[#f5e0ea]/60 rounded-2xl group-hover:scale-110 transition-transform">
-          {React.cloneElement(icon, { size: 24 })}
+      <div className={cn("absolute top-0 right-0 w-24 h-24 rounded-full -translate-y-10 translate-x-10 blur-2xl pointer-events-none", glowMap[color] || glowMap.blue)} />
+      <div className="relative z-10 flex justify-between items-start mb-4">
+        <div className={cn("p-3 rounded-2xl shadow-lg group-hover:scale-110 transition-transform", iconMap[color] || iconMap.blue)}>
+          {React.cloneElement(icon, { size: 22, className: "text-white" })}
         </div>
         {alert && (
-          <span className="flex h-2 w-2">
+          <span className="flex h-2 w-2 mt-1">
             <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-rose-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
           </span>
         )}
       </div>
-      <div>
-          <p className="text-slate-500 font-black text-[10px] uppercase tracking-wider mb-1">{title}</p>
+      <div className="relative z-10">
+        <p className="text-white/50 font-black text-[10px] uppercase tracking-wider mb-1">{title}</p>
         <div className="flex items-baseline gap-2">
-          <span className="text-3xl font-black text-slate-800 tracking-tight">{value}</span>
-          <span className="text-[10px] font-black text-slate-400 uppercase">{desc}</span>
+          <span className="text-3xl font-black text-white tracking-tight">{value}</span>
+          <span className="text-[10px] font-black text-white/30 uppercase">{desc}</span>
         </div>
       </div>
       <div className="absolute -bottom-4 -right-4 opacity-5 group-hover:opacity-10 transition-opacity">
@@ -1708,44 +1710,45 @@ export function FleetClient({
             }}
           />
         {/* Unified Main Card */}
-      <div className="bg-[#fafbfd] rounded-[3rem] border border-slate-200/30 shadow-2xl overflow-hidden flex flex-col p-8 space-y-8">
+      <div className="relative bg-gradient-to-br from-slate-800 via-slate-700 to-slate-600 rounded-[3rem] shadow-2xl border border-slate-500/30 overflow-hidden flex flex-col p-8 space-y-8">
+        <div className="h-1.5 w-full absolute top-0 left-0 bg-gradient-to-r from-blue-500 via-indigo-500 via-purple-500 via-emerald-500 to-blue-500" />
         
         {/* Luxurious Hero Section */}
         <motion.div
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#edd3de] via-[#f5e0ea] to-[#fce7f3] p-10 shadow-2xl border border-rose-200/50"
+          className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-slate-900/80 via-slate-800/80 to-slate-900/80 p-10 shadow-2xl border border-white/10"
         >
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-pink-500 via-rose-400 to-orange-400" />
-          
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-indigo-500 via-purple-500 via-emerald-500 to-blue-500" />
+
           <div className="relative z-10 space-y-10">
             <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
               <div className="text-center lg:text-right space-y-4">
-                  <motion.div 
+                  <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-white/60 backdrop-blur-md rounded-2xl border border-rose-200/50 mb-2"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-2xl border border-white/15 mb-2"
                   >
-                    <Sparkles className="w-4 h-4 text-pink-500 animate-pulse" />
-                    <span className="text-pink-700 font-black text-[10px] uppercase tracking-widest">{t('dashboard')}</span>
+                    <Sparkles className="w-4 h-4 text-indigo-400 animate-pulse" />
+                    <span className="text-white/60 font-black text-[10px] uppercase tracking-widest">{t('dashboard')}</span>
                   </motion.div>
-                  
-                  <h1 className="text-4xl md:text-6xl font-black tracking-tight bg-gradient-to-r from-pink-600 via-rose-500 to-orange-500 bg-clip-text text-transparent">
+
+                  <h1 className="text-4xl md:text-6xl font-black tracking-tight bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
                     {t('title')}
                   </h1>
-                  <p className="text-lg text-slate-700 max-w-2xl font-medium leading-relaxed">
+                  <p className="text-lg text-white/60 max-w-2xl font-medium leading-relaxed">
                     {t('subtitle', { name: companyName })}
                   </p>
-                
+
                 <div className="flex flex-wrap justify-center lg:justify-start gap-4 mt-8">
                   <AddVehicleDialog companyId={companyId} employees={employees} vehicleCategories={vehicleCategories} t={t} />
                   <AddSpareDialog companyId={companyId} categories={categories} t={t} />
                   <MaintenanceRequestDialog companyId={companyId} vehicles={vehicles} spares={spares} t={t} companyEmail={companyEmail} />
-                    <button 
+                    <button
                       onClick={() => window.location.reload()}
-                      className="flex items-center gap-3 px-6 py-3 bg-white/60 backdrop-blur-md rounded-2xl border border-rose-200/50 text-slate-700 font-black text-sm hover:bg-white/80 transition-all shadow-xl active:scale-95"
+                      className="flex items-center gap-3 px-6 py-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/15 text-white font-black text-sm hover:bg-white/20 transition-all shadow-xl active:scale-95"
                     >
-                      <RefreshCcw size={18} className="text-pink-500" />
+                      <RefreshCcw size={18} className="text-white/40" />
                       {t('refreshData')}
                     </button>
                   </div>
@@ -1760,13 +1763,13 @@ export function FleetClient({
               </div>
             </div>
 
-            <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-pink-300/20 rounded-full blur-[100px] pointer-events-none" />
-            <div className="absolute -top-24 -left-24 w-96 h-96 bg-rose-300/20 rounded-full blur-[100px] pointer-events-none" />
+            <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none" />
+            <div className="absolute -top-24 -left-24 w-96 h-96 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
         </motion.div>
 
         <Tabs defaultValue="dashboard" value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="flex items-center justify-center mb-8">
-            <TabsList className="bg-white/70 backdrop-blur-xl p-1.5 rounded-2xl border border-rose-200/30 h-16 shadow-xl">
+            <TabsList className="bg-white/5 backdrop-blur-xl p-1.5 rounded-2xl border border-white/10 h-16 shadow-xl">
                 {[
                   { id: "dashboard", label: t('dashboard'), icon: <LayoutDashboard size={18} className="text-blue-400" /> },
                   { id: "vehicles", label: t('vehicles'), icon: <Car size={18} className="text-emerald-400" /> },
@@ -1774,10 +1777,10 @@ export function FleetClient({
                   { id: "maintenance", label: t('maintenance'), icon: <Wrench size={18} className="text-amber-400" /> },
                   { id: "costs", label: t('costs'), icon: <Calculator size={18} className="text-rose-400" /> }
                 ].map((tab) => (
-                <TabsTrigger 
+                <TabsTrigger
                   key={tab.id}
-                  value={tab.id} 
-                    className="rounded-xl px-8 h-full data-[state=active]:bg-[#f5e0ea] data-[state=active]:text-slate-800 data-[state=active]:border-rose-200/50 data-[state=active]:shadow-lg font-black text-slate-500 transition-all gap-2 border border-transparent"
+                  value={tab.id}
+                    className="rounded-xl px-8 h-full data-[state=active]:bg-white/15 data-[state=active]:text-white data-[state=active]:border-white/20 data-[state=active]:shadow-lg font-black text-white/40 transition-all gap-2 border border-transparent"
                 >
                   {tab.icon}
                   {tab.label}
@@ -2382,7 +2385,7 @@ export function FleetClient({
         )}
 
         {/* Footer Branding */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-slate-500 uppercase tracking-widest pt-4 opacity-40">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-white/30 uppercase tracking-widest pt-4">
           <div className="flex items-center gap-2">
             <Sparkles size={10} className="text-blue-500" />
             <span>Logistics Systems Pro</span>

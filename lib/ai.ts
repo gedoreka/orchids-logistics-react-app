@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { knowledgeBase } from "@/ai-assistant/core/knowledge-base";
-import { getSystemStats } from "@/ai-assistant/data/system-data";
-import { generateResponse as generateSamLocalResponse } from "@/ai-assistant/core/response-generator";
+import { knowledgeBase } from "@/lib/ai-assistant/core/knowledge-base";
+import { getSystemStats } from "@/lib/ai-assistant/data/system-data";
+import { generateResponse as generateSamLocalResponse } from "@/lib/ai-assistant/core/response-generator";
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY || "");
 

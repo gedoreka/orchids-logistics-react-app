@@ -2,7 +2,7 @@
  * تكوين شامل لمساعد الذكاء الاصطناعي لـ Logistics Pro المتكامل مع OpenAI
  */
 
-import { KNOWLEDGE_BASE } from "@/ai-assistant/data/knowledge-base";
+import { KNOWLEDGE_BASE } from "@/lib/ai-assistant/data/knowledge-base";
 import OpenAI from "openai";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { UniversalKnowledgeEngine } from "./knowledge-engine";

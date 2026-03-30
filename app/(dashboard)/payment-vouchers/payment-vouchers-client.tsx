@@ -759,8 +759,9 @@ function PaymentVouchersContent({ companyId }: { companyId: string }) {
               </div>
               <span className="bg-white/5 px-3 py-1 rounded-lg border border-white/10">{tFinancial("allRightsReserved", { year: new Date().getFullYear() })}</span>
             </div>
+            </div>
           </div>
-        </motion.div>
+          </motion.div>
         </div>
 
       <AnimatePresence>
