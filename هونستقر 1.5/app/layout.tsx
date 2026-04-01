@@ -19,7 +19,7 @@ const cairo = Cairo({
 });
 
 export const metadata: Metadata = {
-  title: "Logistics Systems Pro",
+  title: "Logistics Hub",
   description: "نظام إدارة الخدمات اللوجستية المتكامل",
 };
 

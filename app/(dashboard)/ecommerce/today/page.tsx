@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { DailyOrdersClient } from "./daily-orders-client";
 
 export const metadata = {
-  title: "عرض الطلبات اليومية - Logistics Systems Pro",
+  title: "عرض الطلبات اليومية - Logistics Hub",
 };
 
 export default async function DailyOrdersPage() {

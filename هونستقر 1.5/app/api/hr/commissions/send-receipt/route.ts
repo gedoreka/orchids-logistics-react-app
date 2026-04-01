@@ -140,14 +140,14 @@ export async function POST(req: NextRequest) {
         </div>
         
         <div style="background-color: #f8fafc; padding: 20px; text-align: center; color: #94a3b8; font-size: 11px; font-weight: 600; border-top: 1px solid #f1f5f9;">
-          صدر هذا المستند آلياً عبر منصة <b>Logistics Systems Pro</b><br/>
+          صدر هذا المستند آلياً عبر منصة <b>Logistics Hub</b><br/>
           جميع الحقوق محفوظة © 2026
         </div>
       </div>
     `;
 
     await transporter.sendMail({
-      from: `"${company.name} | Logistics Systems Pro" <${process.env.SMTP_FROM}>`,
+      from: `"${company.name} | Logistics Hub" <${process.env.SMTP_FROM}>`,
       to: targetEmail,
       subject: `${isPaid ? 'تأكيد صرف عمولة' : 'تنبيه استحقاق مالي'} - ${comm.month}`,
       html: htmlContent,

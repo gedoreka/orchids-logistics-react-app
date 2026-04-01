@@ -1,5 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { execute, query } from "@/lib/db";
+import { cookies } from "next/headers";
+
+async function requireAdmin(): Promise<boolean> {
+  const cookieStore = await cookies();
+  const session = cookieStore.get("auth_session");
+  if (!session) return false;
+  try { return JSON.parse(session.value).role === "admin"; } catch { return false; }
+}
 
 function generateSubscriptionCode() {
   const prefix = 'SUB';
@@ -9,6 +17,7 @@ function generateSubscriptionCode() {
 }
 
 export async function POST(request: NextRequest) {
+  if (!(await requireAdmin())) return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
   try {
     const body = await request.json();
     const { company_id, plan_id, start_date, end_date, assigned_by, notes } = body;
@@ -69,6 +78,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  if (!(await requireAdmin())) return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
   try {
     const { searchParams } = new URL(request.url);
     const company_id = searchParams.get('company_id');

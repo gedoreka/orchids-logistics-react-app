@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import VerifyForm from "./verify-form";
 
 export const metadata = {
-  title: "التحقق من الرمز - Logistics Systems Pro",
+  title: "التحقق من الرمز - Logistics Hub",
 };
 
 export default async function VerifyPage() {

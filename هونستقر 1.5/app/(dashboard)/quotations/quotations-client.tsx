@@ -957,7 +957,7 @@ export function QuotationsClient({
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[11px] font-black text-white/30 uppercase tracking-widest pt-6 border-t border-white/10">
             <div className="flex items-center gap-2">
               <Sparkles size={12} className="text-purple-400" />
-              <span>{isRtl ? 'نظام عروض الأسعار - Logistics Systems Pro' : 'Quotations System - Logistics Systems Pro'}</span>
+              <span>{isRtl ? 'نظام عروض الأسعار - Logistics Hub' : 'Quotations System - Logistics Hub'}</span>
             </div>
             <span className="bg-white/5 px-3 py-1 rounded-lg border border-white/10">{new Date().getFullYear()} © {isRtl ? 'جميع الحقوق محفوظة' : 'All Rights Reserved'}</span>
           </div>

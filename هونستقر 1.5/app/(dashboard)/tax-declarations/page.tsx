@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { TaxDeclarationsClient } from "./tax-declarations-client";
 
 export const metadata = {
-  title: "الإقرارات الضريبية - Logistics Systems Pro",
+  title: "الإقرارات الضريبية - Logistics Hub",
 };
 
 export default async function TaxDeclarationsPage() {

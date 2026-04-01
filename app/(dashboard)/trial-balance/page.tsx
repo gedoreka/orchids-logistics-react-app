@@ -4,7 +4,7 @@ import { TrialBalanceClient } from "./trial-balance-client";
 import { cachedQuery } from "@/lib/db";
 
 export const metadata = {
-  title: "ميزان المراجعة - Logistics Systems Pro",
+  title: "ميزان المراجعة - Logistics Hub",
 };
 
 export default async function TrialBalancePage() {

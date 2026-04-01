@@ -4,7 +4,7 @@ import { IncomeStatementClient } from "./income-statement-client";
 import { cachedQuery } from "@/lib/db";
 
 export const metadata = {
-  title: "قائمة الدخل - Logistics Systems Pro",
+  title: "قائمة الدخل - Logistics Hub",
 };
 
 export default async function IncomeStatementPage() {

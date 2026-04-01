@@ -257,6 +257,7 @@
     "subscriptionPlans": "باقات الاشتراك",
     "specialSalaries": "نظام الرواتب الخاصة",
     "systemSettings": "إعدادات النظام",
+    "globalPermissions": "الصلاحيات الافتراضية",
     "hrManagement": "إدارة الموارد البشرية",
     "customersList": "قائمة العملاء",
     "financialVouchers": "السندات المالية",
@@ -285,7 +286,6 @@
     "taxDeclarations": "الإقرارات الضريبية",
     "taxSettings": "إعدادات الضريبة",
     "virtualAccounts": "الحسابات الافتراضية",
-    "systemSettings": "إعدادات النظام",
     "mySubscription": "اشتراكي",
     "logout": "تسجيل الخروج",
     "subUsersManagement": "إدارة المستخدمين الفرعيين",
@@ -363,7 +363,8 @@
       "isDefault": "افتراضي",
       "noTaxes": "لا توجد ضرائب",
       "noTaxesDesc": "لم يتم العثور على أي ضرائب مسجلة"
-    }
+    },
+    "driverTracking": "متابعة السائقين"
   },
   "footer": {
     "copyright": "جميع الحقوق محفوظة الي شركة زول اسبيد للانشطة المتعددة",
@@ -738,7 +739,7 @@
     "targetLabel": "تارجت",
     "salaryLabel": "راتب",
     "commissionLabel": "عمولة",
-    "systemManagement": "نظام إدارة الباقات - Logistics Systems Pro",
+    "systemManagement": "نظام إدارة الباقات - Logistics Hub",
     "allRightsReserved": "جميع الحقوق محفوظة",
     "createPackageAndEmployees": "إنشاء باقة وموظفين",
     "defineWorkSystemAndTeam": "تحديد نظام العمل وإدخال بيانات الفريق",
@@ -838,7 +839,7 @@
       "tryDifferentSearch": "جرب تغيير معايير البحث أو الفلتر",
       "totalEmployeesFooter": "إجمالي الموظفين",
       "package": "باقة",
-      "systemManagement": "نظام إدارة الموظفين - Logistics Systems Pro",
+      "systemManagement": "نظام إدارة الموظفين - Logistics Hub",
       "allRightsReserved": "جميع الحقوق محفوظة",
       "expiryValid": "سارية",
       "expiryExpired": "منتهية",
@@ -1598,7 +1599,7 @@
     "totalAmount": "المبلغ الإجمالي",
     "creationDate": "تاريخ الإنشاء",
     "noPayrolls": "لا توجد مسيرات رواتب لهذا الشهر",
-    "automatedReport": "تقرير آلي من نظام Logistics Systems Pro",
+    "automatedReport": "تقرير آلي من نظام Logistics Hub",
     "allRightsReserved": "جميع الحقوق محفوظة ©",
     "months": {
       "10": "أكتوبر",
@@ -1895,7 +1896,7 @@
       "deleteReceipt": "حذف السند",
       "noReceipts": "لا توجد سندات",
       "noReceiptsDesc": "لم يتم العثور على أي سندات مبيعات في النظام.",
-      "systemFooter": "Logistics Systems Pro",
+      "systemFooter": "Logistics Hub",
       "allRightsReserved": "جميع الحقوق محفوظة © {year}"
     },
     "newSalesReceiptPage": {
@@ -2259,7 +2260,7 @@
         "ok": "موافق"
       },
       "footer": {
-        "system": "Logistics Systems Pro",
+        "system": "Logistics Hub",
         "rights": "جميع الحقوق محفوظة © {year}"
       },
       "searchPlaceholder": "البحث برقم العرض، العميل...",
@@ -2305,30 +2306,30 @@
         "descriptionPlaceholder": "اكتب تفاصيل سبب الإيراد...",
         "cancel": "إلغاء",
         "save": "حفظ السند",
-          "cancelForm": "إلغاء الإضافة"
-        },
-        "incomeTypes": {
-          "bankTransfer": "تحويل بنكي",
-          "capital": "رأس مال",
-          "otherRevenue": "إيرادات أخرى",
-          "investmentProfit": "أرباح استثمارات",
-          "rentalIncome": "دخل إيجار",
-          "depositReturn": "عائد ودائع",
-          "financialAdjustments": "تسويات مالية"
-        },
-        "paymentMethods": {
-          "cash": "نقدي",
-          "transfer": "تحويل",
-          "deposit": "إيداع"
-        },
-        "notifications": {
-          "saveSuccess": "تم حفظ سند الإيراد بنجاح"
-        },
-        "footer": {
-          "system": "نظام إدارة الإيرادات المالية",
-          "rights": "جميع الحقوق محفوظة © {year}"
-        },
-        "stats": {
+        "cancelForm": "إلغاء الإضافة"
+      },
+      "incomeTypes": {
+        "bankTransfer": "تحويل بنكي",
+        "capital": "رأس مال",
+        "otherRevenue": "إيرادات أخرى",
+        "investmentProfit": "أرباح استثمارات",
+        "rentalIncome": "دخل إيجار",
+        "depositReturn": "عائد ودائع",
+        "financialAdjustments": "تسويات مالية"
+      },
+      "paymentMethods": {
+        "cash": "نقدي",
+        "transfer": "تحويل",
+        "deposit": "إيداع"
+      },
+      "notifications": {
+        "saveSuccess": "تم حفظ سند الإيراد بنجاح"
+      },
+      "footer": {
+        "system": "نظام إدارة الإيرادات المالية",
+        "rights": "جميع الحقوق محفوظة © {year}"
+      },
+      "stats": {
         "count": "عدد السندات",
         "voucherLabel": "سند إيراد",
         "nextNumber": "الرقم التالي (INC00001)",
@@ -2823,7 +2824,7 @@
     "vatNumberLabel": "الرقم الضريبي",
     "addressLabel": "العنوان",
     "phoneLabel": "رقم الهاتف",
-    "systemName": "Logistics Systems Pro",
+    "systemName": "Logistics Hub",
     "rightsReserved": "جميع الحقوق محفوظة © {year}",
     "saving": "جاري الحفظ...",
     "savingDesc": "يتم الآن حفظ بيانات الفاتورة...",
@@ -2906,7 +2907,7 @@
     "totalItems": "إجمالي البنود",
     "active": "نشط",
     "cancelled": "ملغي",
-    "systemName": "Logistics Systems Pro",
+    "systemName": "Logistics Hub",
     "allRightsReserved": "جميع الحقوق محفوظة © 2026"
   },
   "accounts": {
@@ -3136,7 +3137,8 @@
       "letters_templates_module": "الخطابات الجاهزة",
       "sub_users_module": "إدارة المستخدمين",
       "monthly_commissions_module": "العمولات الشهرية",
-      "commissions_summary_module": "ملخص العمولات"
+      "commissions_summary_module": "ملخص العمولات",
+      "driver_tracking_module": "متابعة السائقين"
     },
     "accessToData": "وصول إلى",
     "cancel": "إلغاء",

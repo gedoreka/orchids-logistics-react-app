@@ -5,16 +5,21 @@ import { createClient } from "@supabase/supabase-js";
 import { cachedQuery } from "@/lib/db";
 
 export const metadata = {
-  title: "عرض سند الإيراد - Logistics Systems Pro",
+  title: "عرض سند الإيراد - Logistics Hub",
 };
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key'
-);
+export const dynamic = 'force-dynamic';
+
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || 'https://placeholder.supabase.co',
+    process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key'
+  );
+}
 
 async function getIncomeData(id: string) {
   try {
+    const supabase = getSupabase();
     // First fetch the income record to get its company_id
     const { data: income, error } = await supabase
       .from("manual_income")

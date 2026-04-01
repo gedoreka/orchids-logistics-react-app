@@ -124,11 +124,11 @@ export function PayrollsListClient({ payrolls: initialPayrolls, stats, companyId
 
   const getWorkTypeBadge = (type: string) => {
     switch (type) {
-      case 'salary': return 'bg-emerald-100 text-emerald-700';
-      case 'target': return 'bg-blue-100 text-blue-700';
-      case 'tiers': return 'bg-purple-100 text-purple-700';
-      case 'commission': return 'bg-amber-100 text-amber-700';
-      default: return 'bg-gray-100 text-gray-700';
+      case 'salary': return 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+      case 'target': return 'bg-blue-500/20 text-blue-400 border border-blue-500/30';
+      case 'tiers': return 'bg-purple-500/20 text-purple-400 border border-purple-500/30';
+      case 'commission': return 'bg-amber-500/20 text-amber-400 border border-amber-500/30';
+      default: return 'bg-slate-500/20 text-slate-400 border border-slate-500/30';
     }
   };
 
@@ -422,33 +422,29 @@ export function PayrollsListClient({ payrolls: initialPayrolls, stats, companyId
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-violet-50/80 via-purple-50/50 to-indigo-50/80 border-2 border-violet-200/60 shadow-sm dark:bg-white/95 dark:border dark:border-white/50 dark:rounded-[2rem] dark:shadow-xl"
+          className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-slate-800/95 via-slate-800/90 to-slate-900/95 border border-slate-600/30 shadow-2xl shadow-black/20 backdrop-blur-xl"
         >
-          {/* Decorative circles */}
-          <div className="absolute top-0 left-0 w-32 h-32 rounded-full bg-gradient-to-br from-violet-500/10 to-purple-500/10 -translate-x-1/2 -translate-y-1/2 dark:hidden" />
-          <div className="absolute bottom-0 right-0 w-24 h-24 rounded-full bg-gradient-to-br from-indigo-500/10 to-blue-500/10 translate-x-1/3 translate-y-1/3 dark:hidden" />
+          <div className="absolute -top-20 -right-20 w-40 h-40 bg-blue-500/5 rounded-full blur-3xl" />
+          <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-purple-500/5 rounded-full blur-3xl" />
 
           <div className="relative z-10 p-6">
             {/* Search & create row */}
             <div className="flex flex-col md:flex-row gap-4 items-center justify-between mb-6">
               <div className="relative w-full md:w-96">
-                <Search className={cn("absolute top-1/2 -translate-y-1/2 text-slate-400", isRtl ? "right-4" : "left-4")} size={18} />
+                <Search className={cn("absolute top-1/2 -translate-y-1/2 text-slate-500", isRtl ? "right-4" : "left-4")} size={18} />
                 <input
                   type="text"
                   placeholder={t("searchPlaceholder")}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className={cn(
-                    "w-full py-3 rounded-xl border-2 border-violet-200 bg-white text-slate-800 placeholder-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-sm font-bold transition-all shadow-sm",
+                    "w-full py-3 rounded-xl border border-white/10 bg-white/5 text-white placeholder-slate-500 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 outline-none text-sm font-bold transition-all backdrop-blur-sm",
                     isRtl ? "pr-12 pl-4" : "pl-12 pr-4"
                   )}
                 />
               </div>
               <Link href="/salary-payrolls/new">
-                <button
-                  className="flex items-center gap-3 px-8 py-3 rounded-2xl font-black text-sm shadow-2xl shadow-blue-500/40 active:scale-95 transition-all"
-                  style={{ background: "linear-gradient(to right, #2563eb, #4f46e5)", color: "#ffffff", WebkitTextFillColor: "#ffffff" }}
-                >
+                <button className="flex items-center gap-3 px-8 py-3 rounded-2xl font-black text-sm bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-xl shadow-blue-500/30 hover:shadow-blue-500/50 active:scale-95 transition-all">
                   <Plus size={18} />
                   <span>{t("createNew")}</span>
                 </button>
@@ -456,48 +452,48 @@ export function PayrollsListClient({ payrolls: initialPayrolls, stats, companyId
             </div>
 
             {/* Table section header */}
-            <div className="bg-gradient-to-r from-violet-100 via-purple-100 to-indigo-100 dark:from-slate-800 dark:to-slate-900 rounded-2xl px-5 py-3 mb-4 flex justify-between items-center border border-violet-200/60">
+            <div className="bg-white/5 backdrop-blur-sm rounded-2xl px-5 py-3 mb-4 flex justify-between items-center border border-white/10">
               <div className="flex items-center gap-3">
-                <div className="bg-violet-200/50 border border-violet-300/50 rounded-2xl p-2">
-                  <FileText size={16} className="text-violet-700" />
+                <div className="bg-blue-500/20 border border-blue-500/30 rounded-xl p-2">
+                  <FileText size={16} className="text-blue-400" />
                 </div>
-                <h3 className="font-black text-slate-900 dark:text-white text-sm">{t("table.title")}</h3>
+                <h3 className="font-black text-white text-sm">{t("table.title")}</h3>
               </div>
-              <span className="bg-blue-600 text-white px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider">
+              <span className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border border-blue-500/30">
                 {t("table.count", { count: filteredPayrolls.length })}
               </span>
             </div>
 
             {/* Table */}
             {filteredPayrolls.length > 0 ? (
-              <div className="overflow-x-auto rounded-2xl border-2 border-violet-200/60 bg-white shadow-sm">
+              <div className="overflow-x-auto rounded-2xl border border-white/10">
                 <table className={cn("w-full", isRtl ? "text-right" : "text-left")}>
                   <thead>
-                    <tr className="bg-gradient-to-r from-violet-50 via-purple-50 to-indigo-50 border-b-2 border-violet-200/60">
-                      <th className="px-4 py-3 text-xs font-black text-slate-700 uppercase tracking-wider">{t("table.no")}</th>
-                      <th className="px-4 py-3 text-xs font-black text-slate-700 uppercase tracking-wider">{t("table.payrollMonth")}</th>
-                      <th className="px-4 py-3 text-xs font-black text-slate-700 uppercase tracking-wider">{t("table.package")}</th>
-                      <th className="px-4 py-3 text-xs font-black text-slate-700 uppercase tracking-wider">{t("table.employeesCount")}</th>
-                      <th className="px-4 py-3 text-xs font-black text-slate-700 uppercase tracking-wider">{t("table.totalSalaries")}</th>
-                      <th className="px-4 py-3 text-xs font-black text-slate-700 uppercase tracking-wider">{t("table.status")}</th>
-                      <th className="px-4 py-3 text-xs font-black text-slate-700 uppercase tracking-wider text-center">{t("table.actions")}</th>
+                    <tr className="bg-gradient-to-r from-slate-800 to-slate-900 border-b border-white/10">
+                      <th className="px-4 py-3 text-xs font-black text-slate-400 uppercase tracking-wider">{t("table.no")}</th>
+                      <th className="px-4 py-3 text-xs font-black text-slate-400 uppercase tracking-wider">{t("table.payrollMonth")}</th>
+                      <th className="px-4 py-3 text-xs font-black text-slate-400 uppercase tracking-wider">{t("table.package")}</th>
+                      <th className="px-4 py-3 text-xs font-black text-slate-400 uppercase tracking-wider">{t("table.employeesCount")}</th>
+                      <th className="px-4 py-3 text-xs font-black text-slate-400 uppercase tracking-wider">{t("table.totalSalaries")}</th>
+                      <th className="px-4 py-3 text-xs font-black text-slate-400 uppercase tracking-wider">{t("table.status")}</th>
+                      <th className="px-4 py-3 text-xs font-black text-slate-400 uppercase tracking-wider text-center">{t("table.actions")}</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-violet-100">
+                  <tbody className="divide-y divide-white/5">
                     {filteredPayrolls.map((payroll, idx) => (
-                      <tr key={payroll.id} className={cn("transition-colors hover:bg-violet-50/60", idx % 2 === 0 ? "bg-white" : "bg-violet-50/20")}>
+                      <tr key={payroll.id} className={cn("transition-colors hover:bg-white/5", idx % 2 === 0 ? "bg-transparent" : "bg-white/[0.02]")}>
                         <td className="px-4 py-3 text-sm font-bold text-slate-500">{payroll.id}</td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
-                            <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
-                              <Calendar size={14} />
+                            <div className="h-8 w-8 rounded-lg bg-blue-500/20 flex items-center justify-center border border-blue-500/30">
+                              <Calendar size={14} className="text-blue-400" />
                             </div>
-                            <span className="font-black text-slate-900 text-sm">{payroll.payroll_month}</span>
+                            <span className="font-black text-white text-sm">{payroll.payroll_month}</span>
                           </div>
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex flex-col gap-1">
-                            <span className="font-black text-slate-900 text-sm">{payroll.package_name || t("table.notSpecified")}</span>
+                            <span className="font-black text-white text-sm">{payroll.package_name || t("table.notSpecified")}</span>
                             <span className={`text-xs px-2 py-0.5 rounded-full inline-block w-fit font-bold ${getWorkTypeBadge(payroll.work_type)}`}>
                               {getWorkTypeLabel(payroll.work_type)}
                             </span>
@@ -505,25 +501,25 @@ export function PayrollsListClient({ payrolls: initialPayrolls, stats, companyId
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-1 text-sm">
-                            <Users size={14} className="text-slate-400" />
-                            <span className="font-black text-slate-900">{payroll.employee_count}</span>
-                            <span className="text-slate-400 text-xs font-bold">{t("table.employee")}</span>
+                            <Users size={14} className="text-slate-500" />
+                            <span className="font-black text-white">{payroll.employee_count}</span>
+                            <span className="text-slate-500 text-xs font-bold">{t("table.employee")}</span>
                           </div>
                         </td>
                         <td className="px-4 py-3">
-                          <div className="flex items-center gap-1 text-sm font-black text-emerald-600">
+                          <div className="flex items-center gap-1 text-sm font-black text-emerald-400">
                             <DollarSign size={14} />
                             {Number(payroll.total_amount || 0).toLocaleString(locale, { minimumFractionDigits: 2 })}
-                            <span className="text-xs text-slate-400 font-bold">{t("stats.sar")}</span>
+                            <span className="text-xs text-slate-500 font-bold">{t("stats.sar")}</span>
                           </div>
                         </td>
                         <td className="px-4 py-3">
                           {payroll.is_draft ? (
-                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-black border border-amber-200">
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-amber-500/20 text-amber-400 text-xs font-black border border-amber-500/30">
                               <Clock size={10} />{t("statuses.draft")}
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-black border border-emerald-200">
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-black border border-emerald-500/30">
                               <CheckCircle size={10} />{t("statuses.confirmed")}
                             </span>
                           )}
@@ -532,8 +528,7 @@ export function PayrollsListClient({ payrolls: initialPayrolls, stats, companyId
                           <div className="flex items-center justify-center gap-2 flex-wrap">
                             <Link href={`/salary-payrolls/${payroll.id}`}>
                               <button
-                                className="h-7 px-2.5 rounded-lg flex items-center gap-1.5 whitespace-nowrap text-[11px] font-black transition-all hover:opacity-80"
-                                style={{ backgroundColor: "#dbeafe", color: "#1d4ed8", border: "1px solid #bfdbfe" }}
+                                className="h-7 px-2.5 rounded-lg flex items-center gap-1.5 whitespace-nowrap text-[11px] font-black transition-all hover:opacity-80 bg-blue-500/20 text-blue-400 border border-blue-500/30"
                                 title={t("actions.view")}
                               >
                                 <Eye size={12} /><span>{t("actions.view")}</span>
@@ -541,8 +536,7 @@ export function PayrollsListClient({ payrolls: initialPayrolls, stats, companyId
                             </Link>
                             <Link href={`/salary-payrolls/${payroll.id}/edit`}>
                               <button
-                                className="h-7 px-2.5 rounded-lg flex items-center gap-1.5 whitespace-nowrap text-[11px] font-black transition-all hover:opacity-80"
-                                style={{ backgroundColor: "#fef3c7", color: "#b45309", border: "1px solid #fde68a" }}
+                                className="h-7 px-2.5 rounded-lg flex items-center gap-1.5 whitespace-nowrap text-[11px] font-black transition-all hover:opacity-80 bg-amber-500/20 text-amber-400 border border-amber-500/30"
                                 title={t("actions.edit")}
                               >
                                 <Edit size={12} /><span>{t("actions.edit")}</span>
@@ -550,8 +544,7 @@ export function PayrollsListClient({ payrolls: initialPayrolls, stats, companyId
                             </Link>
                             <button
                               onClick={() => openDeleteConfirm(payroll)}
-                              className="h-7 px-2.5 rounded-lg flex items-center gap-1.5 whitespace-nowrap text-[11px] font-black transition-all hover:opacity-80"
-                              style={{ backgroundColor: "#fee2e2", color: "#dc2626", border: "1px solid #fecaca" }}
+                              className="h-7 px-2.5 rounded-lg flex items-center gap-1.5 whitespace-nowrap text-[11px] font-black transition-all hover:opacity-80 bg-red-500/20 text-red-400 border border-red-500/30"
                               title={t("actions.delete")}
                             >
                               <Trash2 size={12} /><span>{t("actions.delete")}</span>
@@ -564,15 +557,12 @@ export function PayrollsListClient({ payrolls: initialPayrolls, stats, companyId
                 </table>
               </div>
             ) : (
-              <div className="py-16 text-center bg-white rounded-2xl border-2 border-violet-200/60">
-                <FileText size={48} className="mx-auto text-violet-300 mb-4" />
-                <h4 className="text-lg font-black text-slate-900 mb-2">{t("noPayrolls.title")}</h4>
+              <div className="py-16 text-center bg-white/5 rounded-2xl border border-white/10">
+                <FileText size={48} className="mx-auto text-slate-600 mb-4" />
+                <h4 className="text-lg font-black text-white mb-2">{t("noPayrolls.title")}</h4>
                 <p className="text-slate-500 font-bold text-sm mb-4">{t("noPayrolls.desc")}</p>
                 <Link href="/salary-payrolls/new">
-                  <button
-                    className="inline-flex items-center gap-2 px-8 py-3 rounded-2xl font-black text-sm shadow-2xl shadow-blue-500/40 active:scale-95 transition-all"
-                    style={{ background: "linear-gradient(to right, #2563eb, #4f46e5)", color: "#ffffff", WebkitTextFillColor: "#ffffff" }}
-                  >
+                  <button className="inline-flex items-center gap-2 px-8 py-3 rounded-2xl font-black text-sm bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-xl shadow-blue-500/30 active:scale-95 transition-all">
                     <Plus size={16} /><span>{t("createNew")}</span>
                   </button>
                 </Link>

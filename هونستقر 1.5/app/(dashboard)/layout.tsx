@@ -73,17 +73,38 @@ export default async function Layout({ children }: { children: React.ReactNode }
     }
 
 
-    // Enforcement: If subscription is inactive and user is not admin, redirect to subscriptions page
-    // (Note: This is a server component, so we use redirect. 
-    // We should check the current path if possible, but in App Router layout, 
-    // we can't easily get the current path without headers. 
-    // Better to handle this in a client component or middleware, 
-    // but here we can at least pass the state to the layout.)
-    
+    // Fetch live permissions from DB (not stale session cookie)
+    let livePermissions: Record<string, number> = session.permissions || {};
+    if (user.role !== 'admin' && user.company_id) {
+      try {
+        const companyPerms = await cachedQuery<{ feature_key: string; is_enabled: number }>(
+          "SELECT feature_key, is_enabled FROM company_permissions WHERE company_id = ?",
+          [user.company_id], 30000
+        );
+        livePermissions = {};
+        (companyPerms || []).forEach(p => { livePermissions[p.feature_key] = p.is_enabled ? 1 : 0; });
+      } catch {
+        // Fall back to session permissions if DB query fails
+        livePermissions = session.permissions || {};
+      }
+
+      if (userType === 'sub_user' && session.sub_user_id) {
+        try {
+          const subPerms = await cachedQuery<{ permission_key: string }>(
+            "SELECT permission_key FROM sub_user_permissions WHERE sub_user_id = ?",
+            [session.sub_user_id], 30000
+          );
+          (subPerms || []).forEach(p => { livePermissions[p.permission_key] = 1; });
+        } catch {
+          // sub_user_permissions table may not exist yet — silently ignore
+        }
+      }
+    }
+
     return (
-        <DashboardLayoutWrapper 
+        <DashboardLayoutWrapper
           user={user}
-          permissions={session.permissions}
+          permissions={livePermissions}
           userType={userType}
           subscriptionData={subscriptionData}
         >

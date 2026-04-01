@@ -18,7 +18,7 @@ async function setup() {
       {
         category: 'general',
         question: 'مرحباً',
-        answer: 'أهلاً بك في Logistics Systems Pro! كيف يمكنني مساعدتك اليوم؟ نحن نقدم حلولاً متكاملة للشحن والمحاسبة والموارد البشرية.',
+        answer: 'أهلاً بك في Logistics Hub! كيف يمكنني مساعدتك اليوم؟ نحن نقدم حلولاً متكاملة للشحن والمحاسبة والموارد البشرية.',
         keywords: JSON.stringify(['مرحبا', 'سلام', 'hi', 'hello', 'اهلا']),
         language: 'ar'
       },

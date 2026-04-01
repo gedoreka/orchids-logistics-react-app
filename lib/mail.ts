@@ -50,7 +50,7 @@ export async function sendLoginNotification(email: string, name: string, company
     const arabicDate = now.toLocaleDateString('en-US', dateOptions);
     const arabicTime = now.toLocaleTimeString('en-US', timeOptions);
 
-  const subject = "تم تسجيل دخول جديد إلى حسابك - Logistics Systems Pro";
+  const subject = "تم تسجيل دخول جديد إلى حسابك - Logistics Hub";
   const html = `
     <!DOCTYPE html>
     <html dir="rtl" lang="ar">
@@ -67,7 +67,7 @@ export async function sendLoginNotification(email: string, name: string, company
               <span style="font-size: 40px;">🔐</span>
             </div>
             <h1 style="color: #ffffff; font-size: 26px; font-weight: 800; margin: 0 0 12px 0;">تسجيل دخول جديد</h1>
-            <p style="color: rgba(255,255,255,0.7); font-size: 14px; margin: 0; font-weight: 500;">تم رصد دخول إلى حسابك في Logistics Systems Pro</p>
+            <p style="color: rgba(255,255,255,0.7); font-size: 14px; margin: 0; font-weight: 500;">تم رصد دخول إلى حسابك في Logistics Hub</p>
           </div>
           
           <div style="padding: 40px; background: #ffffff;">
@@ -111,7 +111,7 @@ export async function sendLoginNotification(email: string, name: string, company
           </div>
           
           <div style="background: #f8fafc; padding: 25px; text-align: center; border-top: 1px solid #f1f5f9;">
-            <p style="color: #94a3b8; font-size: 11px; margin: 0;">Logistics Systems Pro - الحل المتكامل لإدارة اللوجستيات</p>
+            <p style="color: #94a3b8; font-size: 11px; margin: 0;">Logistics Hub - الحل المتكامل لإدارة اللوجستيات</p>
             <p style="color: #cbd5e1; font-size: 10px; margin: 5px 0 0 0;">© 2026 جميع الحقوق محفوظة</p>
           </div>
           
@@ -129,7 +129,7 @@ export async function sendLoginNotification(email: string, name: string, company
 }
 
 export async function sendResetCode(email: string, name: string, code: string) {
-  const subject = "رمز التحقق لاستعادة كلمة المرور - Logistics Systems Pro";
+  const subject = "رمز التحقق لاستعادة كلمة المرور - Logistics Hub";
   const html = `
     <!DOCTYPE html>
     <html dir="rtl" lang="ar">
@@ -146,7 +146,7 @@ export async function sendResetCode(email: string, name: string, code: string) {
               <span style="font-size: 40px;">🔑</span>
             </div>
             <h1 style="color: #ffffff; font-size: 26px; font-weight: 800; margin: 0 0 12px 0;">استعادة كلمة المرور</h1>
-            <p style="color: rgba(255,255,255,0.7); font-size: 14px; margin: 0; font-weight: 500;">Logistics Systems Pro Security</p>
+            <p style="color: rgba(255,255,255,0.7); font-size: 14px; margin: 0; font-weight: 500;">Logistics Hub Security</p>
           </div>
           
           <div style="padding: 40px; background: #ffffff;">
@@ -174,7 +174,7 @@ export async function sendResetCode(email: string, name: string, code: string) {
           </div>
           
           <div style="background: #f8fafc; padding: 25px; text-align: center; border-top: 1px solid #f1f5f9;">
-            <p style="color: #94a3b8; font-size: 11px; margin: 0;">Logistics Systems Pro - نظام إدارة اللوجستيات المتكامل</p>
+            <p style="color: #94a3b8; font-size: 11px; margin: 0;">Logistics Hub - نظام إدارة اللوجستيات المتكامل</p>
             <p style="color: #cbd5e1; font-size: 10px; margin: 5px 0 0 0;">© 2026 جميع الحقوق محفوظة</p>
           </div>
           
@@ -194,7 +194,7 @@ export async function sendWelcomeSubUserEmail(
   companyName: string, 
   permissions: string[] = []
 ) {
-  const subject = `مرحباً بك في ${companyName} - بيانات حسابك في Logistics Systems Pro`;
+  const subject = `مرحباً بك في ${companyName} - بيانات حسابك في Logistics Hub`;
   
     // Format permissions for display
     const permissionTranslations: { [key: string]: string } = {
@@ -311,7 +311,7 @@ export async function sendWelcomeSubUserEmail(
           </div>
           
           <div style="background: #f8fafc; padding: 30px; text-align: center; border-top: 1px solid #f1f5f9;">
-            <p style="color: #1e293b; font-size: 14px; font-weight: 700; margin: 0;">Logistics Systems Pro</p>
+            <p style="color: #1e293b; font-size: 14px; font-weight: 700; margin: 0;">Logistics Hub</p>
             <p style="color: #94a3b8; font-size: 11px; margin: 5px 0 0 0;">الحل المتكامل لإدارة اللوجستيات | © 2026</p>
           </div>
           
@@ -362,7 +362,7 @@ export async function sendSubUserStatusEmail(
               مرحباً <strong>${name}</strong>
             </p>
             <p style="font-size: 15px; color: #64748b; line-height: 1.8;">
-              نود إفادتك بأن حالة حسابك في نظام <strong>Logistics Systems Pro</strong> التابع لـ <strong>${companyName}</strong> قد تم تحديثها.
+              نود إفادتك بأن حالة حسابك في نظام <strong>Logistics Hub</strong> التابع لـ <strong>${companyName}</strong> قد تم تحديثها.
             </p>
             
             <div style="background: #f1f5f9; border-radius: 20px; padding: 25px; margin: 30px 0; border: 1px solid #e2e8f0;">
@@ -393,7 +393,7 @@ export async function sendSubUserStatusEmail(
           </div>
           
           <div style="background: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #f1f5f9;">
-            <p style="color: #94a3b8; font-size: 11px; margin: 0;">Logistics Systems Pro | نظام الإدارة المتكامل</p>
+            <p style="color: #94a3b8; font-size: 11px; margin: 0;">Logistics Hub | نظام الإدارة المتكامل</p>
           </div>
         </div>
       </div>
@@ -434,7 +434,7 @@ export async function sendSubUserDeletionEmail(email: string, name: string, comp
               مرحباً <strong>${name}</strong>
             </p>
             <p style="font-size: 15px; color: #64748b; line-height: 1.8; margin-bottom: 30px;">
-              نحيطكم علماً بأنه تم حذف حسابكم في نظام <strong>Logistics Systems Pro</strong> التابع لـ <strong>${companyName}</strong> بشكل نهائي.
+              نحيطكم علماً بأنه تم حذف حسابكم في نظام <strong>Logistics Hub</strong> التابع لـ <strong>${companyName}</strong> بشكل نهائي.
             </p>
             
             <div style="background: #fef2f2; border-radius: 20px; padding: 25px; margin-bottom: 30px; border: 1px solid #fee2e2;">
@@ -452,7 +452,7 @@ export async function sendSubUserDeletionEmail(email: string, name: string, comp
           </div>
           
           <div style="background: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #f1f5f9;">
-            <p style="color: #94a3b8; font-size: 11px; margin: 0;">Logistics Systems Pro | الإدارة العامة</p>
+            <p style="color: #94a3b8; font-size: 11px; margin: 0;">Logistics Hub | الإدارة العامة</p>
           </div>
         </div>
       </div>
@@ -468,7 +468,7 @@ export async function sendSubUserDeletionEmail(email: string, name: string, comp
 }
 
 export async function sendWelcomeEmail(email: string, name: string, password: string, companyName?: string) {
-  return sendWelcomeSubUserEmail(email, name, password, companyName || "Logistics Systems Pro");
+  return sendWelcomeSubUserEmail(email, name, password, companyName || "Logistics Hub");
 }
 
 // إشعار الإدارة عند تسجيل شركة جديدة
@@ -572,7 +572,7 @@ export async function sendNewCompanyRegistrationAlert(companyData: {
           </div>
           
           <div style="background: #f8fafc; padding: 25px; text-align: center; border-top: 1px solid #f1f5f9;">
-            <p style="color: #1e293b; font-size: 14px; font-weight: 700; margin: 0;">Logistics Systems Pro</p>
+            <p style="color: #1e293b; font-size: 14px; font-weight: 700; margin: 0;">Logistics Hub</p>
             <p style="color: #94a3b8; font-size: 11px; margin: 5px 0 0 0;">إشعارات الإدارة التلقائية</p>
           </div>
           
@@ -583,7 +583,7 @@ export async function sendNewCompanyRegistrationAlert(companyData: {
   `;
 
   try {
-    return await sendEmail({ to: adminEmail, subject, html, fromName: "Logistics Systems Pro" });
+    return await sendEmail({ to: adminEmail, subject, html, fromName: "Logistics Hub" });
   } catch (error) {
     console.error("Failed to send new company registration alert:", error);
   }

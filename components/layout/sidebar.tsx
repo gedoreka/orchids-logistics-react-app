@@ -4,18 +4,18 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Home, 
-  Building2, 
-  Users, 
-  FileText, 
-  Receipt, 
-  BadgeDollarSign, 
-  Car, 
-  Store, 
-  Truck, 
-  BarChart3, 
-  Settings, 
+import {
+  Home,
+  Building2,
+  Users,
+  FileText,
+  Receipt,
+  BadgeDollarSign,
+  Car,
+  Store,
+  Truck,
+  BarChart3,
+  Settings,
   LogOut,
   Scale,
   BookOpen,
@@ -31,14 +31,15 @@ import {
   FileEdit,
   CreditCard,
   Landmark,
-
+  MapPin,
   Calculator,
   Coins,
   Sparkles,
   ChevronLeft,
   ChevronRight,
   Zap,
-  FileCheck
+  FileCheck,
+  Shield
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLocale, useTranslations } from "@/lib/locale-context";
@@ -68,9 +69,11 @@ const navItems: NavItem[] = [
   { titleKey: "adminNotifications", href: "/admin/notifications", icon: Bell, adminOnly: true, permission: "admin_notifications", gradient: "from-rose-500 to-pink-500", iconColor: "text-rose-400" },
   { titleKey: "subscriptionPlans", href: "/admin/subscriptions", icon: Package, adminOnly: true, permission: "admin_subscriptions", gradient: "from-violet-500 to-purple-500", iconColor: "text-violet-400" },
   { titleKey: "specialSalaries", href: "/admin/special-salaries", icon: Coins, adminOnly: true, permission: "special_salaries", gradient: "from-yellow-500 to-orange-500", iconColor: "text-yellow-400" },
-  { titleKey: "systemSettings", href: "/admin/system-settings", icon: Settings, adminOnly: true, permission: "admin_system_settings", dividerAfter: true, gradient: "from-slate-500 to-zinc-500", iconColor: "text-slate-400" },
+  { titleKey: "systemSettings", href: "/admin/system-settings", icon: Settings, adminOnly: true, permission: "admin_system_settings", gradient: "from-slate-500 to-zinc-500", iconColor: "text-slate-400" },
+  { titleKey: "globalPermissions", href: "/admin/companies/permissions", icon: Shield, adminOnly: true, permission: "admin_system_settings", dividerAfter: true, gradient: "from-rose-500 to-pink-500", iconColor: "text-rose-400" },
   
   { titleKey: "hrManagement", href: "/hr", icon: Users, permission: "employees_module", gradient: "from-blue-500 to-indigo-500", iconColor: "text-blue-400" },
+  { titleKey: "driverTracking", href: "/hr/driver-tracking", icon: MapPin, permission: "driver_tracking_module", gradient: "from-cyan-500 to-blue-500", iconColor: "text-cyan-400" },
   
   { titleKey: "customersList", href: "/customers", icon: Users, permission: "clients_module", gradient: "from-cyan-500 to-teal-500", iconColor: "text-cyan-400" },
   
@@ -181,6 +184,7 @@ export function Sidebar({ userRole, permissions = {}, userType }: SidebarProps) 
       "from-slate-500 to-zinc-500": { from: "#64748b", to: "#71717a" },
       "from-green-600 to-emerald-600": { from: "#16a34a", to: "#059669" },
       "from-emerald-600 to-teal-600": { from: "#059669", to: "#0d9488" },
+      "from-cyan-500 to-blue-500": { from: "#06b6d4", to: "#3b82f6" },
     };
     return colorMap[gradient || ""] || { from: "#6366f1", to: "#8b5cf6" };
   };

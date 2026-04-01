@@ -53,7 +53,8 @@ import {
   Home,
   CheckCircle,
   Sparkles,
-  AlertTriangle
+  AlertTriangle,
+  MapPin
 } from "lucide-react";
 
 interface SubUser {
@@ -76,6 +77,7 @@ interface Permission {
 
 const AVAILABLE_PERMISSIONS: Permission[] = [
   { key: 'employees_module', icon: Users, category: 'hr' },
+  { key: 'driver_tracking_module', icon: Truck, category: 'hr' },
   { key: 'salary_payrolls_module', icon: BadgeDollarSign, category: 'hr' },
   { key: 'clients_module', icon: Users, category: 'sales' },
   { key: 'receipts_module', icon: Receipt, category: 'financial' },

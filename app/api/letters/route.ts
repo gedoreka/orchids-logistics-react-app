@@ -17,9 +17,18 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const templates = await query<any>(
-      "SELECT * FROM letter_templates WHERE is_system_template = true ORDER BY id ASC"
-    );
+    let templates;
+    try {
+      templates = await query<any>(
+        "SELECT * FROM letter_templates WHERE is_system_template = 1 OR (is_system_template = 0 AND company_id = ?) ORDER BY id ASC",
+        [companyId]
+      );
+    } catch {
+      // Fallback if company_id column doesn't exist yet
+      templates = await query<any>(
+        "SELECT * FROM letter_templates WHERE is_system_template = 1 ORDER BY id ASC"
+      );
+    }
 
     const letters = await query<any>(
       `SELECT gl.*, lt.template_name_ar, lt.template_key 

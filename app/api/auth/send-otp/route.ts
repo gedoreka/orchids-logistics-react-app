@@ -55,7 +55,7 @@ async function sendOTPEmail(email: string, otp: string, name: string, companyNam
                 <span style="font-size:36px;">🔐</span>
               </div>
               <h1 style="color:#ffffff;font-size:26px;font-weight:900;margin:0 0 8px;">رمز التحقق</h1>
-              <p style="color:rgba(255,255,255,0.7);font-size:14px;margin:0;">تسجيل الدخول الآمن - Logistics Systems Pro</p>
+              <p style="color:rgba(255,255,255,0.7);font-size:14px;margin:0;">تسجيل الدخول الآمن - Logistics Hub</p>
             </td>
           </tr>
           
@@ -92,7 +92,7 @@ async function sendOTPEmail(email: string, otp: string, name: string, companyNam
           <!-- Footer -->
           <tr>
             <td style="background:#0f172a;border-radius:0 0 20px 20px;padding:24px 40px;text-align:center;border:1px solid rgba(255,255,255,0.05);border-top:none;">
-              <p style="color:#475569;font-size:12px;margin:0 0 8px;">© 2026 Logistics Systems Pro - جميع الحقوق محفوظة</p>
+              <p style="color:#475569;font-size:12px;margin:0 0 8px;">© 2026 Logistics Hub - جميع الحقوق محفوظة</p>
               <p style="color:#334155;font-size:11px;margin:0;">لا تشارك هذا الرمز مع أي شخص</p>
             </td>
           </tr>
@@ -105,7 +105,7 @@ async function sendOTPEmail(email: string, otp: string, name: string, companyNam
 </html>`;
 
   await transporter.sendMail({
-    from: `"${process.env.SMTP_FROM_NAME || 'Logistics Systems Pro'}" <${process.env.SMTP_FROM}>`,
+    from: `"${process.env.SMTP_FROM_NAME || 'Logistics Hub'}" <${process.env.SMTP_FROM}>`,
     to: email,
     subject: `🔐 رمز التحقق الخاص بك: ${otp} - تسجيل الدخول`,
     html,
@@ -114,7 +114,7 @@ async function sendOTPEmail(email: string, otp: string, name: string, companyNam
 
 async function sendOTPWhatsApp(phone: string, otp: string, name: string, apiUrl: string, apiToken: string, instanceId: string) {
   // UltraMsg API format
-  const message = `🔐 *رمز التحقق - Logistics Systems Pro*\n\nمرحباً ${name}،\n\nرمز التحقق الخاص بك هو:\n\n*${otp}*\n\n⏰ صالح لمدة 5 دقائق فقط\n\n⚠️ لا تشارك هذا الرمز مع أي شخص.\n\n— Logistics Systems Pro`;
+  const message = `🔐 *رمز التحقق - Logistics Hub*\n\nمرحباً ${name}،\n\nرمز التحقق الخاص بك هو:\n\n*${otp}*\n\n⏰ صالح لمدة 5 دقائق فقط\n\n⚠️ لا تشارك هذا الرمز مع أي شخص.\n\n— Logistics Hub`;
 
   const url = `${apiUrl}/messages/chat`;
   const body = new URLSearchParams({

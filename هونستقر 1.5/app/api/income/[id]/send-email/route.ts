@@ -3,10 +3,14 @@ import nodemailer from "nodemailer";
 import { createClient } from "@supabase/supabase-js";
 import { query } from "@/lib/db";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+export const dynamic = 'force-dynamic';
+
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
   process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key'
-);
+  );
+}
 
 export async function POST(
   request: NextRequest,
@@ -123,7 +127,7 @@ export async function POST(
             
             <div class="branding">
               <div style="width: 12px; height: 12px; background: #6366f1; border-radius: 3px;"></div>
-              <span>Powered by Logistics Systems Pro</span>
+              <span>Powered by Logistics Hub</span>
             </div>
           </div>
         </div>

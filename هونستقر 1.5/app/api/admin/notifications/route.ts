@@ -2,6 +2,13 @@ import { NextResponse } from "next/server";
 import { query, execute } from "@/lib/db";
 import { cookies } from "next/headers";
 
+async function requireAdmin(): Promise<boolean> {
+  const cookieStore = await cookies();
+  const session = cookieStore.get("auth_session");
+  if (!session) return false;
+  try { return JSON.parse(session.value).role === "admin"; } catch { return false; }
+}
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -53,6 +60,7 @@ export async function GET(request: Request) {
 
 // Update notification
 export async function PUT(request: Request) {
+  if (!(await requireAdmin())) return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
   try {
     const body = await request.json();
     const { id, title, message, image_path } = body;
@@ -74,6 +82,7 @@ export async function PUT(request: Request) {
 
 // Delete notification
 export async function DELETE(request: Request) {
+  if (!(await requireAdmin())) return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
@@ -92,6 +101,7 @@ export async function DELETE(request: Request) {
 
 // Freeze/Unfreeze notification
 export async function PATCH(request: Request) {
+  if (!(await requireAdmin())) return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
   try {
     const body = await request.json();
     const { id, is_frozen } = body;

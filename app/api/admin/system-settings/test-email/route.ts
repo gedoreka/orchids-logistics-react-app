@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     await transporter.sendMail({
       from: `"${fromName}" <${from}>`,
       to: user,
-      subject: "اختبار إعدادات البريد - Logistics Systems Pro",
+      subject: "اختبار إعدادات البريد - Logistics Hub",
       html: `
         <div dir="rtl" style="font-family: Arial, sans-serif; padding: 20px;">
           <h2 style="color: #3b82f6;">اختبار ناجح!</h2>

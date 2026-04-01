@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { cachedQuery } from "@/lib/db";
 
 export const metadata = {
-  title: "عرض سند الصرف - Logistics Systems Pro",
+  title: "عرض سند الصرف - Logistics Hub",
 };
 
 async function getVoucherData(id: string) {

@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { IndividualShipmentsClient } from "./individual-shipments-client";
 
 export const metadata = {
-  title: "شحنات الأفراد - Logistics Systems Pro",
+  title: "شحنات الأفراد - Logistics Hub",
 };
 
 export default async function IndividualShipmentsPage() {

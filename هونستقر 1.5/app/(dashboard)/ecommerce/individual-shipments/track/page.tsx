@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { TrackShipmentsClient } from "./track-shipments-client";
 
 export const metadata = {
-  title: "تتبع الشحنات - Logistics Systems Pro",
+  title: "تتبع الشحنات - Logistics Hub",
 };
 
 export default async function TrackShipmentsPage() {

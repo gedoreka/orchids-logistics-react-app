@@ -17,10 +17,14 @@ import type { ZatcaEnvironment } from "@/lib/zatca/constants";
 import type { ZatcaInvoiceData } from "@/lib/zatca/types";
 import { v4 as uuidv4 } from "uuid";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+export const dynamic = 'force-dynamic';
+
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
   process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key'
-);
+  );
+}
 
 // The 6 compliance test types
 const COMPLIANCE_TESTS = [

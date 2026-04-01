@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Building2, 
+import {
+  Building2,
   ArrowRight,
   Lock,
   Crown,
@@ -42,7 +42,8 @@ import {
   MessageSquare,
   Coins,
   FileSpreadsheet,
-  Home
+  Home,
+  MapPin
 } from "lucide-react";
 import { toast } from "sonner";
 import { Company } from "@/lib/types";
@@ -75,6 +76,7 @@ const features: FeatureItem[] = [
   { key: 'admin_system_settings', name: 'إعدادات النظام', icon: Settings, type: 'admin' },
   
   { key: 'employees_module', name: 'إدارة الموارد البشرية', icon: Users, type: 'general', category: 'الموارد البشرية' },
+  { key: 'driver_tracking_module', name: 'متابعة السائقين', icon: MapPin, type: 'general', category: 'الموارد البشرية' },
   { key: 'salary_payrolls_module', name: 'مسيرات الرواتب', icon: BadgeDollarSign, type: 'general', category: 'الموارد البشرية' },
   { key: 'anb_payroll_settings', name: 'إعدادات بنك ANB', icon: Landmark, type: 'general', category: 'الموارد البشرية' },
   { key: 'anb_payroll_batches', name: 'دفعات رواتب ANB', icon: FileSpreadsheet, type: 'general', category: 'الموارد البشرية' },

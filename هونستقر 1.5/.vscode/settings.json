@@ -1,0 +1,20 @@
+{
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 3306,
+            "driver": "MySQL",
+            "name": "u464748164_zoolsys_main",
+            "group": "u464748164_zoolsys_main",
+            "database": "u464748164_zoolsys_main",
+            "username": "u464748164_zoolsys_main",
+            "password": ""
+        }
+    ]
+}

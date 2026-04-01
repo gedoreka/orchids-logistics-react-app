@@ -122,81 +122,84 @@ export function IqamaReportClient({
         <div className="w-full px-2 pt-6 space-y-6 print:p-0 print:w-full print:space-y-4">
           
           {/* Breadcrumb & Actions Bar */}
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 print:hidden">
-            <motion.div 
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="flex items-center gap-3"
-            >
-              <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-500/30">
-                <FileText className="text-white" size={22} />
-              </div>
-              <div>
-                <div className="flex items-center gap-2 text-xs font-bold text-gray-400">
-                  <Link href="/hr" className="hover:text-purple-600 transition-colors flex items-center gap-1">
-                    <LayoutDashboard size={12} />
-                    {tNav("hr")}
-                  </Link>
-                  <ArrowRight size={12} className={isRTL ? "rotate-180" : ""} />
-                  <span className="text-purple-600">{tHr("iqamaReport")}</span>
+          <motion.div
+            initial={{ opacity: 0, y: -16 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-4 print:hidden"
+          >
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+
+              {/* Left: icon + breadcrumb + title */}
+              <div className="flex items-center gap-4">
+                <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-500/30 shrink-0">
+                  <FileText className="text-white" size={24} />
                 </div>
-                <h1 className="text-xl font-black text-gray-900">{tHr("iqamaReport")}</h1>
+                <div>
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <Link href="/hr" className="text-[11px] font-bold text-gray-400 hover:text-purple-600 transition-colors flex items-center gap-1">
+                      <LayoutDashboard size={11} />
+                      {tNav("hr")}
+                    </Link>
+                    <span className="text-gray-300 text-[11px]">/</span>
+                    <span className="text-[11px] font-black text-purple-500">{tHr("iqamaReport")}</span>
+                  </div>
+                  <h1 className="text-2xl font-black text-gray-900 leading-tight">{tHr("iqamaReport")}</h1>
+                </div>
               </div>
-            </motion.div>
 
-            <motion.div 
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="flex items-center gap-2 flex-wrap"
-            >
-              <button 
-                onClick={() => router.refresh()}
-                className="h-11 px-4 rounded-xl bg-white border border-gray-200 text-xs font-black text-gray-600 hover:border-gray-300 hover:bg-gray-50 transition-all flex items-center gap-2 shadow-sm"
-              >
-                <RefreshCw size={15} />
-                {tCommon("update")}
-              </button>
-              
-              <button 
-                onClick={handlePrint}
-                className="h-11 px-5 rounded-xl bg-white border border-gray-200 text-xs font-black text-gray-600 hover:border-purple-300 hover:text-purple-600 transition-all flex items-center gap-2 shadow-sm"
-              >
-                <Printer size={15} />
-                {tCommon("print")}
-              </button>
-
-              <div className="relative">
-                <button 
-                  onClick={() => setShowExportMenu(!showExportMenu)}
-                  className="h-11 px-5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-black shadow-lg shadow-purple-500/30 hover:shadow-purple-500/40 transition-all flex items-center gap-2"
+              {/* Right: action buttons */}
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={() => router.refresh()}
+                  className="h-10 px-4 rounded-xl bg-gray-50 border border-gray-200 text-xs font-black text-gray-600 hover:bg-gray-100 hover:border-gray-300 transition-all flex items-center gap-2"
                 >
-                  <Download size={15} />
-                  {tCommon("export")}
-                  <ChevronDown size={14} className={`transition-transform ${showExportMenu ? 'rotate-180' : ''}`} />
+                  <RefreshCw size={14} />
+                  {tCommon("update")}
                 </button>
-                
-                <AnimatePresence>
-                  {showExportMenu && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      className={`absolute ${isRTL ? 'left-0' : 'right-0'} top-full mt-2 bg-white rounded-xl border border-gray-100 shadow-xl p-2 min-w-[160px] z-50`}
-                    >
-                      <button className={`w-full px-4 py-2.5 rounded-lg text-xs font-bold text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors flex items-center gap-2 ${isRTL ? 'text-right' : 'text-left'}`}>
-                        <FileText size={14} />
-                        {tCommon("export")} PDF
-                      </button>
-                      <button className={`w-full px-4 py-2.5 rounded-lg text-xs font-bold text-gray-700 hover:bg-green-50 hover:text-green-600 transition-colors flex items-center gap-2 ${isRTL ? 'text-right' : 'text-left'}`}>
-                        <FileSpreadsheet size={14} />
-                        {tCommon("export")} Excel
-                      </button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+
+                <div className="w-px h-6 bg-gray-200 mx-0.5" />
+
+                <button
+                  onClick={handlePrint}
+                  className="h-10 px-4 rounded-xl bg-gray-50 border border-gray-200 text-xs font-black text-gray-600 hover:text-purple-600 hover:border-purple-200 hover:bg-purple-50 transition-all flex items-center gap-2"
+                >
+                  <Printer size={14} />
+                  {tCommon("print")}
+                </button>
+
+                <div className="relative">
+                  <button
+                    onClick={() => setShowExportMenu(!showExportMenu)}
+                    className="h-10 px-5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-black shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all flex items-center gap-2"
+                  >
+                    <Download size={14} />
+                    {tCommon("export")}
+                    <ChevronDown size={13} className={`transition-transform ${showExportMenu ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  <AnimatePresence>
+                    {showExportMenu && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                        className={`absolute ${isRTL ? 'left-0' : 'right-0'} top-full mt-2 bg-white rounded-xl border border-gray-100 shadow-xl p-2 min-w-[160px] z-50`}
+                      >
+                        <button className={`w-full px-4 py-2.5 rounded-lg text-xs font-bold text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors flex items-center gap-2 ${isRTL ? 'text-right' : 'text-left'}`}>
+                          <FileText size={14} />
+                          {tCommon("export")} PDF
+                        </button>
+                        <button className={`w-full px-4 py-2.5 rounded-lg text-xs font-bold text-gray-700 hover:bg-green-50 hover:text-green-600 transition-colors flex items-center gap-2 ${isRTL ? 'text-right' : 'text-left'}`}>
+                          <FileSpreadsheet size={14} />
+                          {tCommon("export")} Excel
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               </div>
-            </motion.div>
-          </div>
+            </div>
+          </motion.div>
 
           {/* Print Header - Only visible when printing */}
           <div className="hidden print:block mb-8">
@@ -345,58 +348,64 @@ export function IqamaReportClient({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
-            className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm print:hidden"
+            className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm print:hidden space-y-4"
           >
-            <form onSubmit={handleSearch} className="flex flex-col lg:flex-row gap-4">
-              <div className="flex-1 relative">
-                <Search className={`absolute ${isRTL ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2 text-gray-400`} size={18} />
-                <input 
+            {/* Search — compact, centered */}
+            <form onSubmit={handleSearch} className="flex justify-center">
+              <div className="relative w-full max-w-sm">
+                <Search className={`absolute ${isRTL ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 text-gray-400`} size={16} />
+                <input
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder={tHr("tasksPage.searchPlaceholder")}
-                  className={`w-full h-12 ${isRTL ? 'pr-12 pl-4' : 'pl-12 pr-4'} rounded-xl bg-gray-50 border-2 border-transparent text-sm font-bold focus:border-purple-500/30 focus:bg-white outline-none transition-all placeholder:text-gray-400`}
+                  className={`w-full h-10 ${isRTL ? 'pr-10 pl-3' : 'pl-10 pr-3'} rounded-xl bg-gray-50 border-2 border-transparent text-sm font-bold focus:border-purple-500/30 focus:bg-white outline-none transition-all placeholder:text-gray-400`}
                 />
               </div>
-              
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl">
-                  <FilterButton 
-                    active={activeFilter === 'all'} 
-                    label={tCommon("all")} 
-                    count={stats.total}
-                    onClick={() => handleFilterChange('all')}
-                    color="gray"
-                  />
-                  <FilterButton 
-                    active={activeFilter === 'expired'} 
-                    label={tHr("packageView.expired")} 
-                    count={stats.expired}
-                    onClick={() => handleFilterChange('expired')}
-                    color="red"
-                  />
-                  <FilterButton 
-                    active={activeFilter === 'soon'} 
-                    label={tHr("packageView.expiringSoon")} 
-                    count={stats.soon}
-                    onClick={() => handleFilterChange('soon')}
-                    color="amber"
-                  />
-                  <FilterButton 
-                    active={activeFilter === 'active'} 
-                    label={tCommon("active")} 
-                    count={stats.active}
-                    onClick={() => handleFilterChange('active')}
-                    color="green"
-                  />
-                </div>
-
-                <button type="submit" className="h-12 px-6 rounded-xl bg-gray-900 text-white text-sm font-black hover:bg-gray-800 transition-all flex items-center gap-2">
-                  <Filter size={16} />
-                  {tCommon("filter")}
-                </button>
-              </div>
             </form>
+
+            {/* Filters — centered */}
+            <div className="flex items-center justify-center gap-3 flex-wrap">
+              <div className="flex items-center gap-1 bg-gray-100 p-1.5 rounded-2xl border border-gray-200/60">
+                <FilterButton
+                  active={activeFilter === 'all'}
+                  label={tCommon("all")}
+                  count={stats.total}
+                  onClick={() => handleFilterChange('all')}
+                  color="gray"
+                />
+                <FilterButton
+                  active={activeFilter === 'expired'}
+                  label={tHr("packageView.expired")}
+                  count={stats.expired}
+                  onClick={() => handleFilterChange('expired')}
+                  color="red"
+                />
+                <FilterButton
+                  active={activeFilter === 'soon'}
+                  label={tHr("packageView.expiringSoon")}
+                  count={stats.soon}
+                  onClick={() => handleFilterChange('soon')}
+                  color="amber"
+                />
+                <FilterButton
+                  active={activeFilter === 'active'}
+                  label={tCommon("active")}
+                  count={stats.active}
+                  onClick={() => handleFilterChange('active')}
+                  color="green"
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={() => handleFilterChange(activeFilter)}
+                className="h-10 px-5 rounded-xl bg-gray-900 text-white text-sm font-black hover:bg-gray-800 transition-all flex items-center gap-2"
+              >
+                <Filter size={15} />
+                {tCommon("filter")}
+              </button>
+            </div>
           </motion.div>
 
           {/* Data Table */}
@@ -435,34 +444,34 @@ export function IqamaReportClient({
               <table className={`w-full ${isRTL ? 'text-right' : 'text-left'}`}>
                   <thead>
                     <tr className="bg-gray-900 border-b border-gray-800 text-white">
-                      <th className="px-4 py-3 text-[10px] font-black uppercase tracking-wider w-12 text-center">#</th>
-                      <th className="px-4 py-3 text-[10px] font-black uppercase tracking-wider">{tCommon("employee")}</th>
-                      <th className="px-4 py-3 text-[10px] font-black uppercase tracking-wider w-32">{tCommon("iqamaNumber")}</th>
+                      <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wider w-10 text-center">#</th>
+                      <th className="px-4 py-3 text-[10px] font-black uppercase tracking-wider w-48">{tCommon("employee")}</th>
+                      <th className="px-4 py-3 text-[10px] font-black uppercase tracking-wider w-36">{tCommon("iqamaNumber")}</th>
                       <th className="px-4 py-3 text-[10px] font-black uppercase tracking-wider w-32">{tCommon("package")}</th>
                       <th className="px-4 py-3 text-[10px] font-black uppercase tracking-wider w-32">{tCommon("expiryDate")}</th>
-                      <th className="px-4 py-3 text-[10px] font-black uppercase tracking-wider w-32">{tCommon("remainingTime")}</th>
+                      <th className="px-4 py-3 text-[10px] font-black uppercase tracking-wider w-36">{tCommon("remainingTime")}</th>
                       <th className="px-4 py-3 text-[10px] font-black uppercase tracking-wider text-center w-28">{tCommon("status")}</th>
                     </tr>
                   </thead>
-                <tbody className="divide-y divide-gray-50">
+                <tbody className="divide-y divide-gray-100">
                   {iqamaData.map((item, idx) => {
                     const statusInfo = getStatusInfo(item.days_remaining);
                     return (
-                      <motion.tr 
+                      <motion.tr
                         key={item.id}
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.05 * idx }}
-                        className="hover:bg-purple-50/30 transition-colors group print:hover:bg-transparent"
+                        className="hover:bg-purple-50/40 transition-colors group print:hover:bg-transparent"
                       >
-                        <td className="px-6 py-4">
-                          <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100 text-xs font-black text-gray-500 group-hover:bg-purple-100 group-hover:text-purple-600 transition-colors">
+                        <td className="px-3 py-3 text-center">
+                          <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-gray-100 text-xs font-black text-gray-500 group-hover:bg-purple-100 group-hover:text-purple-600 transition-colors">
                             {idx + 1}
                           </span>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 py-3">
                           <Link href={`/hr/employees/${item.id}`} className="block group/link">
-                            <span className="text-sm font-black text-gray-900 group-hover/link:text-purple-600 transition-colors">
+                            <span className="text-sm font-black text-gray-900 group-hover/link:text-purple-600 transition-colors leading-tight">
                               {item.name}
                             </span>
                             <p className="text-[10px] font-bold text-gray-400 mt-0.5 flex items-center gap-1">
@@ -471,28 +480,28 @@ export function IqamaReportClient({
                             </p>
                           </Link>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 py-3">
                           <span className="text-sm font-bold text-gray-700 font-mono tracking-wider">
                             {item.iqama_number || '-'}
                           </span>
                         </td>
-                        <td className="px-6 py-4">
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 text-xs font-bold text-gray-600">
+                        <td className="px-4 py-3">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-100 text-xs font-bold text-gray-600 whitespace-nowrap">
                             {item.group_name || tCommon("notSpecified")}
                           </span>
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-2">
-                            <Calendar size={14} className="text-gray-400" />
-                            <span className="text-sm font-black text-gray-900">
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-1.5">
+                            <Calendar size={13} className="text-gray-400 shrink-0" />
+                            <span className="text-sm font-black text-gray-900 whitespace-nowrap">
                               {item.iqama_expiry || '-'}
                             </span>
                           </div>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 py-3">
                           <DaysRemaining days={item.days_remaining} tHr={tHr} />
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 py-3">
                           <div className="flex justify-center">
                             <StatusBadge status={statusInfo.status} label={statusInfo.label} />
                           </div>
@@ -603,15 +612,15 @@ function FilterButton({ active, label, count, onClick, color }: any) {
     <button
       type="button"
       onClick={onClick}
-      className={`px-3 py-2 rounded-lg text-xs font-black transition-all flex items-center gap-1.5 ${
-        active 
+      className={`px-3.5 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${
+        active
         ? activeColors[color]
-        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+        : 'text-gray-500 hover:text-gray-800 hover:bg-white'
       }`}
     >
       {label}
-      <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-        active ? 'bg-white/20' : 'bg-gray-200 text-gray-500'
+      <span className={`min-w-[22px] text-center text-[11px] font-black px-1.5 py-0.5 rounded-full ${
+        active ? 'bg-white/25 text-white' : 'bg-gray-300/70 text-gray-600'
       }`}>
         {count}
       </span>

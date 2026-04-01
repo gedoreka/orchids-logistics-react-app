@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query, execute } from "@/lib/db";
+import { cookies } from "next/headers";
+
+async function requireAdmin(): Promise<boolean> {
+  const cookieStore = await cookies();
+  const session = cookieStore.get("auth_session");
+  if (!session) return false;
+  try { return JSON.parse(session.value).role === "admin"; } catch { return false; }
+}
 
 export async function GET(request: NextRequest) {
+  if (!(await requireAdmin())) return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
   try {
     const { searchParams } = new URL(request.url);
     const token = searchParams.get("token");
@@ -45,6 +54,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  if (!(await requireAdmin())) return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
   try {
     const body = await request.json();
     const { company_id, feature_key, is_enabled } = body;
@@ -79,6 +89,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  if (!(await requireAdmin())) return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
   try {
     const body = await request.json();
     const { company_id, is_active } = body;

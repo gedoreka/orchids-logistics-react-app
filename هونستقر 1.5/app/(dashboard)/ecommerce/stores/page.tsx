@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { StoresManagementClient } from "./stores-management-client";
 
 export const metadata = {
-  title: "إدارة المتاجر - Logistics Systems Pro",
+  title: "إدارة المتاجر - Logistics Hub",
 };
 
 export default async function StoresManagementPage() {

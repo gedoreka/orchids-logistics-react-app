@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import ResetForm from "./reset-form";
 
 export const metadata = {
-  title: "تعيين كلمة مرور جديدة - Logistics Systems Pro",
+  title: "تعيين كلمة مرور جديدة - Logistics Hub",
 };
 
 export default async function ResetPage() {

@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { EcommerceMainPage } from "./ecommerce-main-page";
 
 export const metadata = {
-  title: "قسم التجارة الإلكترونية - Logistics Systems Pro",
+  title: "قسم التجارة الإلكترونية - Logistics Hub",
 };
 
 export default async function EcommercePage() {

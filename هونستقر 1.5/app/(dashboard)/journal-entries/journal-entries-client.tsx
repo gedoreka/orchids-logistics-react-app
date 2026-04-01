@@ -811,7 +811,7 @@ function JournalEntriesContent({ companyId }: JournalEntriesProps) {
                 Object.entries(filteredGroups).map(([num, entryLines]) => {
                   const isManual = !entryLines[0].source_type || entryLines[0].source_type === "manual";
                   const isDraft = !entryLines[0].status || entryLines[0].status === "draft";
-                  const totalDebit = entryLines.reduce((s, l) => s + l.debit, 0);
+                  const totalDebit = entryLines.reduce((s, l) => s + (parseFloat(String(l.debit)) || 0), 0);
 
                     return (
                     <motion.div key={num} variants={itemVariants}
@@ -820,7 +820,7 @@ function JournalEntriesContent({ companyId }: JournalEntriesProps) {
                         className={cn("p-5 flex justify-between items-center cursor-pointer transition-all", isDark ? "hover:bg-white/5" : "hover:bg-white/30")}>
                         <div className="flex items-center gap-4 flex-wrap">
                           <div className={cn("px-4 py-2 rounded-xl font-black text-sm border", isDark ? "bg-white/5 text-blue-400 border-blue-500/20" : "bg-blue-50 text-blue-600 border-blue-200/60")}>
-                            {num}
+                            {num && num !== 'null' ? num : (isAr ? 'غير مرقّم' : 'N/A')}
                           </div>
                           <div className="flex flex-col">
                             <span className={cn("text-[11px] font-bold flex items-center gap-1", isDark ? "text-slate-500" : "text-slate-500")}>
@@ -913,8 +913,8 @@ function JournalEntriesContent({ companyId }: JournalEntriesProps) {
                                           ) : <span className={isDark ? "text-slate-600" : "text-slate-400"}>---</span>}
                                         </td>
                                         <td className={cn("py-3 px-4 italic", isDark ? "text-slate-400" : "text-slate-600")}>{l.description || "---"}</td>
-                                        <td className="py-3 px-4 text-center font-black text-red-400">{l.debit > 0 ? l.debit.toLocaleString() : "-"}</td>
-                                        <td className="py-3 px-4 text-center font-black text-emerald-400">{l.credit > 0 ? l.credit.toLocaleString() : "-"}</td>
+                                        <td className="py-3 px-4 text-center font-black text-red-400">{(parseFloat(String(l.debit)) || 0) > 0 ? (parseFloat(String(l.debit))).toLocaleString("en-US", { minimumFractionDigits: 2 }) : "-"}</td>
+                                        <td className="py-3 px-4 text-center font-black text-emerald-400">{(parseFloat(String(l.credit)) || 0) > 0 ? (parseFloat(String(l.credit))).toLocaleString("en-US", { minimumFractionDigits: 2 }) : "-"}</td>
                                       </tr>
                                     ))}
                                   </tbody>

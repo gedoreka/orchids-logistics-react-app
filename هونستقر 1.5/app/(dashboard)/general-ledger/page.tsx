@@ -4,7 +4,7 @@ import { GeneralLedgerClient } from "./general-ledger-client";
 import { cachedQuery } from "@/lib/db";
 
 export const metadata = {
-  title: "دفتر الأستاذ العام - Logistics Systems Pro",
+  title: "دفتر الأستاذ العام - Logistics Hub",
 };
 
 export default async function GeneralLedgerPage() {

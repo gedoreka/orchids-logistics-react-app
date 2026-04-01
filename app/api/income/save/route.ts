@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+export const dynamic = 'force-dynamic';
+
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
   process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key'
-);
+  );
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -43,7 +47,7 @@ export async function POST(request: NextRequest) {
       const arrayBuffer = await receiptFile.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
 
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError } = await getSupabase().storage
         .from("income-receipts")
         .upload(uploadedFileName, buffer, {
           contentType: receiptFile.type,
@@ -76,7 +80,7 @@ export async function POST(request: NextRequest) {
       insertData.cost_center_id = parseInt(costCenterId);
     }
 
-    const { data, error } = await supabase.from("manual_income").insert(insertData).select();
+    const { data, error } = await getSupabase().from("manual_income").insert(insertData).select();
 
     if (error) {
       console.error("Insert error:", error);

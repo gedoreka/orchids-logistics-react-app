@@ -148,7 +148,7 @@ export async function POST(
 
           <div class="footer">
             <div style="margin-bottom: 10px;">
-              <span class="brand">Logistics Systems Pro</span>
+              <span class="brand">Logistics Hub</span>
               <span style="margin: 0 10px;">|</span>
               <span>نظام إدارة الخدمات اللوجستية المتكامل</span>
             </div>

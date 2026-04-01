@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { PaymentVouchersClient } from "./payment-vouchers-client";
 
 export const metadata = {
-  title: "سندات الصرف - Logistics Systems Pro",
+  title: "سندات الصرف - Logistics Hub",
 };
 
 export default async function PaymentVouchersPage() {

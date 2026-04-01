@@ -9,10 +9,14 @@ import { generateKeyPair, generateCSR, getCSRBase64 } from "@/lib/zatca/crypto";
 import { randomUUID } from "crypto";
 import type { ZatcaCSRConfig } from "@/lib/zatca/types";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+export const dynamic = 'force-dynamic';
+
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
   process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key'
-);
+  );
+}
 
 export async function GET(request: NextRequest) {
   try {

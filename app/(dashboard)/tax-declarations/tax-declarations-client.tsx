@@ -368,7 +368,7 @@ function TaxDeclarationsContent({ companyId }: { companyId: number }) {
       </table>
     </div>
     <div class="footer">
-      تم الطباعة في ${new Date().toLocaleString("ar-SA")} | Logistics Systems Pro
+      تم الطباعة في ${new Date().toLocaleString("ar-SA")} | Logistics Hub
     </div>
   </div>
 </body>

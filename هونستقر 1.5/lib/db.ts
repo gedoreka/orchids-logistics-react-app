@@ -73,14 +73,8 @@ async function withRetry<T>(operation: () => Promise<T>, retries = 3): Promise<T
         console.error('='.repeat(50) + '\n');
       }
 
-      console.error(`DB Operation failed (attempt ${i + 1}/${retries}):`, {
-        code: error?.code || 'UNKNOWN',
-        message: error?.message || String(error),
-        host: process.env.DB_HOST,
-        user: process.env.DB_USER,
-        errno: error?.errno,
-        sqlState: error?.sqlState
-      });
+      // mysql2 error properties are non-enumerable — log them explicitly
+      console.error(`DB Operation failed (attempt ${i + 1}/${retries}): code=${error?.code || 'UNKNOWN'} errno=${error?.errno || ''} sqlState=${error?.sqlState || ''} message="${error?.message || String(error)}" host=${process.env.DB_HOST}`);
 
       
       if (isNetworkError && i < retries - 1) {

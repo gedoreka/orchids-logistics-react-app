@@ -6,7 +6,8 @@ import {
   FileText, Plus, Search, Edit2, Trash2, Printer, Download,
   Calendar, User, Building2, X, Check, Mail, FileSignature,
   ClipboardList, Receipt, ChevronLeft, Eye, Settings, Upload, MoveVertical,
-  Send, AtSign, Loader2, AlertTriangle, Sparkles, Shield, CheckCircle
+  Send, AtSign, Loader2, AlertTriangle, Sparkles, Shield, CheckCircle,
+  PenLine, Bookmark, Tag, Wand2
 } from "lucide-react";
 import { toast } from "sonner";
 import * as pdfjsLib from "pdfjs-dist";
@@ -22,6 +23,8 @@ interface LetterTemplate {
   template_content: string;
   placeholders: string[];
   is_system_template: boolean;
+  company_id?: number;
+  placeholder_labels?: Record<string, string> | string;
 }
 
 interface GeneratedLetter {
@@ -221,6 +224,277 @@ const convertAmountToWords = (amount: number): string => {
   return finalResult;
 };
 
+// ─────────────────────────────── LetterTypeBuilderModal ───────────────────────
+
+function LetterTypeBuilderModal({
+  onClose,
+  onSave,
+}: {
+  onClose: () => void;
+  onSave: (name: string, content: string, placeholders: string[], labels: Record<string, string>) => Promise<void>;
+}) {
+  const [templateName, setTemplateName] = useState("");
+  const [templateText, setTemplateText] = useState("");
+  const [customFields, setCustomFields] = useState<{ key: string; label: string }[]>([]);
+  const [showFieldInput, setShowFieldInput] = useState(false);
+  const [fieldLabel, setFieldLabel] = useState("");
+  const [selectionInfo, setSelectionInfo] = useState<{ start: number; end: number } | null>(null);
+  const [saving, setSaving] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fieldInputRef = useRef<HTMLInputElement>(null);
+
+  const handleMarkSelection = () => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selected = templateText.substring(start, end).trim();
+    setSelectionInfo({ start: textarea.selectionStart, end: textarea.selectionEnd });
+    setFieldLabel(selected || "");
+    setShowFieldInput(true);
+    setTimeout(() => fieldInputRef.current?.focus(), 50);
+  };
+
+  const confirmField = () => {
+    const label = fieldLabel.trim();
+    if (!label) return;
+    const key = `f${customFields.length + 1}`;
+    const marker = `«${label}»`;
+    let newText = templateText;
+    if (selectionInfo && selectionInfo.start !== selectionInfo.end) {
+      newText =
+        templateText.substring(0, selectionInfo.start) +
+        marker +
+        templateText.substring(selectionInfo.end);
+    } else if (selectionInfo) {
+      newText =
+        templateText.substring(0, selectionInfo.start) +
+        marker +
+        templateText.substring(selectionInfo.start);
+    } else {
+      newText = templateText + marker;
+    }
+    setTemplateText(newText);
+    setCustomFields((prev) => [...prev, { key, label }]);
+    setFieldLabel("");
+    setShowFieldInput(false);
+    setSelectionInfo(null);
+  };
+
+  const removeField = (key: string) => {
+    const field = customFields.find((f) => f.key === key);
+    if (field) {
+      setTemplateText((prev) => prev.replaceAll(`«${field.label}»`, field.label));
+    }
+    setCustomFields((prev) => prev.filter((f) => f.key !== key));
+  };
+
+  const handleSave = async () => {
+    if (!templateName.trim()) { toast.error("يرجى إدخال اسم نوع الخطاب"); return; }
+    if (!templateText.trim()) { toast.error("يرجى كتابة نص الخطاب"); return; }
+    let finalContent = templateText;
+    const labels: Record<string, string> = {};
+    const placeholders: string[] = [];
+    customFields.forEach(({ key, label }) => {
+      finalContent = finalContent.replaceAll(`«${label}»`, `{${key}}`);
+      labels[key] = label;
+      placeholders.push(key);
+    });
+    // Wrap lines in <p> tags for HTML rendering
+    finalContent = finalContent
+      .split("\n")
+      .map((line) => `<p>${line || "&nbsp;"}</p>`)
+      .join("");
+    setSaving(true);
+    await onSave(templateName.trim(), finalContent, placeholders, labels);
+    setSaving(false);
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <motion.div
+        initial={{ scale: 0.93, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.93, opacity: 0, y: 20 }}
+        transition={{ type: "spring", damping: 26, stiffness: 300 }}
+        className="relative bg-gradient-to-br from-slate-800/98 via-slate-800/95 to-slate-900/98 backdrop-blur-2xl rounded-[2rem] border border-white/10 shadow-2xl w-full max-w-3xl max-h-[92vh] overflow-hidden flex flex-col"
+        dir="rtl"
+      >
+        {/* Top accent bar */}
+        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-violet-500 via-purple-500 to-pink-500" />
+
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-white/[0.08] flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-gradient-to-br from-violet-500/20 to-purple-500/20 rounded-xl border border-violet-500/20">
+              <PenLine className="w-5 h-5 text-violet-400" />
+            </div>
+            <div>
+              <h2 className="text-xl font-black text-white tracking-tight">إنشاء نوع خطاب جديد</h2>
+              <p className="text-slate-400 text-xs">اكتب نص الخطاب وحدد الأجزاء التي تريدها حقول إدخال</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-xl transition-all">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-5">
+
+          {/* Template name */}
+          <div>
+            <label className="block text-sm font-bold text-slate-300 mb-2 flex items-center gap-2">
+              <Bookmark className="w-4 h-4 text-violet-400" />
+              اسم نوع الخطاب
+            </label>
+            <input
+              value={templateName}
+              onChange={(e) => setTemplateName(e.target.value)}
+              placeholder="مثال: خطاب تعريف بالموظف، خطاب إجازة، إشعار تحذير..."
+              className="w-full bg-white/[0.06] border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-slate-600 focus:outline-none focus:border-violet-500/50 focus:bg-white/[0.08] transition-all"
+            />
+          </div>
+
+          {/* Text area + mark button */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm font-bold text-slate-300 flex items-center gap-2">
+                <FileText className="w-4 h-4 text-violet-400" />
+                نص الخطاب
+              </label>
+              <button
+                type="button"
+                onClick={handleMarkSelection}
+                className="flex items-center gap-2 px-4 py-2 bg-violet-500/15 hover:bg-violet-500/25 border border-violet-500/25 text-violet-300 rounded-xl text-xs font-black transition-all"
+              >
+                <Tag className="w-3.5 h-3.5" />
+                تحديد النص المختار كحقل إدخال
+              </button>
+            </div>
+            <div className="relative">
+              <textarea
+                ref={textareaRef}
+                value={templateText}
+                onChange={(e) => setTemplateText(e.target.value)}
+                rows={12}
+                placeholder={`اكتب نص الخطاب كاملاً هنا...\n\nمثال:\nسعادة مدير عام مؤسسة .......... المحترم\nالسلام عليكم ورحمة الله وبركاته\n\nنفيدكم بأن الموظف .......... يعمل لدينا بمسمى ..........`}
+                className="w-full bg-white/[0.05] border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-slate-700 focus:outline-none focus:border-violet-500/40 transition-all resize-none leading-relaxed font-mono"
+              />
+              {/* Markers legend */}
+              {customFields.length > 0 && (
+                <div className="absolute bottom-3 left-3 right-3 pointer-events-none">
+                  <div className="flex flex-wrap gap-1 justify-end">
+                    {customFields.map((f) => (
+                      <span key={f.key} className="text-[9px] bg-violet-500/20 text-violet-300 px-1.5 py-0.5 rounded border border-violet-500/20 font-mono">
+                        «{f.label}»
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+            <p className="text-[11px] text-slate-600 mt-1.5">
+              حدد جزءاً من النص ثم اضغط "تحديد كحقل إدخال" — أو ضع المؤشر وأضف حقلاً جديداً
+            </p>
+          </div>
+
+          {/* Field label input popup */}
+          <AnimatePresence>
+            {showFieldInput && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                className="bg-violet-500/10 border border-violet-500/25 rounded-2xl p-4 space-y-3"
+              >
+                <p className="text-sm font-bold text-violet-300 flex items-center gap-2">
+                  <Wand2 className="w-4 h-4" />
+                  ما اسم هذا الحقل؟
+                </p>
+                <div className="flex gap-2">
+                  <input
+                    ref={fieldInputRef}
+                    value={fieldLabel}
+                    onChange={(e) => setFieldLabel(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") confirmField(); if (e.key === "Escape") { setShowFieldInput(false); setFieldLabel(""); } }}
+                    placeholder="مثال: اسم المدير العام، رقم العقد، تاريخ البداية..."
+                    className="flex-1 bg-white/[0.07] border border-violet-500/30 rounded-xl px-3 py-2 text-white text-sm placeholder-slate-600 focus:outline-none focus:border-violet-400"
+                  />
+                  <button
+                    type="button"
+                    onClick={confirmField}
+                    disabled={!fieldLabel.trim()}
+                    className="px-4 py-2 bg-violet-500 hover:bg-violet-600 disabled:opacity-40 text-white rounded-xl text-sm font-black transition-all"
+                  >
+                    إضافة
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setShowFieldInput(false); setFieldLabel(""); }}
+                    className="px-3 py-2 bg-white/5 hover:bg-white/10 text-slate-400 rounded-xl text-sm transition-all"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Defined fields list */}
+          {customFields.length > 0 && (
+            <div>
+              <p className="text-sm font-bold text-slate-300 mb-3 flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-emerald-400" />
+                حقول الإدخال المعرفة ({customFields.length})
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {customFields.map((f) => (
+                  <div key={f.key} className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-3 py-1.5">
+                    <Tag className="w-3 h-3 text-emerald-400" />
+                    <span className="text-sm text-emerald-300 font-bold">{f.label}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeField(f.key)}
+                      className="text-slate-500 hover:text-red-400 transition-colors"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center gap-3 p-6 border-t border-white/[0.08] flex-shrink-0">
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving || !templateName.trim() || !templateText.trim()}
+            className="flex-1 py-3 bg-gradient-to-r from-violet-500 to-purple-600 text-white font-black rounded-xl hover:opacity-90 transition-all disabled:opacity-40 flex items-center justify-center gap-2 shadow-lg shadow-violet-500/20"
+          >
+            {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle className="w-5 h-5" />}
+            {saving ? "جاري الحفظ..." : "حفظ نوع الخطاب"}
+          </button>
+          <button type="button" onClick={onClose} className="px-6 py-3 bg-white/5 hover:bg-white/10 text-slate-400 rounded-xl font-bold transition-all">
+            إلغاء
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+
 export default function LettersClient() {
   const t = useTranslations("officialLettersPage");
   const { locale, isRTL } = useLocale();
@@ -234,7 +508,10 @@ export default function LettersClient() {
   const [margins, setMargins] = useState({ top: 100, bottom: 100 });
   const [hasUnsavedMargins, setHasUnsavedMargins] = useState(false);
 
+  const [showTypeBuilder, setShowTypeBuilder] = useState(false);
+
   const [showForm, setShowForm] = useState(false);
+  const [showTemplateSelectModal, setShowTemplateSelectModal] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<LetterTemplate | null>(null);
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [editingLetter, setEditingLetter] = useState<GeneratedLetter | null>(null);
@@ -887,6 +1164,68 @@ export default function LettersClient() {
     return placeholders;
   };
 
+  const getFieldLabel = (placeholder: string, template: LetterTemplate): string => {
+    if (template.placeholder_labels) {
+      const labels: Record<string, string> =
+        typeof template.placeholder_labels === "string"
+          ? JSON.parse(template.placeholder_labels)
+          : template.placeholder_labels;
+      if (labels[placeholder]) return labels[placeholder];
+    }
+    return (placeholderLabels as any)[placeholder] || placeholder;
+  };
+
+  const getTemplateName = (template: LetterTemplate): string =>
+    template.is_system_template
+      ? t(`templates.${template.template_key}`)
+      : template.template_name_ar || template.template_name;
+
+  const handleSaveCustomTemplate = async (
+    name: string,
+    content: string,
+    placeholderArr: string[],
+    labels: Record<string, string>
+  ) => {
+    try {
+      const res = await fetch("/api/letters/templates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          template_name: name,
+          template_content: content,
+          placeholders: placeholderArr,
+          placeholder_labels: labels,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success(`تم حفظ نوع الخطاب "${name}" بنجاح`);
+        setShowTypeBuilder(false);
+        fetchData();
+      } else {
+        toast.error(data.error || "حدث خطأ أثناء الحفظ");
+      }
+    } catch {
+      toast.error("حدث خطأ غير متوقع");
+    }
+  };
+
+  const handleDeleteCustomTemplate = async (id: number, name: string) => {
+    if (!confirm(`هل تريد حذف نوع الخطاب "${name}"؟ سيتم حذفه نهائياً.`)) return;
+    try {
+      const res = await fetch(`/api/letters/templates?id=${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (data.success) {
+        toast.success("تم حذف نوع الخطاب");
+        fetchData();
+      } else {
+        toast.error(data.error || "حدث خطأ");
+      }
+    } catch {
+      toast.error("حدث خطأ");
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -897,7 +1236,7 @@ export default function LettersClient() {
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 p-4 md:p-8" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
-        <div className="max-w-7xl mx-auto">
+        <div className="w-[95%] mx-auto">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -919,7 +1258,16 @@ export default function LettersClient() {
                 </h1>
                 <p className="text-blue-100/80 text-lg">{t("subtitle")}</p>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-wrap justify-center md:justify-end">
+                <motion.button
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => setShowTypeBuilder(true)}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-white/15 hover:bg-white/25 backdrop-blur-sm border border-white/25 text-white rounded-2xl text-sm font-black transition-all shadow-lg"
+                >
+                  <PenLine className="w-4 h-4" />
+                  إنشاء نوع خطاب جديد
+                </motion.button>
                 <button
                   onClick={() => setShowSettings(true)}
                   className="bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white shadow-lg rounded-2xl p-3 transition-all flex items-center gap-2 border border-white/20"
@@ -950,8 +1298,7 @@ export default function LettersClient() {
               whileTap={{ scale: 0.99 }}
               onClick={() => {
                 if (templates.length > 0) {
-                  // scroll to templates section
-                  document.getElementById('templates-section')?.scrollIntoView({ behavior: 'smooth' });
+                  setShowTemplateSelectModal(true);
                 }
               }}
               className="w-full group relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 p-[2px] shadow-2xl shadow-blue-500/20 hover:shadow-blue-500/40 transition-all"
@@ -995,7 +1342,7 @@ export default function LettersClient() {
               <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-indigo-500/5 rounded-full blur-3xl" />
 
               <div className="relative z-10 p-8">
-                <div className="flex items-center gap-3 mb-6">
+                <div className="flex items-center gap-4 mb-6">
                   <div className="p-2.5 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-xl border border-blue-500/20">
                     <FileSignature className="w-6 h-6 text-blue-400" />
                   </div>
@@ -1006,34 +1353,50 @@ export default function LettersClient() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
                   {templates.map((template, idx) => {
-                    const Icon = templateIcons[template.template_key] || FileText;
-                    const colorClass = templateColors[template.template_key] || "from-gray-500 to-gray-600";
+                    const Icon = templateIcons[template.template_key] || (template.is_system_template ? FileText : PenLine);
+                    const colorClass = templateColors[template.template_key] || (template.is_system_template ? "from-gray-500 to-gray-600" : "from-violet-600 to-purple-700");
+                    const isCustom = !template.is_system_template;
                     return (
-                      <motion.button
-                        key={template.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 + idx * 0.05 }}
-                        whileHover={{ scale: 1.03, y: -5 }}
-                        whileTap={{ scale: 0.97 }}
-                        onClick={() => openCreateForm(template)}
-                        className={`group relative bg-gradient-to-br ${colorClass} p-6 rounded-2xl text-white ${locale === 'ar' ? 'text-right' : 'text-left'} shadow-xl hover:shadow-2xl transition-all overflow-hidden`}
-                      >
-                        {/* Shimmer effect */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-                        <div className="relative z-10">
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl border border-white/20 shadow-lg">
-                              <Icon className="w-6 h-6" />
+                      <div key={template.id} className="relative group">
+                        <motion.button
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.1 + idx * 0.05 }}
+                          whileHover={{ scale: 1.03, y: -5 }}
+                          whileTap={{ scale: 0.97 }}
+                          onClick={() => openCreateForm(template)}
+                          className={`w-full bg-gradient-to-br ${colorClass} p-6 rounded-2xl text-white ${locale === 'ar' ? 'text-right' : 'text-left'} shadow-xl hover:shadow-2xl transition-all overflow-hidden`}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                          <div className="relative z-10">
+                            <div className="flex items-start justify-between mb-4">
+                              <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl border border-white/20 shadow-lg">
+                                <Icon className="w-6 h-6" />
+                              </div>
+                              <div className="flex items-center gap-1">
+                                {isCustom && (
+                                  <span className="text-[9px] bg-white/20 text-white/80 px-1.5 py-0.5 rounded-full font-bold">مخصص</span>
+                                )}
+                                <motion.div whileHover={{ x: locale === 'ar' ? -5 : 5 }}>
+                                  {locale === 'ar' ? <ChevronLeft className="w-5 h-5 opacity-50" /> : <ChevronLeft className="w-5 h-5 opacity-50 rotate-180" />}
+                                </motion.div>
+                              </div>
                             </div>
-                            <motion.div whileHover={{ x: locale === 'ar' ? -5 : 5 }}>
-                              {locale === 'ar' ? <ChevronLeft className="w-5 h-5 opacity-50" /> : <ChevronLeft className="w-5 h-5 opacity-50 rotate-180" />}
-                            </motion.div>
+                            <h3 className="font-bold text-base mb-1 leading-tight">{getTemplateName(template)}</h3>
+                            <p className="text-sm text-white/60">{t("fieldsToFill", { count: getPlaceholders(template).length })}</p>
                           </div>
-                          <h3 className="font-bold text-base mb-1 leading-tight">{t(`templates.${template.template_key}`)}</h3>
-                          <p className="text-sm text-white/60">{t("fieldsToFill", { count: getPlaceholders(template).length })}</p>
-                        </div>
-                      </motion.button>
+                        </motion.button>
+                        {/* Delete button for custom templates */}
+                        {isCustom && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleDeleteCustomTemplate(template.id, getTemplateName(template)); }}
+                            className="absolute top-2 left-2 p-1.5 bg-red-500/20 hover:bg-red-500/40 text-red-300 rounded-lg opacity-0 group-hover:opacity-100 transition-all z-10"
+                            title="حذف هذا النوع"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
                     );
                   })}
                 </div>
@@ -1116,7 +1479,7 @@ export default function LettersClient() {
                                     {t(`status.${letter.status}`)}
                                   </span>
                                 </div>
-                                <h3 className="text-lg font-bold text-white group-hover:text-blue-300 transition-colors">{t(`templates.${letter.template_key}`)}</h3>
+                                <h3 className="text-lg font-bold text-white group-hover:text-blue-300 transition-colors">{letter.template_key.startsWith("custom_") ? letter.template_name_ar : t(`templates.${letter.template_key}`)}</h3>
                                 <p className="text-slate-500 text-sm flex items-center gap-2 mt-1">
                                   <Calendar className="w-3.5 h-3.5" />
                                   {new Date(letter.created_at).toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US')}
@@ -1138,6 +1501,16 @@ export default function LettersClient() {
               </div>
             </div>
           </motion.div>
+
+        {/* Letter Type Builder Modal */}
+        <AnimatePresence>
+          {showTypeBuilder && (
+            <LetterTypeBuilderModal
+              onClose={() => setShowTypeBuilder(false)}
+              onSave={handleSaveCustomTemplate}
+            />
+          )}
+        </AnimatePresence>
 
         {/* Settings Modal */}
         <AnimatePresence>
@@ -1317,20 +1690,97 @@ export default function LettersClient() {
             </AnimatePresence>
 
 
+        {/* Template Selection Modal */}
+        <AnimatePresence>
+          {showTemplateSelectModal && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4"
+              onClick={(e) => e.target === e.currentTarget && setShowTemplateSelectModal(false)}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                className="relative bg-gradient-to-br from-slate-800/95 via-slate-800/90 to-slate-900/95 backdrop-blur-2xl rounded-[2rem] border border-white/10 shadow-2xl w-full max-w-3xl overflow-hidden"
+              >
+                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
+                <div className="p-8">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-xl border border-blue-500/20">
+                        <FileSignature className="w-6 h-6 text-blue-400" />
+                      </div>
+                      <div>
+                        <h2 className="text-2xl font-black text-white tracking-tight">{t("newLetterTitle")}</h2>
+                        <p className="text-slate-400 text-sm">اختر نوع الخطاب لإنشائه</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setShowTemplateSelectModal(false)}
+                      className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-xl transition-all"
+                    >
+                      <X className="w-6 h-6" />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {templates.map((template, idx) => {
+                      const Icon = templateIcons[template.template_key] || (template.is_system_template ? FileText : PenLine);
+                      const colorClass = templateColors[template.template_key] || (template.is_system_template ? "from-gray-500 to-gray-600" : "from-violet-600 to-purple-700");
+                      return (
+                        <motion.button
+                          key={template.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: idx * 0.05 }}
+                          whileHover={{ scale: 1.03, y: -4 }}
+                          whileTap={{ scale: 0.97 }}
+                          onClick={() => {
+                            setShowTemplateSelectModal(false);
+                            openCreateForm(template);
+                          }}
+                          className={`group relative bg-gradient-to-br ${colorClass} p-6 rounded-2xl text-white ${locale === 'ar' ? 'text-right' : 'text-left'} shadow-xl hover:shadow-2xl transition-all overflow-hidden`}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                          <div className="relative z-10">
+                            <div className="flex items-start justify-between mb-4">
+                              <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl border border-white/20 shadow-lg">
+                                <Icon className="w-6 h-6" />
+                              </div>
+                              <motion.div whileHover={{ x: locale === 'ar' ? -5 : 5 }}>
+                                {locale === 'ar' ? <ChevronLeft className="w-5 h-5 opacity-50" /> : <ChevronLeft className="w-5 h-5 opacity-50 rotate-180" />}
+                              </motion.div>
+                            </div>
+                            <h3 className="font-bold text-base mb-1 leading-tight">{getTemplateName(template)}</h3>
+                            <p className="text-sm text-white/60">{t("fieldsToFill", { count: getPlaceholders(template).length })}</p>
+                          </div>
+                        </motion.button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Create/Edit Form Modal */}
         <AnimatePresence>
           {showForm && selectedTemplate && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={(e) => e.target === e.currentTarget && resetForm()}>
               <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-slate-800 rounded-2xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-white flex items-center gap-2"><FileText className="w-6 h-6 text-blue-500" /> {editingLetter ? t("form.editTitle") : t("form.createTitle", { template: t(`templates.${selectedTemplate.template_key}`) })}</h2>
+                  <h2 className="text-2xl font-bold text-white flex items-center gap-2"><FileText className="w-6 h-6 text-blue-500" /> {editingLetter ? t("form.editTitle") : t("form.createTitle", { template: getTemplateName(selectedTemplate) })}</h2>
                   <button onClick={resetForm} className="text-slate-400 hover:text-white"><X className="w-6 h-6" /></button>
                 </div>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {getPlaceholders(selectedTemplate).map((placeholder) => (
                         <div key={placeholder}>
-                          <label className="block text-slate-300 mb-2 text-sm font-medium">{placeholderLabels[placeholder as keyof typeof placeholderLabels] || placeholder}</label>
+                          <label className="block text-slate-300 mb-2 text-sm font-medium">{getFieldLabel(placeholder, selectedTemplate)}</label>
                           {placeholder === "salary_period_type" ? (
                             <select
                               value={formData[placeholder] || ""}
@@ -1343,13 +1793,13 @@ export default function LettersClient() {
                             </select>
                           ) : (
                             <>
-                              <input 
-                                type={placeholder.includes("date") || placeholder.includes("period_") ? "date" : "text"} 
-                                value={formData[placeholder] || ""} 
-                                onChange={(e) => setFormData({ ...formData, [placeholder]: e.target.value })} 
-                                readOnly={placeholder === "total_amount" || placeholder === "total_amount_text"} 
-                                className={`w-full bg-slate-700 border border-slate-600 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${(placeholder === "total_amount" || placeholder === "total_amount_text") ? "opacity-75 cursor-not-allowed bg-slate-800" : ""}`} 
-                                placeholder={t("form.placeholderPrefix", { label: placeholderLabels[placeholder as keyof typeof placeholderLabels] || placeholder })} 
+                              <input
+                                type={placeholder.includes("date") || placeholder.includes("period_") ? "date" : "text"}
+                                value={formData[placeholder] || ""}
+                                onChange={(e) => setFormData({ ...formData, [placeholder]: e.target.value })}
+                                readOnly={placeholder === "total_amount" || placeholder === "total_amount_text"}
+                                className={`w-full bg-slate-700 border border-slate-600 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${(placeholder === "total_amount" || placeholder === "total_amount_text") ? "opacity-75 cursor-not-allowed bg-slate-800" : ""}`}
+                                placeholder={getFieldLabel(placeholder, selectedTemplate)}
                               />
                               {placeholder === "total_deduction" && (
                                 <p className="text-xs text-slate-400 mt-1">يمكنك إضافة مبلغ خصم هنا من الإجمالي إذا كان المبلغ لا يطابق أو أشهر رواتبها منخفضة</p>

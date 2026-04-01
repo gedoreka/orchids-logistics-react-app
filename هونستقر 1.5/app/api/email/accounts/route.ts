@@ -2,10 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import Imap from "imap";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key'
-);
+export const dynamic = 'force-dynamic';
+
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || 'https://placeholder.supabase.co',
+    process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key'
+  );
+}
 
 async function validateCredentials(config: any): Promise<boolean> {
   return new Promise((resolve) => {
@@ -75,7 +79,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "company_id مطلوب" }, { status: 400 });
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
       .from("company_email_accounts")
       .select("*")
       .eq("company_id", parseInt(companyId))
@@ -136,7 +140,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { data: existing } = await supabase
+    const { data: existing } = await getSupabase()
       .from("company_email_accounts")
       .select("id")
       .eq("company_id", parseInt(company_id))
@@ -150,7 +154,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
       .from("company_email_accounts")
       .insert({
         company_id: parseInt(company_id),
@@ -190,7 +194,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "معرف الحساب و company_id مطلوبين" }, { status: 400 });
     }
 
-    const { error } = await supabase
+    const { error } = await getSupabase()
       .from("company_email_accounts")
       .delete()
       .eq("id", accountId)

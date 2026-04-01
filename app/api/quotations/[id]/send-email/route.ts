@@ -115,7 +115,7 @@ export async function POST(
             
             <div class="branding">
               <div style="width: 12px; height: 12px; background: #0ea5e9; border-radius: 3px;"></div>
-              <span>Powered by Logistics Systems Pro</span>
+              <span>Powered by Logistics Hub</span>
             </div>
           </div>
         </div>

@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { ReceiptVouchersClient } from "./receipt-vouchers-client";
 
 export const metadata = {
-  title: "سندات القبض - Logistics Systems Pro",
+  title: "سندات القبض - Logistics Hub",
 };
 
 export default async function ReceiptVouchersPage() {

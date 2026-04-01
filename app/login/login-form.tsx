@@ -33,7 +33,7 @@ import { loginAction } from "@/lib/actions/auth";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useLocale, useTranslations } from "@/lib/locale-context";
-import BrandLogo from "@/components/brand-logo";
+import BrandLogo, { LogisticsLogoMark } from "@/components/brand-logo";
 
 interface LoginFormProps {
   initialEmail?: string;
@@ -587,14 +587,14 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-            className="mx-auto mb-8 w-28 h-28 rounded-3xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-2xl shadow-blue-500/30"
+            className="mx-auto mb-8 w-36 h-36 relative"
           >
             <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            >
-              <Sparkles size={48} className="text-white" />
-            </motion.div>
+              className="absolute inset-0 -m-6 rounded-full bg-gradient-to-tr from-cyan-500/30 via-blue-500/20 to-indigo-500/30 blur-2xl"
+              animate={{ scale: [1, 1.35, 1], opacity: [0.35, 0.75, 0.35] }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <LogisticsLogoMark className="drop-shadow-[0_0_24px_rgba(6,182,212,0.7)]" />
           </motion.div>
 
           <motion.h1
@@ -720,7 +720,7 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
         </div>
 
         <div className="absolute bottom-8 left-8 right-8 flex items-center justify-between text-slate-500 text-xs font-bold">
-          <span>© 2026 Logistics Systems Pro</span>
+          <span>© 2026 Logistics Hub</span>
           <span className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
             {isRTL ? 'جميع الأنظمة تعمل' : 'All systems operational'}
@@ -964,7 +964,7 @@ export default function LoginForm({ initialEmail = "" }: LoginFormProps) {
 
               {/* Footer */}
               <div className="mt-4 text-center text-[10px] font-bold text-slate-300 dark:text-slate-600 uppercase tracking-widest lg:hidden">
-                Logistics Systems Pro © 2026
+                Logistics Hub © 2026
               </div>
             </div>
           </div>

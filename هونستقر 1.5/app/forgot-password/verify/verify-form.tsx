@@ -279,7 +279,7 @@ export default function VerifyForm({ email, userName }: VerifyFormProps) {
         </div>
 
         <div className="absolute bottom-8 left-8 right-8 flex items-center justify-between text-slate-500 text-xs font-bold">
-          <span>© 2026 Logistics Systems Pro</span>
+          <span>© 2026 Logistics Hub</span>
           <span className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
             {isRTL ? 'جميع الأنظمة تعمل' : 'All systems operational'}
@@ -499,7 +499,7 @@ export default function VerifyForm({ email, userName }: VerifyFormProps) {
         </motion.div>
 
         <div className="absolute bottom-6 left-0 right-0 lg:hidden text-center text-[10px] font-bold text-slate-300 dark:text-slate-600 uppercase tracking-widest">
-          Logistics Systems Pro © 2026
+          Logistics Hub © 2026
         </div>
       </div>
     </div>

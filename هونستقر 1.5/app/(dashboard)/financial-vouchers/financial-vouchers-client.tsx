@@ -553,7 +553,7 @@ function FinancialVouchersContent() {
             <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-[11px] font-black text-slate-400 uppercase tracking-widest pt-8 border-t border-white/10">
               <div className="flex items-center gap-3">
                 <Sparkles size={14} className="text-blue-400" />
-                <span>{isRtl ? 'نظام السندات المالية - Logistics Systems Pro' : 'Financial Vouchers - Logistics Systems Pro'}</span>
+                <span>{isRtl ? 'نظام السندات المالية - Logistics Hub' : 'Financial Vouchers - Logistics Hub'}</span>
               </div>
               <div className="flex items-center gap-4">
                 <span className="bg-white/5 px-3 py-1 rounded-lg">{t("allRightsReserved", { year: new Date().getFullYear() })}</span>

@@ -3,10 +3,14 @@ import { createClient } from "@supabase/supabase-js";
 import Imap from "imap";
 import { simpleParser } from "mailparser";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key'
-);
+export const dynamic = 'force-dynamic';
+
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || 'https://placeholder.supabase.co',
+    process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key'
+  );
+}
 
 interface EmailMessage {
   id: number;
@@ -401,7 +405,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "معرف الحساب مطلوب" }, { status: 400 });
     }
 
-    let query = supabase
+    let query = getSupabase()
       .from("company_email_accounts")
       .select("*")
       .eq("id", accountId);
@@ -447,7 +451,7 @@ export async function GET(request: NextRequest) {
     // Get email list (headers only - fast)
     const emails = await fetchEmails(config, folder, limit);
 
-    await supabase
+    await getSupabase()
       .from("company_email_accounts")
       .update({ last_sync_at: new Date().toISOString() })
       .eq("id", accountId);

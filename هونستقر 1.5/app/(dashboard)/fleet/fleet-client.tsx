@@ -2388,7 +2388,7 @@ export function FleetClient({
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-white/30 uppercase tracking-widest pt-4">
           <div className="flex items-center gap-2">
             <Sparkles size={10} className="text-blue-500" />
-            <span>Logistics Systems Pro</span>
+            <span>Logistics Hub</span>
           </div>
           <span>{t('allRightsReserved')} © {new Date().getFullYear()}</span>
         </div>

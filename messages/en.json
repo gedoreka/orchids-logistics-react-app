@@ -257,6 +257,7 @@
     "subscriptionPlans": "Subscription Packages",
     "specialSalaries": "Special Salaries System",
     "systemSettings": "System Settings",
+    "globalPermissions": "Default Permissions",
     "hrManagement": "Human Resources Management",
     "customersList": "Customers List",
     "financialVouchers": "Financial Vouchers",
@@ -285,7 +286,6 @@
     "taxDeclarations": "Tax Declarations",
     "taxSettings": "Tax Settings",
     "virtualAccounts": "Virtual Accounts",
-    "systemSettings": "System Settings",
     "mySubscription": "My Subscription",
     "logout": "Logout",
     "subUsersManagement": "Sub-users Management",
@@ -363,7 +363,8 @@
       "isDefault": "Default",
       "noTaxes": "No Taxes",
       "noTaxesDesc": "No taxes found"
-    }
+    },
+    "driverTracking": "Driver Tracking"
   },
   "footer": {
     "copyright": "All rights reserved to Zol Speed Multi-Activities Company",
@@ -738,7 +739,7 @@
     "targetLabel": "Target",
     "salaryLabel": "Salary",
     "commissionLabel": "Commission",
-    "systemManagement": "Packages Management System - Logistics Systems Pro",
+    "systemManagement": "Packages Management System - Logistics Hub",
     "allRightsReserved": "All rights reserved",
     "createPackageAndEmployees": "Create Package and Employees",
     "defineWorkSystemAndTeam": "Define work system and enter team data",
@@ -838,7 +839,7 @@
       "tryDifferentSearch": "Try changing search criteria or filters",
       "totalEmployeesFooter": "Total Employees",
       "package": "Package",
-      "systemManagement": "Employee Management System - Logistics Systems Pro",
+      "systemManagement": "Employee Management System - Logistics Hub",
       "allRightsReserved": "All rights reserved",
       "expiryValid": "Valid",
       "expiryExpired": "Expired",
@@ -1554,7 +1555,7 @@
     "totalAmount": "Total Amount",
     "creationDate": "Creation Date",
     "noPayrolls": "No payrolls for this month",
-    "automatedReport": "Automated Report from Logistics Systems Pro",
+    "automatedReport": "Automated Report from Logistics Hub",
     "allRightsReserved": "All rights reserved ©",
     "months": {
       "10": "October",
@@ -1851,7 +1852,7 @@
       "deleteReceipt": "Delete Voucher",
       "noReceipts": "No Vouchers",
       "noReceiptsDesc": "No sales vouchers found in the system.",
-      "systemFooter": "Logistics Systems Pro",
+      "systemFooter": "Logistics Hub",
       "allRightsReserved": "All rights reserved © {year}"
     },
     "newSalesReceiptPage": {
@@ -2215,7 +2216,7 @@
         "ok": "OK"
       },
       "footer": {
-        "system": "Logistics Systems Pro",
+        "system": "Logistics Hub",
         "rights": "All rights reserved © {year}"
       },
       "searchPlaceholder": "Search by quotation number, customer...",
@@ -2261,30 +2262,30 @@
         "descriptionPlaceholder": "Enter income details...",
         "cancel": "Cancel",
         "save": "Save Voucher",
-          "cancelForm": "Cancel Addition"
-        },
-        "incomeTypes": {
-          "bankTransfer": "Bank Transfer",
-          "capital": "Capital",
-          "otherRevenue": "Other Revenue",
-          "investmentProfit": "Investment Profit",
-          "rentalIncome": "Rental Income",
-          "depositReturn": "Deposit Return",
-          "financialAdjustments": "Financial Adjustments"
-        },
-        "paymentMethods": {
-          "cash": "Cash",
-          "transfer": "Transfer",
-          "deposit": "Deposit"
-        },
-        "notifications": {
-          "saveSuccess": "Income voucher saved successfully"
-        },
-        "footer": {
-          "system": "Financial Revenue Management System",
-          "rights": "All rights reserved © {year}"
-        },
-        "stats": {
+        "cancelForm": "Cancel Addition"
+      },
+      "incomeTypes": {
+        "bankTransfer": "Bank Transfer",
+        "capital": "Capital",
+        "otherRevenue": "Other Revenue",
+        "investmentProfit": "Investment Profit",
+        "rentalIncome": "Rental Income",
+        "depositReturn": "Deposit Return",
+        "financialAdjustments": "Financial Adjustments"
+      },
+      "paymentMethods": {
+        "cash": "Cash",
+        "transfer": "Transfer",
+        "deposit": "Deposit"
+      },
+      "notifications": {
+        "saveSuccess": "Income voucher saved successfully"
+      },
+      "footer": {
+        "system": "Financial Revenue Management System",
+        "rights": "All rights reserved © {year}"
+      },
+      "stats": {
         "count": "Vouchers Count",
         "voucherLabel": "income vouchers",
         "nextNumber": "Next Number (INC00001)",
@@ -2779,7 +2780,7 @@
     "vatNumberLabel": "Tax Number",
     "addressLabel": "Address",
     "phoneLabel": "Phone Number",
-    "systemName": "Logistics Systems Pro",
+    "systemName": "Logistics Hub",
     "rightsReserved": "All rights reserved © {year}",
     "saving": "Saving...",
     "savingDesc": "Saving invoice data now...",
@@ -2862,7 +2863,7 @@
     "totalItems": "Total Items",
     "active": "Active",
     "cancelled": "Cancelled",
-    "systemName": "Logistics Systems Pro",
+    "systemName": "Logistics Hub",
     "allRightsReserved": "All rights reserved © 2026"
   },
   "accounts": {
@@ -3092,7 +3093,8 @@
       "letters_templates_module": "Ready-made Letters",
       "sub_users_module": "Sub-users Management",
       "monthly_commissions_module": "Monthly Commissions",
-      "commissions_summary_module": "Commissions Summary"
+      "commissions_summary_module": "Commissions Summary",
+      "driver_tracking_module": "Driver Tracking"
     },
     "accessToData": "Access to",
     "cancel": "Cancel",

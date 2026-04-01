@@ -168,7 +168,7 @@ export async function POST(request: NextRequest) {
             
             <div style="background: #0f172a; padding: 30px 40px; text-align: center;">
               <div style="margin-bottom: 15px;">
-                <span style="color: #a78bfa; font-size: 18px; font-weight: 800;">Logistics Systems Pro</span>
+                <span style="color: #a78bfa; font-size: 18px; font-weight: 800;">Logistics Hub</span>
                 <span style="color: #475569; font-size: 12px; margin-right: 8px;">| نظام إدارة اللوجستيات</span>
               </div>
               <p style="color: #64748b; font-size: 11px; margin: 0 0 8px 0;">© ${new Date().getFullYear()} جميع الحقوق محفوظة</p>

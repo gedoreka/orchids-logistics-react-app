@@ -463,13 +463,13 @@ export function PaymentVoucherViewClient({ voucher, company, companyId }: Paymen
                 <p className="text-white/60 text-[14px] uppercase font-light tracking-[0.2em]">{isRtl ? "إيصال دفع مالي" : "Financial Payment"}</p>
                 <div className="mt-3 inline-flex items-center gap-2 px-5 py-1.5 rounded-full border border-[#ffffff1a]" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
                   <div className="w-2 h-2 rounded-full bg-orange-400 animate-pulse" />
-                  <span className="font-bold text-[11px] uppercase tracking-wider">Logistics Systems Pro</span>
+                  <span className="font-bold text-[11px] uppercase tracking-wider">Logistics Hub</span>
                 </div>
               </div>
 
               <div className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-[#ffffff1a] min-w-[140px]" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
                 <Truck size={32} className="text-orange-300" />
-                <h2 className="text-[12px] font-black text-white uppercase tracking-tighter">Logistics Systems Pro</h2>
+                <h2 className="text-[12px] font-black text-white uppercase tracking-tighter">Logistics Hub</h2>
               </div>
             </div>
 
@@ -652,7 +652,7 @@ export function PaymentVoucherViewClient({ voucher, company, companyId }: Paymen
             <div className="mt-12 pt-8 border-t border-gray-50 flex flex-col md:flex-row justify-between items-center gap-4 print-footer">
               <div className="flex items-center gap-2 text-[10px] text-gray-400 font-bold uppercase tracking-wider">
                 <div className="h-1.5 w-1.5 rounded-full bg-rose-500" />
-                <span>Logistics Systems Pro</span>
+                <span>Logistics Hub</span>
               </div>
               <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
                 {isRtl ? `جميع الحقوق محفوظة © ${new Date().getFullYear()}` : `All Rights Reserved © ${new Date().getFullYear()}`}

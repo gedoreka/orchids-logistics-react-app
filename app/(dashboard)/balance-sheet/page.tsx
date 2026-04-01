@@ -4,7 +4,7 @@ import { BalanceSheetClient } from "./balance-sheet-client";
 import { cachedQuery } from "@/lib/db";
 
 export const metadata = {
-  title: "الميزانية العمومية - Logistics Systems Pro",
+  title: "الميزانية العمومية - Logistics Hub",
 };
 
 export default async function BalanceSheetPage() {

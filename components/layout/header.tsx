@@ -797,7 +797,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
     };
 
     const copyDriverLink = () => {
-    navigator.clipboard.writeText(`${process.env.NEXT_PUBLIC_APP_URL}/driver/`);
+    navigator.clipboard.writeText(`https://driver.accounts.iw-om.com`);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -928,148 +928,123 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
 
               </div>
 
-                  <AnimatePresence>
-                    {isSearchFocused ? (
-                      <motion.div 
-                        initial={{ width: 40, opacity: 0 }}
-                        animate={{ width: "100%", opacity: 1 }}
-                        exit={{ width: 40, opacity: 0 }}
-                        className="flex-1"
-                      >
-                        <div className={cn(
-                          "relative flex items-center gap-3 px-4 py-2.5 rounded-2xl transition-all duration-300",
-                          "bg-white/10 border border-blue-500/30 shadow-lg shadow-blue-500/10"
-                        )}>
-                          <Search size={16} className="text-blue-400" />
-                          <input
-                            autoFocus
-                            type="text"
-                            placeholder={t('searchPlaceholder')}
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            onBlur={() => {
-                              if (searchQuery === "") setIsSearchFocused(false);
-                            }}
-                            className={cn("flex-1 !bg-transparent border-none text-[12px] font-medium outline-none", isDarkMode ? "text-white/90 placeholder:text-white/30" : "text-black/90 placeholder:text-black/30")}
-                          />
-                          <button 
-                            onClick={() => {
-                              setSearchQuery("");
-                              setIsSearchFocused(false);
-                            }}
-                            className={cn("p-1 rounded-lg", isDarkMode ? "hover:bg-white/10 text-white/40" : "hover:bg-black/10 text-black/40")}
-                          >
-                            <X size={14} />
-                          </button>
-                        </div>
-
-                        {/* Search Results Dropdown */}
-                        <AnimatePresence>
-                          {searchQuery && (
-                            <motion.div
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: 10 }}
-                              className={cn("absolute top-full mt-2 left-0 right-0 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden z-[1000] max-h-[400px] overflow-y-auto custom-scrollbar border", isDarkMode ? "bg-slate-900/95 border-white/10" : "bg-white/95 border-violet-200/60")}
-                            >
-                              <div className="p-2 space-y-1">
-                                {(() => {
-                                  const navItems = [
-                                    { title: isRTL ? "لوحة التحكم" : "Dashboard", href: "/dashboard", icon: Home },
-                                    { title: isRTL ? "إدارة الموظفين" : "HR Management", href: "/hr", icon: Users },
-                                    { title: isRTL ? "قائمة العملاء" : "Customers List", href: "/customers", icon: Users },
-                                    { title: isRTL ? "السندات المالية" : "Financial Vouchers", href: "/financial-vouchers", icon: Receipt },
-                                    { title: isRTL ? "مسيرات الرواتب" : "Salary Payrolls", href: "/salary-payrolls", icon: BadgeDollarSign },
-                                    { title: isRTL ? "الفواتير الضريبية" : "Tax Invoices", href: "/sales-invoices", icon: FileText },
-                                    { title: isRTL ? "إدارة الأسطول" : "Fleet Management", href: "/fleet", icon: Car },
-                                    { title: isRTL ? "التجارة الإلكترونية" : "E-commerce", href: "/ecommerce", icon: Store },
-                                    { title: isRTL ? "العمولات الشهرية" : "Monthly Commissions", href: "/hr/commissions", icon: HandCoins },
-                                    { title: isRTL ? "مركز المصروفات" : "Expenses Center", href: "/expenses", icon: BarChart3 },
-                                    { title: isRTL ? "القيود اليومية" : "Journal Entries", href: "/journal-entries", icon: FileEdit },
-                                    { title: isRTL ? "ملخص الأرباح والخسائر" : "Profit & Loss", href: "/profit-loss", icon: PieChart },
-                                    { title: isRTL ? "مركز الحسابات" : "Accounts Center", href: "/accounts", icon: BookOpen },
-                                    { title: isRTL ? "مراكز التكلفة" : "Cost Centers", href: "/cost-centers", icon: Landmark },
-                                    { title: isRTL ? "إعدادات النظام" : "System Settings", href: "/settings", icon: Settings },
-                                    { title: isRTL ? "الملف الشخصي" : "User Profile", href: "/user_profile", icon: UserCircle },
-                                  ];
-
-                                  const filteredResults = navItems.filter(item => 
-                                    item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                    item.href.toLowerCase().includes(searchQuery.toLowerCase())
-                                  );
-
-                                  if (filteredResults.length === 0) {
-                                    return (
-                                      <div className="p-8 text-center">
-                                        <Search size={32} className={cn("mx-auto mb-2", isDarkMode ? "text-white/10" : "text-violet-300/40")} />
-                                        <p className={cn("text-sm", isDarkMode ? "text-white/30" : "text-black/30")}>{isRTL ? "لا توجد نتائج" : "No results found"}</p>
-                                      </div>
-                                    );
-                                  }
-
-                                  return filteredResults.map((item, idx) => (
-                                    <motion.button
-                                      key={item.href}
-                                      whileHover={{ backgroundColor: isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(139,92,246,0.08)" }}
-                                      onClick={() => {
-                                        router.push(item.href);
-                                        setSearchQuery("");
-                                        setIsSearchFocused(false);
-                                      }}
-                                      className="w-full flex items-center gap-3 p-3 rounded-xl transition-all"
-                                    >
-                                      <div className={cn("p-2 rounded-lg", isDarkMode ? "bg-blue-500/20 text-blue-400" : "bg-violet-500/15 text-violet-600")}>
-                                        <item.icon size={16} />
-                                      </div>
-                                      <div className="text-right">
-                                        <p className={cn("text-sm font-bold", isDarkMode ? "text-white/90" : "text-black/90")}>{item.title}</p>
-                                        <p className={cn("text-[10px] font-mono", isDarkMode ? "text-white/30" : "text-black/30")}>{item.href}</p>
-                                      </div>
-                                    </motion.button>
-                                  ));
-                                })()}
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </motion.div>
-                    ) : (
-                      <motion.button
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        onClick={() => setIsSearchFocused(true)}
-                        className={cn("p-3 rounded-2xl transition-all border", isDarkMode ? "bg-white/5 hover:bg-white/10 border-white/10 text-white/40 hover:text-blue-400" : "bg-white/30 hover:bg-white/50 border-indigo-200/30 text-indigo-400 hover:text-indigo-600")}
-                      >
-                        <Search size={20} />
-                      </motion.button>
-                    )}
-                  </AnimatePresence>
-
-
-                <div className={cn("hidden xl:flex items-center gap-4 px-4 py-2 rounded-2xl border", isDarkMode ? "bg-white/5 border-white/10" : "bg-white/30 border-indigo-200/30")}>
-                    {mounted && (
-                      <>
-                        <div className="flex items-center gap-2">
-                          <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500/30 to-indigo-500/30">
-                            <Clock size={12} className="text-blue-400" />
-                          </div>
-                          <div className="flex flex-col">
-                            <span className={cn("text-[10px] font-bold", isDarkMode ? "text-white/70" : "text-indigo-700")}>{formatDate(prayerContextTime)}</span>
-                            <span className={cn("text-[9px]", isDarkMode ? "text-white/40" : "text-indigo-500")}>{prayerHijri}</span>
-                          </div>
-                        </div>
-                        <div className="w-px h-6 bg-white/10" />
-                        <div className="flex items-center gap-2">
-                          <div className="p-1.5 rounded-lg bg-gradient-to-br from-rose-500/30 to-pink-500/30">
-                            <MapPin size={12} className="text-rose-400" />
-                          </div>
-                          <span className={cn("text-[10px] font-bold max-w-[120px] truncate", isDarkMode ? "text-white/50" : "text-indigo-600")}>{prayerLocation}</span>
-                        </div>
-                      </>
-                    )}
-                  </div>
-
 <div className="flex items-center gap-2">
+                      <AnimatePresence>
+                        {isSearchFocused ? (
+                          <motion.div
+                            initial={{ width: 40, opacity: 0 }}
+                            animate={{ width: 220, opacity: 1 }}
+                            exit={{ width: 40, opacity: 0 }}
+                            className="relative"
+                          >
+                            <div className={cn(
+                              "flex items-center gap-2 px-3 py-2 rounded-2xl transition-all duration-300",
+                              "bg-white/10 border border-blue-500/30 shadow-lg shadow-blue-500/10"
+                            )}>
+                              <Search size={14} className="text-blue-400 flex-shrink-0" />
+                              <input
+                                autoFocus
+                                type="text"
+                                placeholder={t('searchPlaceholder')}
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                onBlur={() => {
+                                  if (searchQuery === "") setIsSearchFocused(false);
+                                }}
+                                className={cn("flex-1 min-w-0 !bg-transparent border-none text-[12px] font-medium outline-none", isDarkMode ? "text-white/90 placeholder:text-white/30" : "text-black/90 placeholder:text-black/30")}
+                              />
+                              <button
+                                onClick={() => {
+                                  setSearchQuery("");
+                                  setIsSearchFocused(false);
+                                }}
+                                className={cn("p-0.5 rounded-lg flex-shrink-0", isDarkMode ? "hover:bg-white/10 text-white/40" : "hover:bg-black/10 text-black/40")}
+                              >
+                                <X size={13} />
+                              </button>
+                            </div>
+
+                            {/* Search Results Dropdown */}
+                            <AnimatePresence>
+                              {searchQuery && (
+                                <motion.div
+                                  initial={{ opacity: 0, y: 10 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  exit={{ opacity: 0, y: 10 }}
+                                  className={cn("absolute top-full mt-2 right-0 w-72 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden z-[1000] max-h-[400px] overflow-y-auto custom-scrollbar border", isDarkMode ? "bg-slate-900/95 border-white/10" : "bg-white/95 border-violet-200/60")}
+                                >
+                                  <div className="p-2 space-y-1">
+                                    {(() => {
+                                      const navItems = [
+                                        { title: isRTL ? "لوحة التحكم" : "Dashboard", href: "/dashboard", icon: Home },
+                                        { title: isRTL ? "إدارة الموظفين" : "HR Management", href: "/hr", icon: Users },
+                                        { title: isRTL ? "قائمة العملاء" : "Customers List", href: "/customers", icon: Users },
+                                        { title: isRTL ? "السندات المالية" : "Financial Vouchers", href: "/financial-vouchers", icon: Receipt },
+                                        { title: isRTL ? "مسيرات الرواتب" : "Salary Payrolls", href: "/salary-payrolls", icon: BadgeDollarSign },
+                                        { title: isRTL ? "الفواتير الضريبية" : "Tax Invoices", href: "/sales-invoices", icon: FileText },
+                                        { title: isRTL ? "إدارة الأسطول" : "Fleet Management", href: "/fleet", icon: Car },
+                                        { title: isRTL ? "التجارة الإلكترونية" : "E-commerce", href: "/ecommerce", icon: Store },
+                                        { title: isRTL ? "العمولات الشهرية" : "Monthly Commissions", href: "/hr/commissions", icon: HandCoins },
+                                        { title: isRTL ? "مركز المصروفات" : "Expenses Center", href: "/expenses", icon: BarChart3 },
+                                        { title: isRTL ? "القيود اليومية" : "Journal Entries", href: "/journal-entries", icon: FileEdit },
+                                        { title: isRTL ? "ملخص الأرباح والخسائر" : "Profit & Loss", href: "/profit-loss", icon: PieChart },
+                                        { title: isRTL ? "مركز الحسابات" : "Accounts Center", href: "/accounts", icon: BookOpen },
+                                        { title: isRTL ? "مراكز التكلفة" : "Cost Centers", href: "/cost-centers", icon: Landmark },
+                                        { title: isRTL ? "إعدادات النظام" : "System Settings", href: "/settings", icon: Settings },
+                                        { title: isRTL ? "الملف الشخصي" : "User Profile", href: "/user_profile", icon: UserCircle },
+                                      ];
+
+                                      const filteredResults = navItems.filter(item =>
+                                        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                        item.href.toLowerCase().includes(searchQuery.toLowerCase())
+                                      );
+
+                                      if (filteredResults.length === 0) {
+                                        return (
+                                          <div className="p-8 text-center">
+                                            <Search size={32} className={cn("mx-auto mb-2", isDarkMode ? "text-white/10" : "text-violet-300/40")} />
+                                            <p className={cn("text-sm", isDarkMode ? "text-white/30" : "text-black/30")}>{isRTL ? "لا توجد نتائج" : "No results found"}</p>
+                                          </div>
+                                        );
+                                      }
+
+                                      return filteredResults.map((item) => (
+                                        <motion.button
+                                          key={item.href}
+                                          whileHover={{ backgroundColor: isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(139,92,246,0.08)" }}
+                                          onClick={() => {
+                                            router.push(item.href);
+                                            setSearchQuery("");
+                                            setIsSearchFocused(false);
+                                          }}
+                                          className="w-full flex items-center gap-3 p-3 rounded-xl transition-all"
+                                        >
+                                          <div className={cn("p-2 rounded-lg", isDarkMode ? "bg-blue-500/20 text-blue-400" : "bg-violet-500/15 text-violet-600")}>
+                                            <item.icon size={16} />
+                                          </div>
+                                          <div className="text-right">
+                                            <p className={cn("text-sm font-bold", isDarkMode ? "text-white/90" : "text-black/90")}>{item.title}</p>
+                                            <p className={cn("text-[10px] font-mono", isDarkMode ? "text-white/30" : "text-black/30")}>{item.href}</p>
+                                          </div>
+                                        </motion.button>
+                                      ));
+                                    })()}
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </motion.div>
+                        ) : (
+                          <motion.button
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            onClick={() => setIsSearchFocused(true)}
+                            className={cn("p-2.5 rounded-2xl transition-all border", isDarkMode ? "bg-white/5 hover:bg-white/10 border-white/10 text-white/40 hover:text-blue-400" : "bg-white/30 hover:bg-white/50 border-indigo-200/30 text-indigo-400 hover:text-indigo-600")}
+                          >
+                            <Search size={18} />
+                          </motion.button>
+                        )}
+                      </AnimatePresence>
                       <LanguageSwitcher />
 
 
@@ -3238,7 +3213,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
 
                 <div className="relative z-10 grid grid-cols-1 gap-3 mb-6">
                   <a 
-                    href={`${process.env.NEXT_PUBLIC_APP_URL}/driver/`} 
+                    href="https://driver.accounts.iw-om.com"
                     target="_blank"
                     className={cn("flex items-center justify-between p-4 rounded-2xl transition-all group border", isDarkMode ? "bg-white/5 hover:bg-white/10 border-white/10 hover:border-white/20" : "bg-white/60 hover:bg-white/80 border-violet-200/40 hover:border-violet-300/60")}
                   >
@@ -3286,7 +3261,7 @@ export function Header({ user, onToggleSidebar, unreadChatCount = 0, subscriptio
                   >
                     <div className="bg-slate-100 p-4 rounded-2xl">
                       <img 
-                        src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${process.env.NEXT_PUBLIC_APP_URL}/driver/`} 
+                        src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://driver.accounts.iw-om.com"
                         alt="QR Code"
                         className="w-32 h-32"
                       />

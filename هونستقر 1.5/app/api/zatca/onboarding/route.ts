@@ -6,10 +6,14 @@ import { createClient } from "@supabase/supabase-js";
 import { ZatcaApiClient } from "@/lib/zatca/api-client";
 import type { ZatcaEnvironment } from "@/lib/zatca/constants";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+export const dynamic = 'force-dynamic';
+
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
   process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key'
-);
+  );
+}
 
 export async function POST(request: NextRequest) {
   try {

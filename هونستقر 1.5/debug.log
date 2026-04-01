@@ -1,0 +1,491 @@
+2026-02-12T15:21:26.026Z [network][GET 200] /api/income/metadata?company_id=22
+  response: {"accounts":[{"id":107,"account_code":"1","account_name":"الأصول","account_level":1,"parent_account":null},{"id":177,"account_code":"11","account_name":"الأصول المتداولة","account_level":1,"parent_account":null},{"id":112,"account_code":"1101","account_name":"الصندوق","account_level":2,"parent_account":"1"},{"id":113,"account_code":"1102","account_name":"البنك","account_level":2,"parent_account":"1"},{"id":190,"account_code":"111","account_name":"النقدية والشيكات","account_level":1,"parent_account":null},{"id":191,"account_code":"112","account_name":"البنوك","account_level":1,"parent_account":null},{"id":192,"account_code":"113","account_name":"العملاء","account_level":1,"parent_account":null},{"id":193,"account_code":"114","account_name":"مخزون الوقود","account_level":1,"parent_account":null},{"id":194,"account_code":"115","account_name":"مخزون قطع الغيار","account_level":1,"parent_account":null},{"id":195,"account_code":"116","account_name":"مصروفات مقدمة","account_level":1,"parent_account":null},{"id":178,"account_code":"12","account_name":"الأصول الثابتة","account_level":1,"parent_account":null},{"id":196,"account_code":"121","account_name":"وسائل النقل","account_level":1,"parent_account":null},{"id":227,"account_code":"1211","account_name":"شاحنات نقل","account_level":1,"parent_account":null},{"id":229,"account_code":"1212","account_name":"سيارات توصيل","account_level":1,"parent_account":null},{"id":228,"account_code":"1212","account_name":"سيارات توصيل","account_level":1,"parent_account":null},{"id":230,"account_code":"1213","account_name":"دراجات نارية للتوصيل","account_level":1,"parent_account":null},{"id":231,"account_code":"1213","account_name":"دراجات نارية للتوصيل","account_level":1,"parent_account":null},{"id":197,"account_code":"122","account_name":"معدات المستودعات","account_level":1,"parent_account":null},{"id":233,"account_code":"1221","account_name":"رافعات شوكية","account_level":1,"parent_account":null},{"id":232,"account_code":"1221","account_nam... [truncated]
+2026-02-12T15:21:26.359Z [network][GET 200] /api/payment-vouchers/metadata?company_id=22
+  response: {"accounts":[{"id":107,"account_code":"1","account_name":"الأصول"},{"id":177,"account_code":"11","account_name":"الأصول المتداولة"},{"id":112,"account_code":"1101","account_name":"الصندوق"},{"id":113,"account_code":"1102","account_name":"البنك"},{"id":190,"account_code":"111","account_name":"النقدية والشيكات"},{"id":191,"account_code":"112","account_name":"البنوك"},{"id":192,"account_code":"113","account_name":"العملاء"},{"id":193,"account_code":"114","account_name":"مخزون الوقود"},{"id":194,"account_code":"115","account_name":"مخزون قطع الغيار"},{"id":195,"account_code":"116","account_name":"مصروفات مقدمة"},{"id":178,"account_code":"12","account_name":"الأصول الثابتة"},{"id":196,"account_code":"121","account_name":"وسائل النقل"},{"id":227,"account_code":"1211","account_name":"شاحنات نقل"},{"id":229,"account_code":"1212","account_name":"سيارات توصيل"},{"id":228,"account_code":"1212","account_name":"سيارات توصيل"},{"id":230,"account_code":"1213","account_name":"دراجات نارية للتوصيل"},{"id":231,"account_code":"1213","account_name":"دراجات نارية للتوصيل"},{"id":197,"account_code":"122","account_name":"معدات المستودعات"},{"id":233,"account_code":"1221","account_name":"رافعات شوكية"},{"id":232,"account_code":"1221","account_name":"رافعات شوكية"},{"id":235,"account_code":"1222","account_name":"أرفف تخزين"},{"id":234,"account_code":"1222","account_name":"أرفف تخزين"},{"id":198,"account_code":"123","account_name":"المباني والأراضي"},{"id":236,"account_code":"1231","account_name":"مستودعات"},{"id":237,"account_code":"1231","account_name":"مستودعات"},{"id":239,"account_code":"1232","account_name":"مكاتب إدارية"},{"id":238,"account_code":"1232","account_name":"مكاتب إدارية"},{"id":108,"account_code":"2","account_name":"الالتزامات"},{"id":179,"account_code":"21","account_name":"الالتزامات المتداولة"},{"id":199,"account_code":"211","account_name":"الموردون"},{"id":200,"account_code":"212","account_name":"قروض قصيرة الأجل"},{"id":201,"account_code":"213","account_name":"مصروفات م... [truncated]
+2026-02-12T15:21:27.338Z [network][GET 200] /api/income/metadata?company_id=22
+  response: {"accounts":[{"id":107,"account_code":"1","account_name":"الأصول","account_level":1,"parent_account":null},{"id":177,"account_code":"11","account_name":"الأصول المتداولة","account_level":1,"parent_account":null},{"id":112,"account_code":"1101","account_name":"الصندوق","account_level":2,"parent_account":"1"},{"id":113,"account_code":"1102","account_name":"البنك","account_level":2,"parent_account":"1"},{"id":190,"account_code":"111","account_name":"النقدية والشيكات","account_level":1,"parent_account":null},{"id":191,"account_code":"112","account_name":"البنوك","account_level":1,"parent_account":null},{"id":192,"account_code":"113","account_name":"العملاء","account_level":1,"parent_account":null},{"id":193,"account_code":"114","account_name":"مخزون الوقود","account_level":1,"parent_account":null},{"id":194,"account_code":"115","account_name":"مخزون قطع الغيار","account_level":1,"parent_account":null},{"id":195,"account_code":"116","account_name":"مصروفات مقدمة","account_level":1,"parent_account":null},{"id":178,"account_code":"12","account_name":"الأصول الثابتة","account_level":1,"parent_account":null},{"id":196,"account_code":"121","account_name":"وسائل النقل","account_level":1,"parent_account":null},{"id":227,"account_code":"1211","account_name":"شاحنات نقل","account_level":1,"parent_account":null},{"id":229,"account_code":"1212","account_name":"سيارات توصيل","account_level":1,"parent_account":null},{"id":228,"account_code":"1212","account_name":"سيارات توصيل","account_level":1,"parent_account":null},{"id":230,"account_code":"1213","account_name":"دراجات نارية للتوصيل","account_level":1,"parent_account":null},{"id":231,"account_code":"1213","account_name":"دراجات نارية للتوصيل","account_level":1,"parent_account":null},{"id":197,"account_code":"122","account_name":"معدات المستودعات","account_level":1,"parent_account":null},{"id":233,"account_code":"1221","account_name":"رافعات شوكية","account_level":1,"parent_account":null},{"id":232,"account_code":"1221","account_nam... [truncated]
+2026-02-12T15:21:27.388Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-12T15:21:27.684Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-12T15:21:27.960Z [network][GET 200] /api/sales-receipts?company_id=22
+  response: [{"id":4,"receipt_number":"RCPT76736","client_id":35,"client_name":"زول اسبيد","invoice_number":null,"receipt_date":"2026-02-10T21:00:00.000Z","amount":"8682.50","notes":"بيع خوذ هنقرستيشن جديده","created_at":"2026-02-11T19:35:15.000Z","company_id":22,"created_by":"مدير النظام","client_vat":"","client_commercial_number":"","client_address":"","use_custom_client":0,"subtotal":"7550.00","tax_amount":"1132.50","total_amount":"8682.50","zatca_qr":"ATvYtNix2YPYqSDYp9mE2YXYs9iq2YLYqNmEINmE2YTYrtiv2YXYp9iqINin2YTZhNmI2KzYs9iq2YrYqQIOMzEwMTAwMDAxMjAwMDADGDIwMjYtMDItMTBUMjI6MzU6MTQuMDAwWgQGODY4Mi41BQYxMTMyLjU="},{"id":3,"receipt_number":"RCPT36682","client_id":35,"client_name":"زول اسبيد","invoice_number":null,"receipt_date":"2026-01-31T21:00:00.000Z","amount":"1380.00","notes":"","created_at":"2026-02-01T11:46:15.000Z","company_id":22,"created_by":"مدير النظام","client_vat":"","client_commercial_number":"","client_address":"","use_custom_client":0,"subtotal":"1200.00","tax_amount":"180.00","total_amount":"1380.00","zatca_qr":"ATvYtNix2YPYqSDYp9mE2YXYs9iq2YLYqNmEINmE2YTYrtiv2YXYp9iqINin2YTZhNmI2KzYs9iq2YrYqQIOMzEwMTAwMDAxMjAwMDADGDIwMjYtMDItMDFUMTQ6NDY6MTUuMDAwWgQEMTM4MAUDMTgw"}]
+2026-02-12T15:21:29.042Z [network][GET 200] /api/payment-vouchers/metadata?company_id=22
+  response: {"accounts":[{"id":107,"account_code":"1","account_name":"الأصول"},{"id":177,"account_code":"11","account_name":"الأصول المتداولة"},{"id":112,"account_code":"1101","account_name":"الصندوق"},{"id":113,"account_code":"1102","account_name":"البنك"},{"id":190,"account_code":"111","account_name":"النقدية والشيكات"},{"id":191,"account_code":"112","account_name":"البنوك"},{"id":192,"account_code":"113","account_name":"العملاء"},{"id":193,"account_code":"114","account_name":"مخزون الوقود"},{"id":194,"account_code":"115","account_name":"مخزون قطع الغيار"},{"id":195,"account_code":"116","account_name":"مصروفات مقدمة"},{"id":178,"account_code":"12","account_name":"الأصول الثابتة"},{"id":196,"account_code":"121","account_name":"وسائل النقل"},{"id":227,"account_code":"1211","account_name":"شاحنات نقل"},{"id":229,"account_code":"1212","account_name":"سيارات توصيل"},{"id":228,"account_code":"1212","account_name":"سيارات توصيل"},{"id":230,"account_code":"1213","account_name":"دراجات نارية للتوصيل"},{"id":231,"account_code":"1213","account_name":"دراجات نارية للتوصيل"},{"id":197,"account_code":"122","account_name":"معدات المستودعات"},{"id":233,"account_code":"1221","account_name":"رافعات شوكية"},{"id":232,"account_code":"1221","account_name":"رافعات شوكية"},{"id":235,"account_code":"1222","account_name":"أرفف تخزين"},{"id":234,"account_code":"1222","account_name":"أرفف تخزين"},{"id":198,"account_code":"123","account_name":"المباني والأراضي"},{"id":236,"account_code":"1231","account_name":"مستودعات"},{"id":237,"account_code":"1231","account_name":"مستودعات"},{"id":239,"account_code":"1232","account_name":"مكاتب إدارية"},{"id":238,"account_code":"1232","account_name":"مكاتب إدارية"},{"id":108,"account_code":"2","account_name":"الالتزامات"},{"id":179,"account_code":"21","account_name":"الالتزامات المتداولة"},{"id":199,"account_code":"211","account_name":"الموردون"},{"id":200,"account_code":"212","account_name":"قروض قصيرة الأجل"},{"id":201,"account_code":"213","account_name":"مصروفات م... [truncated]
+2026-02-12T15:21:29.103Z [network][GET 200] /api/receipt-vouchers/metadata?company_id=22
+  response: {"accounts":[{"id":107,"account_code":"1","account_name":"الأصول"},{"id":177,"account_code":"11","account_name":"الأصول المتداولة"},{"id":112,"account_code":"1101","account_name":"الصندوق"},{"id":113,"account_code":"1102","account_name":"البنك"},{"id":190,"account_code":"111","account_name":"النقدية والشيكات"},{"id":191,"account_code":"112","account_name":"البنوك"},{"id":192,"account_code":"113","account_name":"العملاء"},{"id":193,"account_code":"114","account_name":"مخزون الوقود"},{"id":194,"account_code":"115","account_name":"مخزون قطع الغيار"},{"id":195,"account_code":"116","account_name":"مصروفات مقدمة"},{"id":178,"account_code":"12","account_name":"الأصول الثابتة"},{"id":196,"account_code":"121","account_name":"وسائل النقل"},{"id":227,"account_code":"1211","account_name":"شاحنات نقل"},{"id":229,"account_code":"1212","account_name":"سيارات توصيل"},{"id":228,"account_code":"1212","account_name":"سيارات توصيل"},{"id":230,"account_code":"1213","account_name":"دراجات نارية للتوصيل"},{"id":231,"account_code":"1213","account_name":"دراجات نارية للتوصيل"},{"id":197,"account_code":"122","account_name":"معدات المستودعات"},{"id":233,"account_code":"1221","account_name":"رافعات شوكية"},{"id":232,"account_code":"1221","account_name":"رافعات شوكية"},{"id":235,"account_code":"1222","account_name":"أرفف تخزين"},{"id":234,"account_code":"1222","account_name":"أرفف تخزين"},{"id":198,"account_code":"123","account_name":"المباني والأراضي"},{"id":236,"account_code":"1231","account_name":"مستودعات"},{"id":237,"account_code":"1231","account_name":"مستودعات"},{"id":239,"account_code":"1232","account_name":"مكاتب إدارية"},{"id":238,"account_code":"1232","account_name":"مكاتب إدارية"},{"id":108,"account_code":"2","account_name":"الالتزامات"},{"id":179,"account_code":"21","account_name":"الالتزامات المتداولة"},{"id":199,"account_code":"211","account_name":"الموردون"},{"id":200,"account_code":"212","account_name":"قروض قصيرة الأجل"},{"id":201,"account_code":"213","account_name":"مصروفات م... [truncated]
+2026-02-12T15:21:29.913Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-12T15:21:33.171Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-12T15:21:33.811Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-12T15:21:34.707Z [network][GET 200] /api/quotations?company_id=22
+  response: [{"id":4,"company_id":22,"quotation_number":"QTN-2026-0002","client_id":null,"client_name":"عبد الليف جعفر","client_vat":"12222111111","client_commercial_number":"12222111111","client_address":"الرياض حي الخليج","use_custom_client":1,"issue_date":"2026-01-31T21:00:00.000Z","due_date":"2026-02-27T21:00:00.000Z","expiry_date":"2026-02-27T21:00:00.000Z","total_amount":"128.80","status":"confirmed","created_at":"2026-01-31T21:19:09.000Z"}]
+2026-02-12T15:21:37.837Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-12T15:21:38.140Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-12T15:21:41.870Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-12T15:21:42.824Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-12T15:21:45.816Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-12T15:21:48.433Z [network][GET 200] /api/admin/notifications?limit=1&last_id=14
+  response: {"success":true,"notifications":[]}
+2026-02-12T15:21:49.049Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-12T15:21:49.814Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-12T15:21:52.823Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-12T15:21:53.816Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-12T15:21:57.837Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-12T15:21:57.838Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-12T15:22:01.820Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-12T15:22:03.123Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-12T15:22:05.815Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-12T15:22:07.823Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-12T15:22:09.818Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-12T15:22:13.109Z [network][GET 200] /api/admin/chat?company_id=22&action=client_unread
+  response: {"unread_count":0}
+2026-02-12T22:21:51.950Z [console][error] [Fast Refresh] performing full reload because your application had an unrecoverable error
+2026-02-12T22:21:51.950Z [console][error] [Fast Refresh] performing full reload because your application had an unrecoverable error
+2026-02-12T22:21:42.448Z [console][warn] [Fast Refresh] done in 532ms
+2026-02-12T22:21:51.420Z [console][warn] [Fast Refresh] rebuilding
+2026-02-12T22:21:51.969Z [console][warn] [Fast Refresh] done in 638ms
+2026-02-12T22:21:42.367Z [console][warn] [Fast Refresh] performing full reload because your application had an unrecoverable error
+2026-02-12T22:21:51.949Z [console][warn] [Fast Refresh] performing full reload because your application had an unrecoverable error
+2026-02-12T22:21:51.950Z [console][error] [Fast Refresh] performing full reload because your application had an unrecoverable error
+2026-02-12T22:22:36.076Z [console][error] [Fast Refresh] performing full reload because your application had an unrecoverable error
+2026-02-14T15:57:14.319Z [console][error] ./app/(dashboard)/subscriptions/page.tsx:300:14
+Parsing ecmascript source code failed
+  298 |                 </div>
+  299 |               </motion.div>
+> 300 |             )}
+      |              ^
+  301 |
+  302 |             {/* Plan Cards */}
+  303 |             <div className="grid md:grid-cols-3 gap-8">
+
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+
+Import traces:
+  Client Component Browser:
+    ./app/(dashboard)/subscriptions/page.tsx [Client Component Browser]
+    ./app/(dashboard)/subscriptions/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/(dashboard)/subscriptions/page.tsx [Client Component SSR]
+    ./app/(dashboard)/subscriptions/page.tsx [Server Component]
+2026-02-14T15:57:14.358Z [console][error] ./app/(dashboard)/subscriptions/page.tsx:300:14
+Parsing ecmascript source code failed
+  298 |                 </div>
+  299 |               </motion.div>
+> 300 |             )}
+      |              ^
+  301 |
+  302 |             {/* Plan Cards */}
+  303 |             <div className="grid md:grid-cols-3 gap-8">
+
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+
+Import traces:
+  Client Component Browser:
+    ./app/(dashboard)/subscriptions/page.tsx [Client Component Browser]
+    ./app/(dashboard)/subscriptions/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/(dashboard)/subscriptions/page.tsx [Client Component SSR]
+    ./app/(dashboard)/subscriptions/page.tsx [Server Component]
+2026-02-14T15:57:14.319Z [console][error] ./app/(dashboard)/subscriptions/page.tsx:300:14
+Parsing ecmascript source code failed
+  298 |                 </div>
+  299 |               </motion.div>
+> 300 |             )}
+      |              ^
+  301 |
+  302 |             {/* Plan Cards */}
+  303 |             <div className="grid md:grid-cols-3 gap-8">
+
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+
+Import traces:
+  Client Component Browser:
+    ./app/(dashboard)/subscriptions/page.tsx [Client Component Browser]
+    ./app/(dashboard)/subscriptions/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/(dashboard)/subscriptions/page.tsx [Client Component SSR]
+    ./app/(dashboard)/subscriptions/page.tsx [Server Component]
+2026-02-14T15:57:14.358Z [console][error] ./app/(dashboard)/subscriptions/page.tsx:300:14
+Parsing ecmascript source code failed
+  298 |                 </div>
+  299 |               </motion.div>
+> 300 |             )}
+      |              ^
+  301 |
+  302 |             {/* Plan Cards */}
+  303 |             <div className="grid md:grid-cols-3 gap-8">
+
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+
+Import traces:
+  Client Component Browser:
+    ./app/(dashboard)/subscriptions/page.tsx [Client Component Browser]
+    ./app/(dashboard)/subscriptions/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/(dashboard)/subscriptions/page.tsx [Client Component SSR]
+    ./app/(dashboard)/subscriptions/page.tsx [Server Component]
+2026-02-14T21:22:32.460Z [console][error] ./app/(dashboard)/settings/SettingsContent.tsx:26:1
+Module not found: Can't resolve '@/components/theme-customizer'
+  24 |     LayoutGrid
+  25 |   } from "lucide-react";
+> 26 | import { ThemeCustomizer } from "@/components/theme-customizer";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  27 | import { createClient } from "@supabase/supabase-js";
+  28 | import { toast } from "sonner";
+  29 | import { motion } from "framer-motion";
+
+Import map: aliased to relative './components/theme-customizer' inside of [project]/
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/settings/SettingsContent.tsx
+    ./app/(dashboard)/settings/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+2026-02-14T21:22:32.500Z [console][error] ./app/(dashboard)/settings/SettingsContent.tsx:26:1
+Module not found: Can't resolve '@/components/theme-customizer'
+  24 |     LayoutGrid
+  25 |   } from "lucide-react";
+> 26 | import { ThemeCustomizer } from "@/components/theme-customizer";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  27 | import { createClient } from "@supabase/supabase-js";
+  28 | import { toast } from "sonner";
+  29 | import { motion } from "framer-motion";
+
+Import map: aliased to relative './components/theme-customizer' inside of [project]/
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/settings/SettingsContent.tsx
+    ./app/(dashboard)/settings/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+2026-02-14T21:22:32.460Z [console][error] ./app/(dashboard)/settings/SettingsContent.tsx:26:1
+Module not found: Can't resolve '@/components/theme-customizer'
+  24 |     LayoutGrid
+  25 |   } from "lucide-react";
+> 26 | import { ThemeCustomizer } from "@/components/theme-customizer";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  27 | import { createClient } from "@supabase/supabase-js";
+  28 | import { toast } from "sonner";
+  29 | import { motion } from "framer-motion";
+
+Import map: aliased to relative './components/theme-customizer' inside of [project]/
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/settings/SettingsContent.tsx
+    ./app/(dashboard)/settings/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+2026-02-14T21:22:32.500Z [console][error] ./app/(dashboard)/settings/SettingsContent.tsx:26:1
+Module not found: Can't resolve '@/components/theme-customizer'
+  24 |     LayoutGrid
+  25 |   } from "lucide-react";
+> 26 | import { ThemeCustomizer } from "@/components/theme-customizer";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  27 | import { createClient } from "@supabase/supabase-js";
+  28 | import { toast } from "sonner";
+  29 | import { motion } from "framer-motion";
+
+Import map: aliased to relative './components/theme-customizer' inside of [project]/
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/settings/SettingsContent.tsx
+    ./app/(dashboard)/settings/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+2026-02-14T21:22:32.460Z [console][error] ./app/(dashboard)/settings/SettingsContent.tsx:26:1
+Module not found: Can't resolve '@/components/theme-customizer'
+  24 |     LayoutGrid
+  25 |   } from "lucide-react";
+> 26 | import { ThemeCustomizer } from "@/components/theme-customizer";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  27 | import { createClient } from "@supabase/supabase-js";
+  28 | import { toast } from "sonner";
+  29 | import { motion } from "framer-motion";
+
+Import map: aliased to relative './components/theme-customizer' inside of [project]/
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/settings/SettingsContent.tsx
+    ./app/(dashboard)/settings/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+2026-02-14T21:22:32.500Z [console][error] ./app/(dashboard)/settings/SettingsContent.tsx:26:1
+Module not found: Can't resolve '@/components/theme-customizer'
+  24 |     LayoutGrid
+  25 |   } from "lucide-react";
+> 26 | import { ThemeCustomizer } from "@/components/theme-customizer";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  27 | import { createClient } from "@supabase/supabase-js";
+  28 | import { toast } from "sonner";
+  29 | import { motion } from "framer-motion";
+
+Import map: aliased to relative './components/theme-customizer' inside of [project]/
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/settings/SettingsContent.tsx
+    ./app/(dashboard)/settings/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+2026-02-14T21:38:53.567Z [console][error] ./app/globals.css:23090:48
+Parsing CSS source code failed
+  23088 |   background: linear-gradient(180deg, #e1bee7, #ce93d8, #ba68c8) !important;
+  23089 | }
+> 23090 | html:not(.dark)[data-accent="rose-gold"] .lg\\:hidden aside,
+        |                                                ^
+  23091 | html:not(.dark)[data-accent="rose-gold"] .lg\\:hidden [class*="bg-gradient-to-b"] {
+  23092 |   background: linear-gradient(180deg, #fce4ec, #f8bbd0, #f3a7c0) !important;
+  23093 | }
+
+'hidden' is not recognized as a valid pseudo-class. Did you mean '::hidden' (pseudo-element) or is this a typo?
+
+Import trace:
+  Client Component Browser:
+    ./app/globals.css [Client Component Browser]
+    ./app/layout.tsx [Server Component]
+2026-02-14T21:38:53.720Z [console][error] ./app/globals.css:23090:48
+Parsing CSS source code failed
+  23088 |   background: linear-gradient(180deg, #e1bee7, #ce93d8, #ba68c8) !important;
+  23089 | }
+> 23090 | html:not(.dark)[data-accent="rose-gold"] .lg\\:hidden aside,
+        |                                                ^
+  23091 | html:not(.dark)[data-accent="rose-gold"] .lg\\:hidden [class*="bg-gradient-to-b"] {
+  23092 |   background: linear-gradient(180deg, #fce4ec, #f8bbd0, #f3a7c0) !important;
+  23093 | }
+
+'hidden' is not recognized as a valid pseudo-class. Did you mean '::hidden' (pseudo-element) or is this a typo?
+
+Import trace:
+  Client Component Browser:
+    ./app/globals.css [Client Component Browser]
+    ./app/layout.tsx [Server Component]
+2026-02-14T21:38:53.567Z [console][error] ./app/globals.css:23090:48
+Parsing CSS source code failed
+  23088 |   background: linear-gradient(180deg, #e1bee7, #ce93d8, #ba68c8) !important;
+  23089 | }
+> 23090 | html:not(.dark)[data-accent="rose-gold"] .lg\\:hidden aside,
+        |                                                ^
+  23091 | html:not(.dark)[data-accent="rose-gold"] .lg\\:hidden [class*="bg-gradient-to-b"] {
+  23092 |   background: linear-gradient(180deg, #fce4ec, #f8bbd0, #f3a7c0) !important;
+  23093 | }
+
+'hidden' is not recognized as a valid pseudo-class. Did you mean '::hidden' (pseudo-element) or is this a typo?
+
+Import trace:
+  Client Component Browser:
+    ./app/globals.css [Client Component Browser]
+    ./app/layout.tsx [Server Component]
+2026-02-14T21:38:53.720Z [console][error] ./app/globals.css:23090:48
+Parsing CSS source code failed
+  23088 |   background: linear-gradient(180deg, #e1bee7, #ce93d8, #ba68c8) !important;
+  23089 | }
+> 23090 | html:not(.dark)[data-accent="rose-gold"] .lg\\:hidden aside,
+        |                                                ^
+  23091 | html:not(.dark)[data-accent="rose-gold"] .lg\\:hidden [class*="bg-gradient-to-b"] {
+  23092 |   background: linear-gradient(180deg, #fce4ec, #f8bbd0, #f3a7c0) !important;
+  23093 | }
+
+'hidden' is not recognized as a valid pseudo-class. Did you mean '::hidden' (pseudo-element) or is this a typo?
+
+Import trace:
+  Client Component Browser:
+    ./app/globals.css [Client Component Browser]
+    ./app/layout.tsx [Server Component]
+2026-02-14T21:47:56.093Z [console][error] Uncaught ReferenceError: fetchData is not defined
+2026-02-14T21:48:14.506Z [console][error] [Fast Refresh] performing full reload because your application had an unrecoverable error
+2026-02-14T22:03:46.534Z [console][error] ./app/(dashboard)/credit-notes/credit-notes-list-client.tsx:33:1
+Module not found: Can't resolve '@/hooks/use-theme'
+  31 | import { ar, enUS } from "date-fns/locale";
+  32 | import { useTranslations, useLocale } from "@/lib/locale-context";
+> 33 | import { useTheme } from "@/hooks/use-theme";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  34 |
+  35 | interface CreditNote {
+  36 |   id: number;
+
+Import map: aliased to relative './hooks/use-theme' inside of [project]/
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/credit-notes/credit-notes-list-client.tsx
+    ./app/(dashboard)/credit-notes/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+2026-02-14T22:03:46.569Z [console][error] ./app/(dashboard)/credit-notes/credit-notes-list-client.tsx:33:1
+Module not found: Can't resolve '@/hooks/use-theme'
+  31 | import { ar, enUS } from "date-fns/locale";
+  32 | import { useTranslations, useLocale } from "@/lib/locale-context";
+> 33 | import { useTheme } from "@/hooks/use-theme";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  34 |
+  35 | interface CreditNote {
+  36 |   id: number;
+
+Import map: aliased to relative './hooks/use-theme' inside of [project]/
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/credit-notes/credit-notes-list-client.tsx
+    ./app/(dashboard)/credit-notes/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+2026-02-14T23:10:06.926Z [console][error] ./app/(dashboard)/expenses/deductions/deduction-form-client.tsx:867:1
+Parsing ecmascript source code failed
+  865 |     </div>
+  866 |   );
+> 867 | }
+      | ^
+  868 |
+
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/expenses/deductions/deduction-form-client.tsx
+    ./app/(dashboard)/expenses/deductions/page.tsx
+2026-02-14T23:10:06.970Z [console][error] ./app/(dashboard)/expenses/deductions/deduction-form-client.tsx:867:1
+Parsing ecmascript source code failed
+  865 |     </div>
+  866 |   );
+> 867 | }
+      | ^
+  868 |
+
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+
+Import trace:
+  Server Component:
+    ./app/(dashboard)/expenses/deductions/deduction-form-client.tsx
+    ./app/(dashboard)/expenses/deductions/page.tsx
+2026-02-14T23:16:11.618Z [console][error] Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+2026-02-14T23:16:12.392Z [console][error] Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+2026-02-15T20:01:38.882Z [console][warn] [Fast Refresh] rebuilding
+2026-02-15T20:01:38.979Z [console][warn] [Fast Refresh] done in 197ms
+2026-02-15T20:01:38.882Z [console][log] [Fast Refresh] rebuilding
+2026-02-15T20:01:38.979Z [console][log] [Fast Refresh] done in 197ms
+2026-02-15T20:03:35.475Z [network][POST 200] /login
+  request: {}
+  response: :N1771185815441.961
+0:{"a":"$@1","f":"","b":"development"}
+1:{"success":false,"error":"خطأ في الاتصال بقاعدة البيانات."}
+
+2026-02-15T20:03:49.621Z [network][POST 200] /login
+  request: {}
+  response: :N1771185829594.4514
+0:{"a":"$@1","f":"","b":"development"}
+1:{"success":false,"error":"خطأ في الاتصال بقاعدة البيانات."}
+
+2026-02-15T20:58:37.852Z [console][warn] [Fast Refresh] done in 476ms
+2026-02-15T20:58:37.467Z [console][log] [Fast Refresh] rebuilding
+2026-02-15T20:58:37.852Z [console][log] [Fast Refresh] done in 476ms
+2026-02-16T11:25:10.117Z [console][error] Network error fetching chat: Failed to fetch
+2026-02-16T11:25:40.127Z [console][error] Network error fetching chat: Failed to fetch
+2026-02-16T11:26:10.117Z [console][error] Network error fetching chat: Failed to fetch
+2026-02-16T11:26:40.127Z [console][error] Network error fetching chat: Failed to fetch
+2026-02-16T11:27:10.116Z [console][error] Network error fetching chat: Failed to fetch
+2026-02-16T11:27:40.125Z [console][error] Network error fetching chat: Failed to fetch
+2026-02-16T11:28:10.116Z [console][error] Network error fetching chat: Failed to fetch
+2026-02-16T11:28:40.124Z [console][error] Network error fetching chat: Failed to fetch
+2026-02-16T11:29:10.116Z [console][error] Network error fetching chat: Failed to fetch
+2026-02-16T18:19:46.077Z [console][warn] [Fast Refresh] rebuilding
+2026-02-16T18:19:46.123Z [console][warn] [Fast Refresh] done in 147ms
+2026-02-16T18:19:46.076Z [console][log] [Fast Refresh] rebuilding
+2026-02-16T18:19:46.122Z [console][log] [Fast Refresh] done in 147ms
+2026-02-16T18:19:56.516Z [network][POST 200] /login
+  request: {}
+  response: :N1771265996494.7769
+0:{"a":"$@1","f":"","b":"development"}
+1:{"success":false,"error":"خطأ في الاتصال بقاعدة البيانات."}
+
+2026-02-16T18:20:03.310Z [network][POST 200] /login
+  request: {}
+  response: :N1771266003296.6282
+0:{"a":"$@1","f":"","b":"development"}
+1:{"success":false,"error":"خطأ في الاتصال بقاعدة البيانات."}
+
+2026-02-16T18:20:04.632Z [network][POST 200] /login
+  request: {}
+  response: :N1771266004617.2122
+0:{"a":"$@1","f":"","b":"development"}
+1:{"success":false,"error":"خطأ في الاتصال بقاعدة البيانات."}
+
+2026-02-16T22:34:15.972Z [console][error] Uncaught ReferenceError: query is not defined
+2026-02-16T22:34:15.972Z [console][error] Uncaught ReferenceError: query is not defined
+2026-02-16T23:18:06.264Z [console][log] [Fast Refresh] rebuilding
+2026-02-16T23:18:06.269Z [console][log] [Fast Refresh] done in 106ms
+2026-02-17T11:59:08.440Z [console][debug] __ORCHIDS_VISUALEDIT_CLICK__ {"tagName":"h3","id":null,"className":"text-xl font-black text-slate-900 dark:text-white","textContent":"إدارة الباقات","attributes":{"class":"text-xl font-black text-slate-900 dark:text-white"},"position":{"x":1826,"y":689},"boundingRect":{"top":682.9344482421875,"left":1747.5093994140625,"width":108.1031265258789,"height":27.993751525878906},"computedStyles":{"display":"block","position":"static","verticalAlign":"baseline","width":"108.103px","height":"27.9938px","boxSizing":"border-box","fontFamily":"Cairo, Tajawal, sans-serif, Tajawal, \"Segoe UI\", system-ui, sans-serif","fontSize":"20px","fontWeight":"700","fontVariant":"lining-nums tabular-nums","lineHeight":"28px","letterSpacing":"0.16px","textAlign":"start","textDecoration":"none solid rgb(255, 255, 255)","textOverflow":"clip","color":"rgb(255, 255, 255)","opacity":"1","border":"0px solid rgb(255, 255, 255)","borderTop":"0px solid rgb(255, 255, 255)","borderRight":"0px solid rgb(255, 255, 255)","borderBottom":"0px solid rgb(255, 255, 255)","borderLeft":"0px solid rgb(255, 255, 255)","borderStyle":"solid","borderColor":"rgb(255, 255, 255)","outline":"rgb(255, 255, 255) none 0px","outlineColor":"rgb(255, 255, 255)","transformOrigin":"54.0516px 13.9969px","perspectiveOrigin":"54.0469px 13.9969px","transition":"all","transitionProperty":"all","transitionDuration":"0s","transitionTimingFunction":"ease","transitionDelay":"0s","animation":"none 0s ease 0s 1 normal none running","animationDuration":"0s","animationTimingFunction":"ease","animationDelay":"0s","animationIterationCount":"1","overflow":"visible","overflowX":"visible","overflowY":"visible","flex":"0 1 auto","flexDirection":"row","flexWrap":"nowrap","flexFlow":"row nowrap","flexGrow":"0","flexShrink":"1","grid":"none / none / none / row / auto / auto","gridAutoFlow":"row","background":"rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box","backgroundImage":"none","backgroundPosition":"0% 0%","backgroundRepea...
+2026-02-17T12:10:52.853Z [console][log] [Fast Refresh] rebuilding
+2026-02-17T12:10:53.791Z [console][log] [Fast Refresh] done in 1016ms
+2026-02-17T12:11:19.562Z [console][log] [Fast Refresh] rebuilding
+2026-02-17T12:11:19.656Z [console][log] [Fast Refresh] done in 194ms
+2026-02-18T00:23:57.355Z [console][warn] [Fast Refresh] rebuilding
+2026-02-18T00:23:57.360Z [console][warn] [Fast Refresh] done in 175ms
+2026-02-18T00:23:57.355Z [console][log] [Fast Refresh] rebuilding
+2026-02-18T00:23:57.360Z [console][log] [Fast Refresh] done in 175ms
+2026-02-18T00:23:59.093Z [network][GET 200] /api/admin/chat?action=unread_count
+  response: {"unread_count":2}
+2026-02-18T00:23:59.282Z [network][GET 200] /api/admin/notifications?limit=1&last_id=14
+  response: {"success":true,"notifications":[{"id":14,"title":"✅ اكتمال أمر الصيانة #000022","message":"تم تأكيد اكتمال صيانة المركبة ا ب 33 (دباب 2025) - الفني: محمد احمد - -","image_url":null,"type":"maintenance_completed","is_read":0,"created_at":"2026-02-10T22:20:50.000Z","updated_at":"2026-02-11T18:30:08.000Z","sent_to_all":0,"sent_to_companies":null,"image_filename":null,"image_path":null,"is_frozen":0}]}
+2026-02-18T00:23:59.314Z [network][GET 200] /api/admin/notifications?limit=5
+  response: {"success":true,"notifications":[{"id":14,"title":"✅ اكتمال أمر الصيانة #000022","message":"تم تأكيد اكتمال صيانة المركبة ا ب 33 (دباب 2025) - الفني: محمد احمد - -","image_url":null,"type":"maintenance_completed","is_read":0,"created_at":"2026-02-10T22:20:50.000Z","updated_at":"2026-02-11T18:30:08.000Z","sent_to_all":0,"sent_to_companies":null,"image_filename":null,"image_path":null,"is_frozen":0},{"id":13,"title":"✅ اكتمال أمر الصيانة #000022","message":"تم تأكيد اكتمال صيانة المركبة ا ب 33 (دباب 2025) - الفني: محمد احمد - -","image_url":null,"type":"maintenance_completed","is_read":0,"created_at":"2026-02-10T22:19:04.000Z","updated_at":"2026-02-11T18:30:08.000Z","sent_to_all":0,"sent_to_companies":null,"image_filename":null,"image_path":null,"is_frozen":0},{"id":12,"title":"✅ اكتمال أمر الصيانة #000033","message":"تم تأكيد اكتمال صيانة المركبة ٣٢٢ (٢٣٣٣ ٣٢٢٣) - الفني: عبد اللطيف جعفر - -","image_url":null,"type":"maintenance_completed","is_read":0,"created_at":"2026-02-10T18:36:42.000Z","updated_at":"2026-02-11T18:30:08.000Z","sent_to_all":0,"sent_to_companies":null,"image_filename":null,"image_path":null,"is_frozen":0},{"id":11,"title":"✅ اكتمال أمر الصيانة #000032","message":"تم تأكيد اكتمال صيانة المركبة ٣٢٢ (٢٣٣٣ ٣٢٢٣) - الفني: احمد - -","image_url":null,"type":"maintenance_completed","is_read":0,"created_at":"2026-02-10T18:25:57.000Z","updated_at":"2026-02-11T18:30:08.000Z","sent_to_all":0,"sent_to_companies":null,"image_filename":null,"image_path":null,"is_frozen":0},{"id":10,"title":"✅ اكتمال أمر الصيانة #000032","message":"تم تأكيد اكتمال صيانة المركبة ٣٢٢ (٢٣٣٣ ٣٢٢٣) - الفني: احمد - -","image_url":null,"type":"maintenance_completed","is_read":0,"created_at":"2026-02-10T18:25:16.000Z","updated_at":"2026-02-11T18:30:08.000Z","sent_to_all":0,"sent_to_companies":null,"image_filename":null,"image_path":null,"is_frozen":0}]}
+2026-02-18T00:23:59.496Z [network][GET 200] /api/email/accounts?company_id=1
+  response: {"accounts":[],"providers":{"hostinger":{"name":"Hostinger","imap_host":"imap.hostinger.com","imap_port":993,"smtp_host":"smtp.hostinger.com","smtp_port":465},"gmail":{"name":"Gmail","imap_host":"imap.gmail.com","imap_port":993,"smtp_host":"smtp.gmail.com","smtp_port":465},"outlook":{"name":"Outlook/Hotmail","imap_host":"outlook.office365.com","imap_port":993,"smtp_host":"smtp.office365.com","smtp_port":587},"custom":{"name":"Custom","imap_host":"","imap_port":993,"smtp_host":"","smtp_port":465}}}
+2026-02-18T00:23:59.520Z [network][GET 200] /api/hr/notifications?company_id=1
+  response: {"success":true,"identity":{"expired":[{"id":147,"name":"محمد أحمد علي","name_en":null,"iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"2456789012","package_id":44,"package_name":"سائقين كفالة شركة كيتا","days_remaining":-49,"status":"expired"},{"id":162,"name":"نصر الدين عبد الله حسن","name_en":null,"iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"2456789012","package_id":44,"package_name":"سائقين كفالة شركة كيتا","days_remaining":-49,"status":"expired"},{"id":163,"name":"بكري محمد عبد الله","name_en":null,"iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"2456789012","package_id":44,"package_name":"سائقين كفالة شركة كيتا","days_remaining":-49,"status":"expired"},{"id":164,"name":"مأمون عبد الرحمن علي","name_en":null,"iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"2456789012","package_id":44,"package_name":"سائقين كفالة شركة كيتا","days_remaining":-49,"status":"expired"},{"id":165,"name":"عبد الله محمد الحسن","name_en":null,"iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"2456789012","package_id":44,"package_name":"سائقين كفالة شركة كيتا","days_remaining":-49,"status":"expired"},{"id":166,"name":"مصطفى حسن علي","name_en":null,"iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"2456789012","package_id":44,"package_name":"سائقين كفالة شركة كيتا","days_remaining":-49,"status":"expired"},{"id":167,"name":"إسماعيل يوسف إبراهيم","name_en":null,"iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"2456789012","package_id":44,"package_name":"سائقين كفالة شركة كيتا","days_remaining":-49,"status":"expired"},{"id":168,"name":"بشير محمد أحمد","name_en":null,"iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"2456789012","package_id":44,"package_name":"سائقين كفالة شركة كيتا","days_remaining":-49,"status":"expired"},{"id":169,"name":"السر علي عبد الله","name_en":null,"iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"2456789012","package_id":44,"package_name":"سائقين كفالة شركة كيتا","days_remaining":-49,"status... [truncated]
+2026-02-18T00:23:59.532Z [network][GET 200] /api/admin/notifications?limit=1&last_id=14
+  response: {"success":true,"notifications":[{"id":14,"title":"✅ اكتمال أمر الصيانة #000022","message":"تم تأكيد اكتمال صيانة المركبة ا ب 33 (دباب 2025) - الفني: محمد احمد - -","image_url":null,"type":"maintenance_completed","is_read":0,"created_at":"2026-02-10T22:20:50.000Z","updated_at":"2026-02-11T18:30:08.000Z","sent_to_all":0,"sent_to_companies":null,"image_filename":null,"image_path":null,"is_frozen":0}]}
+2026-02-18T00:23:59.550Z [network][GET 200] /api/admin/system-settings
+  response: {"settings":[{"id":7,"setting_key":"OPENAI_API_KEY","setting_value":"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","setting_category":"ai","setting_label":"مفتاح OpenAI API","setting_type":"password","is_secret":true,"description":"مفتاح واجهة برمجة تطبيقات OpenAI","created_at":"2026-02-16T00:54:31.571625+00:00","updated_at":"2026-02-16T00:54:31.571625+00:00"},{"id":8,"setting_key":"GOOGLE_GEMINI_API_KEY","setting_value":"AIzaSyD_7AtTju5MXHCGwSLcSO4p6q-9oLyfyNk","setting_category":"ai","setting_label":"مفتاح Google Gemini API","setting_type":"password","is_secret":true,"description":"مفتاح Google Gemini","created_at":"2026-02-16T00:54:31.854819+00:00","updated_at":"2026-02-16T00:54:31.854819+00:00"},{"id":9,"setting_key":"DEEPSEEK_API_KEY","setting_value":"sk-9fe9a1828c1147018769e8c890739c68","setting_category":"ai","setting_label":"مفتاح DeepSeek API","setting_type":"password","is_secret":true,"description":"مفتاح DeepSeek","created_at":"2026-02-16T00:54:32.138402+00:00","updated_at":"2026-02-16T00:54:32.138402+00:00"},{"id":21,"setting_key":"NEXT_PUBLIC_APP_URL","setting_value":"https://accounts.zoolspeed.com","setting_category":"general","setting_label":"رابط التطبيق","setting_type":"url","is_secret":false,"description":"الرابط العام للتطبيق","created_at":"2026-02-16T00:54:35.869151+00:00","updated_at":"2026-02-16T00:54:35.869151+00:00"},{"id":22,"setting_key":"ADMIN_EMAIL","setting_value":"admin@zoolspeed.com","setting_category":"general","setting_label":"بريد المدير","setting_type":"email","is_secret":false,"description":"البريد الإلكتروني للمدير العام","created_at":"2026-02-16T00:54:36.148866+00:00","updated_at":"2026-02-16T00:54:36.148866+00:00"},{"id":23,"setting_key":"NODE_ENV","setting_value":"development","setting_category":"general","setting_label":"بيئة التشغيل","setting_type":"text","is_secret":false,"description":"بيئة تشغيل التطبيق"... [truncated]
+2026-02-18T00:23:59.787Z [network][GET 200] /api/admin/notifications?limit=5
+  response: {"success":true,"notifications":[{"id":14,"title":"✅ اكتمال أمر الصيانة #000022","message":"تم تأكيد اكتمال صيانة المركبة ا ب 33 (دباب 2025) - الفني: محمد احمد - -","image_url":null,"type":"maintenance_completed","is_read":0,"created_at":"2026-02-10T22:20:50.000Z","updated_at":"2026-02-11T18:30:08.000Z","sent_to_all":0,"sent_to_companies":null,"image_filename":null,"image_path":null,"is_frozen":0},{"id":13,"title":"✅ اكتمال أمر الصيانة #000022","message":"تم تأكيد اكتمال صيانة المركبة ا ب 33 (دباب 2025) - الفني: محمد احمد - -","image_url":null,"type":"maintenance_completed","is_read":0,"created_at":"2026-02-10T22:19:04.000Z","updated_at":"2026-02-11T18:30:08.000Z","sent_to_all":0,"sent_to_companies":null,"image_filename":null,"image_path":null,"is_frozen":0},{"id":12,"title":"✅ اكتمال أمر الصيانة #000033","message":"تم تأكيد اكتمال صيانة المركبة ٣٢٢ (٢٣٣٣ ٣٢٢٣) - الفني: عبد اللطيف جعفر - -","image_url":null,"type":"maintenance_completed","is_read":0,"created_at":"2026-02-10T18:36:42.000Z","updated_at":"2026-02-11T18:30:08.000Z","sent_to_all":0,"sent_to_companies":null,"image_filename":null,"image_path":null,"is_frozen":0},{"id":11,"title":"✅ اكتمال أمر الصيانة #000032","message":"تم تأكيد اكتمال صيانة المركبة ٣٢٢ (٢٣٣٣ ٣٢٢٣) - الفني: احمد - -","image_url":null,"type":"maintenance_completed","is_read":0,"created_at":"2026-02-10T18:25:57.000Z","updated_at":"2026-02-11T18:30:08.000Z","sent_to_all":0,"sent_to_companies":null,"image_filename":null,"image_path":null,"is_frozen":0},{"id":10,"title":"✅ اكتمال أمر الصيانة #000032","message":"تم تأكيد اكتمال صيانة المركبة ٣٢٢ (٢٣٣٣ ٣٢٢٣) - الفني: احمد - -","image_url":null,"type":"maintenance_completed","is_read":0,"created_at":"2026-02-10T18:25:16.000Z","updated_at":"2026-02-11T18:30:08.000Z","sent_to_all":0,"sent_to_companies":null,"image_filename":null,"image_path":null,"is_frozen":0}]}
+2026-02-18T00:24:00.151Z [network][GET 200] /api/hr/notifications?company_id=1
+  response: {"success":true,"identity":{"expired":[{"id":147,"name":"محمد أحمد علي","name_en":null,"iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"2456789012","package_id":44,"package_name":"سائقين كفالة شركة كيتا","days_remaining":-49,"status":"expired"},{"id":162,"name":"نصر الدين عبد الله حسن","name_en":null,"iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"2456789012","package_id":44,"package_name":"سائقين كفالة شركة كيتا","days_remaining":-49,"status":"expired"},{"id":163,"name":"بكري محمد عبد الله","name_en":null,"iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"2456789012","package_id":44,"package_name":"سائقين كفالة شركة كيتا","days_remaining":-49,"status":"expired"},{"id":164,"name":"مأمون عبد الرحمن علي","name_en":null,"iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"2456789012","package_id":44,"package_name":"سائقين كفالة شركة كيتا","days_remaining":-49,"status":"expired"},{"id":165,"name":"عبد الله محمد الحسن","name_en":null,"iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"2456789012","package_id":44,"package_name":"سائقين كفالة شركة كيتا","days_remaining":-49,"status":"expired"},{"id":166,"name":"مصطفى حسن علي","name_en":null,"iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"2456789012","package_id":44,"package_name":"سائقين كفالة شركة كيتا","days_remaining":-49,"status":"expired"},{"id":167,"name":"إسماعيل يوسف إبراهيم","name_en":null,"iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"2456789012","package_id":44,"package_name":"سائقين كفالة شركة كيتا","days_remaining":-49,"status":"expired"},{"id":168,"name":"بشير محمد أحمد","name_en":null,"iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"2456789012","package_id":44,"package_name":"سائقين كفالة شركة كيتا","days_remaining":-49,"status":"expired"},{"id":169,"name":"السر علي عبد الله","name_en":null,"iqama_expiry":"2025-12-30T21:00:00.000Z","iqama_number":"2456789012","package_id":44,"package_name":"سائقين كفالة شركة كيتا","days_remaining":-49,"status... [truncated]
+2026-02-18T00:24:00.151Z [network][GET 200] /api/email/accounts?company_id=1
+  response: {"accounts":[],"providers":{"hostinger":{"name":"Hostinger","imap_host":"imap.hostinger.com","imap_port":993,"smtp_host":"smtp.hostinger.com","smtp_port":465},"gmail":{"name":"Gmail","imap_host":"imap.gmail.com","imap_port":993,"smtp_host":"smtp.gmail.com","smtp_port":465},"outlook":{"name":"Outlook/Hotmail","imap_host":"outlook.office365.com","imap_port":993,"smtp_host":"smtp.office365.com","smtp_port":587},"custom":{"name":"Custom","imap_host":"","imap_port":993,"smtp_host":"","smtp_port":465}}}
+2026-02-18T00:24:00.370Z [network][GET 200] /api/admin/system-settings
+  response: {"settings":[{"id":7,"setting_key":"OPENAI_API_KEY","setting_value":"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","setting_category":"ai","setting_label":"مفتاح OpenAI API","setting_type":"password","is_secret":true,"description":"مفتاح واجهة برمجة تطبيقات OpenAI","created_at":"2026-02-16T00:54:31.571625+00:00","updated_at":"2026-02-16T00:54:31.571625+00:00"},{"id":8,"setting_key":"GOOGLE_GEMINI_API_KEY","setting_value":"AIzaSyD_7AtTju5MXHCGwSLcSO4p6q-9oLyfyNk","setting_category":"ai","setting_label":"مفتاح Google Gemini API","setting_type":"password","is_secret":true,"description":"مفتاح Google Gemini","created_at":"2026-02-16T00:54:31.854819+00:00","updated_at":"2026-02-16T00:54:31.854819+00:00"},{"id":9,"setting_key":"DEEPSEEK_API_KEY","setting_value":"sk-9fe9a1828c1147018769e8c890739c68","setting_category":"ai","setting_label":"مفتاح DeepSeek API","setting_type":"password","is_secret":true,"description":"مفتاح DeepSeek","created_at":"2026-02-16T00:54:32.138402+00:00","updated_at":"2026-02-16T00:54:32.138402+00:00"},{"id":21,"setting_key":"NEXT_PUBLIC_APP_URL","setting_value":"https://accounts.zoolspeed.com","setting_category":"general","setting_label":"رابط التطبيق","setting_type":"url","is_secret":false,"description":"الرابط العام للتطبيق","created_at":"2026-02-16T00:54:35.869151+00:00","updated_at":"2026-02-16T00:54:35.869151+00:00"},{"id":22,"setting_key":"ADMIN_EMAIL","setting_value":"admin@zoolspeed.com","setting_category":"general","setting_label":"بريد المدير","setting_type":"email","is_secret":false,"description":"البريد الإلكتروني للمدير العام","created_at":"2026-02-16T00:54:36.148866+00:00","updated_at":"2026-02-16T00:54:36.148866+00:00"},{"id":23,"setting_key":"NODE_ENV","setting_value":"development","setting_category":"general","setting_label":"بيئة التشغيل","setting_type":"text","is_secret":false,"description":"بيئة تشغيل التطبيق"... [truncated]
+2026-02-18T00:24:28.220Z [network][GET 200] /api/admin/chat?action=unread_count
+  response: {"unread_count":2}
+2026-02-18T00:24:28.228Z [network][GET 200] /api/admin/notifications?limit=1&last_id=14
+  response: {"success":true,"notifications":[{"id":14,"title":"✅ اكتمال أمر الصيانة #000022","message":"تم تأكيد اكتمال صيانة المركبة ا ب 33 (دباب 2025) - الفني: محمد احمد - -","image_url":null,"type":"maintenance_completed","is_read":0,"created_at":"2026-02-10T22:20:50.000Z","updated_at":"2026-02-11T18:30:08.000Z","sent_to_all":0,"sent_to_companies":null,"image_filename":null,"image_path":null,"is_frozen":0}]}
+2026-03-05T20:56:24.905Z [console][error] You are trying to animate  from "0" to "4497317.92". "4497317.92" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-03-05T20:56:24.905Z [console][error] You are trying to animate  from "0" to "991115.93". "991115.93" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-03-05T20:56:26.957Z [console][error] You are trying to animate  from "4497317.92" to "3543569.96". "4497317.92" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-03-05T20:56:26.957Z [console][error] You are trying to animate  from "991115.93" to "5241879.93". "991115.93" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-03-05T21:00:53.963Z [console][error] You are trying to animate  from "0" to "4497317.92". "4497317.92" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-03-05T21:00:53.963Z [console][error] You are trying to animate  from "0" to "991115.93". "991115.93" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-03-05T21:00:54.794Z [console][error] You are trying to animate  from "4497317.92" to "3543569.96". "4497317.92" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-03-05T21:00:54.794Z [console][error] You are trying to animate  from "991115.93" to "5241879.93". "991115.93" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-03-05T20:56:26.957Z [console][error] You are trying to animate  from "991115.93" to "5241879.93". "991115.93" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-03-05T21:00:53.963Z [console][error] You are trying to animate  from "0" to "4497317.92". "4497317.92" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-03-05T21:00:53.963Z [console][error] You are trying to animate  from "0" to "991115.93". "991115.93" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-03-05T21:00:54.794Z [console][error] You are trying to animate  from "4497317.92" to "3543569.96". "4497317.92" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+2026-03-05T21:00:54.794Z [console][error] You are trying to animate  from "991115.93" to "5241879.93". "991115.93" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable

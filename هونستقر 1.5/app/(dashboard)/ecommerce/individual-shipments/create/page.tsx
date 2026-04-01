@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { CreateShipmentClient } from "./create-shipment-client";
 
 export const metadata = {
-  title: "إنشاء شحنة جديدة - Logistics Systems Pro",
+  title: "إنشاء شحنة جديدة - Logistics Hub",
 };
 
 export default async function CreateShipmentPage() {

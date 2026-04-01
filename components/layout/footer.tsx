@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { 
-  Mail, 
-  Phone, 
-  Copy, 
-  Check, 
+import {
+  Mail,
+  Phone,
+  Copy,
+  Check,
   Copyright,
   Wifi,
   WifiOff,
@@ -14,20 +14,28 @@ import {
   Activity,
   Zap,
   Shield,
-  Globe
+  Globe,
+  Clock,
+  MapPin,
+  Calendar
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLocale, useTranslations } from "@/lib/locale-context";
 import { useTheme } from "next-themes";
+import { usePrayer } from "./prayer-provider";
 
 export function Footer() {
   const [copiedPhone, setCopiedPhone] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState(true);
   const [systemStatus, setSystemStatus] = useState({ cpu: 23, memory: 45, latency: 42 });
+  const [mounted, setMounted] = useState(false);
   const { isRTL } = useLocale();
   const t = useTranslations('footer');
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
+  const { currentTime, locationName, hijriDate } = usePrayer();
+
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -69,13 +77,64 @@ export function Footer() {
         <div className={`absolute top-0 left-0 right-0 h-[1px] ${isDark ? 'bg-gradient-to-r from-transparent via-white/[0.15] to-transparent' : 'bg-gradient-to-r from-transparent via-indigo-300/50 to-transparent'}`} />
       
       <div className="relative z-10 max-w-[1800px] mx-auto px-4 md:px-6 py-3">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          
-          <div className="flex items-center gap-4">
+        <div className="flex flex-row items-center justify-between gap-3 overflow-hidden">
+
+          <div className="flex items-center gap-3 flex-shrink-0">
             <div className={cn("hidden sm:flex items-center gap-1.5 text-[10px] font-bold", isDark ? "text-white/30" : "text-black")}>
                   <Copyright size={10} />
                   <span>2026 {t('copyright')}</span>
             </div>
+
+            {/* ── Time / Date / Location ─────────────────────────── */}
+            {mounted && (
+              <motion.div
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={cn(
+                  "hidden md:flex items-center gap-3 px-4 py-1.5 rounded-2xl border",
+                  isDark
+                    ? "bg-gradient-to-r from-blue-500/10 via-indigo-500/5 to-purple-500/10 border-white/[0.08]"
+                    : "bg-gradient-to-r from-indigo-100/80 via-blue-100/60 to-purple-100/80 border-indigo-200/40"
+                )}
+              >
+                {/* Time + Date */}
+                <div className="flex items-center gap-1.5">
+                  <div className={cn("p-1 rounded-lg", isDark ? "bg-blue-500/20" : "bg-blue-100")}>
+                    <Clock size={11} className="text-blue-400" />
+                  </div>
+                  <span className={cn("text-[11px] font-black tabular-nums", isDark ? "text-white/80" : "text-indigo-800")}>
+                    {currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
+                  </span>
+                  <span className={cn("text-[10px] font-bold", isDark ? "text-white/35" : "text-indigo-500")}>
+                    {currentTime.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' })}
+                  </span>
+                </div>
+
+                <div className={cn("w-px h-5", isDark ? "bg-white/10" : "bg-indigo-200")} />
+
+                {/* Hijri date */}
+                <div className="flex items-center gap-1.5">
+                  <div className={cn("p-1 rounded-lg", isDark ? "bg-purple-500/20" : "bg-purple-100")}>
+                    <Calendar size={11} className="text-purple-400" />
+                  </div>
+                  <span className={cn("text-[10px] font-bold max-w-[120px] truncate", isDark ? "text-purple-300/70" : "text-purple-700")}>
+                    {hijriDate}
+                  </span>
+                </div>
+
+                <div className={cn("w-px h-5", isDark ? "bg-white/10" : "bg-indigo-200")} />
+
+                {/* Location */}
+                <div className="flex items-center gap-1.5">
+                  <div className={cn("p-1 rounded-lg", isDark ? "bg-rose-500/20" : "bg-rose-100")}>
+                    <MapPin size={11} className="text-rose-400" />
+                  </div>
+                  <span className={cn("text-[10px] font-bold max-w-[100px] truncate", isDark ? "text-rose-300/70" : "text-rose-700")}>
+                    {locationName}
+                  </span>
+                </div>
+              </motion.div>
+            )}
           </div>
 
           <div className="hidden lg:flex items-center gap-3">
@@ -106,26 +165,11 @@ export function Footer() {
               )}
             </motion.div>
 
-            <div className={cn("flex items-center gap-2 px-3 py-1.5 rounded-xl border", isDark ? "bg-white/5 border-white/10" : "bg-white/30 border-indigo-200/30")}>
-                  <Server size={12} className="text-blue-400" />
-                  <span className={cn("text-[10px] font-bold", isDark ? "text-white/50" : "text-black")}>CPU</span>
-                  <span className={cn("text-[10px] font-bold", isDark ? "text-blue-400" : "text-black")}>{systemStatus.cpu}%</span>
-              </div>
 
-            <div className={cn("flex items-center gap-2 px-3 py-1.5 rounded-xl border", isDark ? "bg-white/5 border-white/10" : "bg-white/30 border-indigo-200/30")}>
-                <Activity size={12} className="text-purple-400" />
-                <span className={cn("text-[10px] font-bold", isDark ? "text-white/50" : "text-black")}>{isRTL ? 'الذاكرة' : 'Memory'}</span>
-                  <span className={cn("text-[10px] font-bold", isDark ? "text-purple-400" : "text-black")}>{systemStatus.memory}%</span>
-              </div>
 
-              <div className={cn("flex items-center gap-2 px-3 py-1.5 rounded-xl border", isDark ? "bg-white/5 border-white/10" : "bg-white/30 border-indigo-200/30")}>
-                  <Zap size={12} className="text-amber-400" />
-                  <span className={cn("text-[10px] font-bold", isDark ? "text-white/50" : "text-black")}>Latency</span>
-                <span className={cn("text-[10px] font-bold", isDark ? "text-amber-400" : "text-black")}>{systemStatus.latency}ms</span>
-              </div>
             </div>
 
-            <div className="flex items-center flex-wrap justify-center gap-3">
+            <div className="flex items-center gap-3 flex-shrink-0">
               <motion.div 
                 whileHover={{ scale: 1.05 }}
                 className={cn("flex items-center gap-2 px-3 py-1.5 rounded-xl border", isDark ? "bg-blue-500/5 border-blue-500/10" : "bg-white/30 border-indigo-200/30")}

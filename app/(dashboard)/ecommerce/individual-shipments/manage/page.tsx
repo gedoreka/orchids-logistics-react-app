@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { ManageShipmentsClient } from "./manage-shipments-client";
 
 export const metadata = {
-  title: "إدارة شحنات الأفراد - Logistics Systems Pro",
+  title: "إدارة شحنات الأفراد - Logistics Hub",
 };
 
 export default async function ManageShipmentsPage() {

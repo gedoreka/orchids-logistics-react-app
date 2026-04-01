@@ -166,6 +166,10 @@ function ProfitLossContent() {
     journalExpense: true,
   });
   const [modal, setModal] = useState<ModalState>({ type: "idle" });
+  const closeModal = () => setModal({ type: "idle" });
+  const setSuccessModal = ({ title, isOpen }: { isOpen: boolean; type?: string; title?: string }) => {
+    if (isOpen) setModal({ type: "notification", notificationType: "success", notificationTitle: title, notificationMessage: "" });
+  };
     const printRef = useRef<HTMLDivElement>(null);
 
     const fetchData = async (month?: string) => {
@@ -497,7 +501,11 @@ function ProfitLossContent() {
                 </select>
               </div>
               <div className="flex flex-col justify-end pt-5">
-                <button onClick={() => fetchData()}
+                <button onClick={() => {
+                  const m = `${inputYear}-${inputMonthIndex}`;
+                  setSelectedMonth(m);
+                  fetchData(m);
+                }}
                   className="h-11 px-6 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl font-black text-sm hover:shadow-lg hover:shadow-blue-500/30 transition-all flex items-center gap-2">
                   <RefreshCw size={16} />
                   {t("view")}
@@ -692,29 +700,31 @@ function ProfitLossContent() {
           subtitle={`${t("invoiceCount", { count: counts.invoices })} - ${formatNumber(summary.invoiceTotal)} ${t("currency")}`}
           shadowColor="emerald"
         >
-          <table className="w-full">
-            <thead>
-              <tr className="bg-gradient-to-r from-slate-800 to-slate-900 text-white">
-                {[t("invoiceNumber"), t("issueDate"), t("beforeDiscount"), t("discount"), t("net"), t("createdBy")].map((h, i) => (
-                  <th key={i} className={cn("px-4 md:px-6 py-4 text-xs font-bold whitespace-nowrap", isRTL ? "text-right" : "text-left")}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {details.invoices.length > 0 ? details.invoices.map((inv) => (
-                <tr key={inv.id} className="hover:bg-white/5 transition-colors">
-                  <td className="px-4 md:px-6 py-3.5"><span className="px-3 py-1 bg-emerald-500/20 rounded-lg text-xs font-black text-emerald-400 border border-emerald-500/30">{inv.invoice_number}</span></td>
-                  <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-slate-400">{formatDate(inv.issue_date)}</td>
-                  <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-white tabular-nums">{formatNumber(inv.before_discount)}</td>
-                  <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-red-400 tabular-nums">{formatNumber(inv.discount || 0)}</td>
-                  <td className="px-4 md:px-6 py-3.5 text-base font-black text-emerald-400 tabular-nums">{formatNumber(inv.total_amount)}</td>
-                  <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-slate-500">{inv.created_by}</td>
+          <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
+            <table className="w-full">
+              <thead className="sticky top-0 z-10">
+                <tr className="bg-gradient-to-r from-slate-800 to-slate-900 text-white">
+                  {[t("invoiceNumber"), t("issueDate"), t("beforeDiscount"), t("discount"), t("net"), t("createdBy")].map((h, i) => (
+                    <th key={i} className={cn("px-4 md:px-6 py-4 text-xs font-bold whitespace-nowrap", isRTL ? "text-right" : "text-left")}>{h}</th>
+                  ))}
                 </tr>
-              )) : (
-                <EmptyRow colSpan={6} icon={Receipt} text={t("noInvoices")} />
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {details.invoices.length > 0 ? details.invoices.map((inv) => (
+                  <tr key={inv.id} className="hover:bg-white/5 transition-colors">
+                    <td className="px-4 md:px-6 py-3.5"><span className="px-3 py-1 bg-emerald-500/20 rounded-lg text-xs font-black text-emerald-400 border border-emerald-500/30">{inv.invoice_number}</span></td>
+                    <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-slate-400">{formatDate(inv.issue_date)}</td>
+                    <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-white tabular-nums">{formatNumber(inv.before_discount)}</td>
+                    <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-red-400 tabular-nums">{formatNumber(inv.discount || 0)}</td>
+                    <td className="px-4 md:px-6 py-3.5 text-base font-black text-emerald-400 tabular-nums">{formatNumber(inv.total_amount)}</td>
+                    <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-slate-500">{inv.created_by}</td>
+                  </tr>
+                )) : (
+                  <EmptyRow colSpan={6} icon={Receipt} text={t("noInvoices")} />
+                )}
+              </tbody>
+            </table>
+          </div>
         </SectionAccordion>
 
         {/* Credit Notes Section */}
@@ -727,28 +737,30 @@ function ProfitLossContent() {
           subtitle={`${t("noteCount", { count: counts.creditNotes })} - ${formatNumber(summary.creditNotesTotal)} ${t("currency")}`}
           shadowColor="red"
         >
-          <table className="w-full">
-            <thead>
-              <tr className="bg-gradient-to-r from-slate-800 to-slate-900 text-white">
-                {[t("noteNumber"), t("relatedInvoice"), t("date"), t("amount"), t("reason")].map((h, i) => (
-                  <th key={i} className={cn("px-4 md:px-6 py-4 text-xs font-bold whitespace-nowrap", isRTL ? "text-right" : "text-left")}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {details.creditNotes.length > 0 ? details.creditNotes.map((cn) => (
-                <tr key={cn.id} className="hover:bg-white/5 transition-colors">
-                  <td className="px-4 md:px-6 py-3.5"><span className="px-3 py-1 bg-red-500/20 rounded-lg text-xs font-black text-red-400 border border-red-500/30">{cn.credit_note_number}</span></td>
-                  <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-white">{cn.invoice_number}</td>
-                  <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-slate-400">{formatDate(cn.created_at)}</td>
-                  <td className="px-4 md:px-6 py-3.5 text-base font-black text-red-400 tabular-nums">{formatNumber(cn.total_amount)}</td>
-                  <td className="px-4 md:px-6 py-3.5 text-sm text-slate-500">{cn.reason}</td>
+          <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
+            <table className="w-full">
+              <thead className="sticky top-0 z-10">
+                <tr className="bg-gradient-to-r from-slate-800 to-slate-900 text-white">
+                  {[t("noteNumber"), t("relatedInvoice"), t("date"), t("amount"), t("reason")].map((h, i) => (
+                    <th key={i} className={cn("px-4 md:px-6 py-4 text-xs font-bold whitespace-nowrap", isRTL ? "text-right" : "text-left")}>{h}</th>
+                  ))}
                 </tr>
-              )) : (
-                <EmptyRow colSpan={5} icon={ArrowDown} text={t("noCreditNotes")} />
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {details.creditNotes.length > 0 ? details.creditNotes.map((cn) => (
+                  <tr key={cn.id} className="hover:bg-white/5 transition-colors">
+                    <td className="px-4 md:px-6 py-3.5"><span className="px-3 py-1 bg-red-500/20 rounded-lg text-xs font-black text-red-400 border border-red-500/30">{cn.credit_note_number}</span></td>
+                    <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-white">{cn.invoice_number}</td>
+                    <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-slate-400">{formatDate(cn.created_at)}</td>
+                    <td className="px-4 md:px-6 py-3.5 text-base font-black text-red-400 tabular-nums">{formatNumber(cn.total_amount)}</td>
+                    <td className="px-4 md:px-6 py-3.5 text-sm text-slate-500">{cn.reason}</td>
+                  </tr>
+                )) : (
+                  <EmptyRow colSpan={5} icon={ArrowDown} text={t("noCreditNotes")} />
+                )}
+              </tbody>
+            </table>
+          </div>
         </SectionAccordion>
 
         {/* Manual Income Section */}
@@ -761,32 +773,34 @@ function ProfitLossContent() {
           subtitle={`${t("operationCount", { count: counts.manualIncome })} - ${formatNumber(summary.manualIncomeTotal)} ${t("currency")}`}
           shadowColor="amber"
         >
-          <table className="w-full">
-            <thead>
-              <tr className="bg-gradient-to-r from-slate-800 to-slate-900 text-white">
-                {[t("operationNumber"), t("incomeType"), t("date"), t("beforeTax"), t("tax"), t("total"), t("paymentMethod"), t("description"), t("createdBy")].map((h, i) => (
-                  <th key={i} className={cn("px-4 md:px-6 py-4 text-xs font-bold whitespace-nowrap", isRTL ? "text-right" : "text-left")}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {details.manualIncome.length > 0 ? details.manualIncome.map((inc) => (
-                <tr key={inc.id} className="hover:bg-white/5 transition-colors">
-                  <td className="px-4 md:px-6 py-3.5"><span className="px-3 py-1 bg-amber-500/20 rounded-lg text-xs font-black text-amber-400 border border-amber-500/30">{inc.operation_number}</span></td>
-                  <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-white">{inc.income_type}</td>
-                  <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-slate-400">{formatDate(inc.income_date)}</td>
-                  <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-white tabular-nums">{formatNumber(inc.amount)}</td>
-                  <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-amber-400 tabular-nums">{formatNumber(inc.vat)}</td>
-                  <td className="px-4 md:px-6 py-3.5 text-base font-black text-emerald-400 tabular-nums">{formatNumber(inc.total)}</td>
-                  <td className="px-4 md:px-6 py-3.5"><span className="px-3 py-1 bg-white/10 rounded-lg text-xs font-bold text-slate-300 border border-white/10">{inc.payment_method}</span></td>
-                  <td className="px-4 md:px-6 py-3.5 text-sm text-slate-500 max-w-[200px] truncate">{inc.description}</td>
-                  <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-slate-500">{inc.created_by}</td>
+          <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
+            <table className="w-full">
+              <thead className="sticky top-0 z-10">
+                <tr className="bg-gradient-to-r from-slate-800 to-slate-900 text-white">
+                  {[t("operationNumber"), t("incomeType"), t("date"), t("beforeTax"), t("tax"), t("total"), t("paymentMethod"), t("description"), t("createdBy")].map((h, i) => (
+                    <th key={i} className={cn("px-4 md:px-6 py-4 text-xs font-bold whitespace-nowrap", isRTL ? "text-right" : "text-left")}>{h}</th>
+                  ))}
                 </tr>
-              )) : (
-                <EmptyRow colSpan={9} icon={Banknote} text={t("noManualIncome")} />
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {details.manualIncome.length > 0 ? details.manualIncome.map((inc) => (
+                  <tr key={inc.id} className="hover:bg-white/5 transition-colors">
+                    <td className="px-4 md:px-6 py-3.5"><span className="px-3 py-1 bg-amber-500/20 rounded-lg text-xs font-black text-amber-400 border border-amber-500/30">{inc.operation_number}</span></td>
+                    <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-white">{inc.income_type}</td>
+                    <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-slate-400">{formatDate(inc.income_date)}</td>
+                    <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-white tabular-nums">{formatNumber(inc.amount)}</td>
+                    <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-amber-400 tabular-nums">{formatNumber(inc.vat)}</td>
+                    <td className="px-4 md:px-6 py-3.5 text-base font-black text-emerald-400 tabular-nums">{formatNumber(inc.total)}</td>
+                    <td className="px-4 md:px-6 py-3.5"><span className="px-3 py-1 bg-white/10 rounded-lg text-xs font-bold text-slate-300 border border-white/10">{inc.payment_method}</span></td>
+                    <td className="px-4 md:px-6 py-3.5 text-sm text-slate-500 max-w-[200px] truncate">{inc.description}</td>
+                    <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-slate-500">{inc.created_by}</td>
+                  </tr>
+                )) : (
+                  <EmptyRow colSpan={9} icon={Banknote} text={t("noManualIncome")} />
+                )}
+              </tbody>
+            </table>
+          </div>
         </SectionAccordion>
 
         {/* ═══════════ Journal Revenue Entries Section ═══════════ */}
@@ -799,57 +813,59 @@ function ProfitLossContent() {
           subtitle={`${counts.journalRevenue} ${isRTL ? "قيد" : "entries"} - ${formatNumber(summary.journalRevenueTotal)} ${t("currency")}`}
           shadowColor="blue"
         >
-          <table className="w-full">
-            <thead>
-              <tr className="bg-gradient-to-r from-slate-800 to-slate-900 text-white">
-                {[
-                  isRTL ? "رقم القيد" : "Entry #",
-                  isRTL ? "التاريخ" : "Date",
-                  isRTL ? "الحساب" : "Account",
-                  isRTL ? "مركز التكلفة" : "Cost Center",
-                  isRTL ? "الوصف" : "Description",
-                  isRTL ? "مدين" : "Debit",
-                  isRTL ? "دائن" : "Credit",
-                  isRTL ? "الصافي" : "Net",
-                ].map((h, i) => (
-                  <th key={i} className={cn("px-4 md:px-6 py-4 text-xs font-bold whitespace-nowrap", isRTL ? "text-right" : "text-left")}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {details.journalRevenueEntries.length > 0 ? details.journalRevenueEntries.map((je) => (
-                <tr key={je.id} className="hover:bg-white/5 transition-colors">
-                  <td className="px-4 md:px-6 py-3.5"><span className="px-3 py-1 bg-blue-500/20 rounded-lg text-xs font-black text-blue-400 border border-blue-500/30">{je.entry_number}</span></td>
-                  <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-slate-400">{formatDate(je.entry_date)}</td>
-                  <td className="px-4 md:px-6 py-3.5">
-                    <div className="flex flex-col">
-                      <span className="text-xs font-black text-white">{je.account_code}</span>
-                      <span className="text-[10px] text-slate-500 truncate max-w-[120px]">{je.account_name}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 md:px-6 py-3.5">
-                    {je.cost_center_code ? (
-                      <span className="px-2 py-1 bg-purple-500/20 rounded-lg text-[10px] font-bold text-purple-400 border border-purple-500/30">{je.cost_center_code}</span>
-                    ) : <span className="text-slate-600">-</span>}
-                  </td>
-                  <td className="px-4 md:px-6 py-3.5 text-sm text-slate-400 max-w-[200px] truncate">{je.description}</td>
-                  <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-rose-400 tabular-nums">{je.debit > 0 ? formatNumber(je.debit) : "-"}</td>
-                  <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-emerald-400 tabular-nums">{je.credit > 0 ? formatNumber(je.credit) : "-"}</td>
-                  <td className="px-4 md:px-6 py-3.5 text-base font-black text-blue-400 tabular-nums">{formatNumber(je.net_amount)}</td>
+          <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
+            <table className="w-full">
+              <thead className="sticky top-0 z-10">
+                <tr className="bg-gradient-to-r from-slate-800 to-slate-900 text-white">
+                  {[
+                    isRTL ? "رقم القيد" : "Entry #",
+                    isRTL ? "التاريخ" : "Date",
+                    isRTL ? "الحساب" : "Account",
+                    isRTL ? "مركز التكلفة" : "Cost Center",
+                    isRTL ? "الوصف" : "Description",
+                    isRTL ? "مدين" : "Debit",
+                    isRTL ? "دائن" : "Credit",
+                    isRTL ? "الصافي" : "Net",
+                  ].map((h, i) => (
+                    <th key={i} className={cn("px-4 md:px-6 py-4 text-xs font-bold whitespace-nowrap", isRTL ? "text-right" : "text-left")}>{h}</th>
+                  ))}
                 </tr>
-              )) : (
-                <EmptyRow colSpan={8} icon={Book} text={isRTL ? "لا توجد إيرادات قيود يومية" : "No journal revenue entries"} />
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {details.journalRevenueEntries.length > 0 ? details.journalRevenueEntries.map((je) => (
+                  <tr key={je.id} className="hover:bg-white/5 transition-colors">
+                    <td className="px-4 md:px-6 py-3.5"><span className="px-3 py-1 bg-blue-500/20 rounded-lg text-xs font-black text-blue-400 border border-blue-500/30">{je.entry_number}</span></td>
+                    <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-slate-400">{formatDate(je.entry_date)}</td>
+                    <td className="px-4 md:px-6 py-3.5">
+                      <div className="flex flex-col">
+                        <span className="text-xs font-black text-white">{je.account_code}</span>
+                        <span className="text-[10px] text-slate-500 truncate max-w-[120px]">{je.account_name}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 md:px-6 py-3.5">
+                      {je.cost_center_code ? (
+                        <span className="px-2 py-1 bg-purple-500/20 rounded-lg text-[10px] font-bold text-purple-400 border border-purple-500/30">{je.cost_center_code}</span>
+                      ) : <span className="text-slate-600">-</span>}
+                    </td>
+                    <td className="px-4 md:px-6 py-3.5 text-sm text-slate-400 max-w-[200px] truncate">{je.description}</td>
+                    <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-rose-400 tabular-nums">{je.debit > 0 ? formatNumber(je.debit) : "-"}</td>
+                    <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-emerald-400 tabular-nums">{je.credit > 0 ? formatNumber(je.credit) : "-"}</td>
+                    <td className="px-4 md:px-6 py-3.5 text-base font-black text-blue-400 tabular-nums">{formatNumber(je.net_amount)}</td>
+                  </tr>
+                )) : (
+                  <EmptyRow colSpan={8} icon={Book} text={isRTL ? "لا توجد إيرادات قيود يومية" : "No journal revenue entries"} />
+                )}
+              </tbody>
+              {details.journalRevenueEntries.length > 0 && (
+                <tfoot>
+                  <tr className="bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border-t border-blue-500/20">
+                    <td colSpan={7} className={cn("px-4 md:px-6 py-4 font-black text-blue-300 text-sm", isRTL ? "text-right" : "text-left")}>{isRTL ? "إجمالي إيرادات القيود" : "Total Journal Revenue"}</td>
+                    <td className="px-4 md:px-6 py-4 font-black text-blue-400 text-base tabular-nums">{formatNumber(summary.journalRevenueTotal)}</td>
+                  </tr>
+                </tfoot>
               )}
-            </tbody>
-            {details.journalRevenueEntries.length > 0 && (
-              <tfoot>
-                <tr className="bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border-t border-blue-500/20">
-                  <td colSpan={7} className={cn("px-4 md:px-6 py-4 font-black text-blue-300 text-sm", isRTL ? "text-right" : "text-left")}>{isRTL ? "إجمالي إيرادات القيود" : "Total Journal Revenue"}</td>
-                  <td className="px-4 md:px-6 py-4 font-black text-blue-400 text-base tabular-nums">{formatNumber(summary.journalRevenueTotal)}</td>
-                </tr>
-              </tfoot>
-            )}
-          </table>
+            </table>
+          </div>
         </SectionAccordion>
 
         {/* Expenses Section */}
@@ -898,26 +914,28 @@ function ProfitLossContent() {
           subtitle={`${t("payrollCount", { count: counts.payrolls })} - ${formatNumber(summary.payrollsTotal)} ${t("currency")}`}
           shadowColor="purple"
         >
-          <table className="w-full">
-            <thead>
-              <tr className="bg-gradient-to-r from-slate-800 to-slate-900 text-white">
-                {[t("payrollMonth"), t("totalAmount"), t("creationDate")].map((h, i) => (
-                  <th key={i} className={cn("px-4 md:px-6 py-4 text-xs font-bold whitespace-nowrap", isRTL ? "text-right" : "text-left")}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {details.payrolls.length > 0 ? details.payrolls.map((pr) => (
-                <tr key={pr.id} className="hover:bg-white/5 transition-colors">
-                  <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-white">{pr.payroll_month}</td>
-                  <td className="px-4 md:px-6 py-3.5 text-base font-black text-red-400 tabular-nums">{formatNumber(pr.total_amount)}</td>
-                  <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-slate-400">{formatDate(pr.created_at)}</td>
+          <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
+            <table className="w-full">
+              <thead className="sticky top-0 z-10">
+                <tr className="bg-gradient-to-r from-slate-800 to-slate-900 text-white">
+                  {[t("payrollMonth"), t("totalAmount"), t("creationDate")].map((h, i) => (
+                    <th key={i} className={cn("px-4 md:px-6 py-4 text-xs font-bold whitespace-nowrap", isRTL ? "text-right" : "text-left")}>{h}</th>
+                  ))}
                 </tr>
-              )) : (
-                <EmptyRow colSpan={3} icon={Users} text={t("noPayrolls")} />
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {details.payrolls.length > 0 ? details.payrolls.map((pr) => (
+                  <tr key={pr.id} className="hover:bg-white/5 transition-colors">
+                    <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-white">{pr.payroll_month}</td>
+                    <td className="px-4 md:px-6 py-3.5 text-base font-black text-red-400 tabular-nums">{formatNumber(pr.total_amount)}</td>
+                    <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-slate-400">{formatDate(pr.created_at)}</td>
+                  </tr>
+                )) : (
+                  <EmptyRow colSpan={3} icon={Users} text={t("noPayrolls")} />
+                )}
+              </tbody>
+            </table>
+          </div>
         </SectionAccordion>
 
         {/* ═══════════ Journal Expense Entries Section ═══════════ */}
@@ -930,57 +948,59 @@ function ProfitLossContent() {
           subtitle={`${counts.journalExpense} ${isRTL ? "قيد" : "entries"} - ${formatNumber(summary.journalExpenseTotal)} ${t("currency")}`}
           shadowColor="amber"
         >
-          <table className="w-full">
-            <thead>
-              <tr className="bg-gradient-to-r from-slate-800 to-slate-900 text-white">
-                {[
-                  isRTL ? "رقم القيد" : "Entry #",
-                  isRTL ? "التاريخ" : "Date",
-                  isRTL ? "الحساب" : "Account",
-                  isRTL ? "مركز التكلفة" : "Cost Center",
-                  isRTL ? "الوصف" : "Description",
-                  isRTL ? "مدين" : "Debit",
-                  isRTL ? "دائن" : "Credit",
-                  isRTL ? "الصافي" : "Net",
-                ].map((h, i) => (
-                  <th key={i} className={cn("px-4 md:px-6 py-4 text-xs font-bold whitespace-nowrap", isRTL ? "text-right" : "text-left")}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {details.journalExpenseEntries.length > 0 ? details.journalExpenseEntries.map((je) => (
-                <tr key={je.id} className="hover:bg-white/5 transition-colors">
-                  <td className="px-4 md:px-6 py-3.5"><span className="px-3 py-1 bg-amber-500/20 rounded-lg text-xs font-black text-amber-400 border border-amber-500/30">{je.entry_number}</span></td>
-                  <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-slate-400">{formatDate(je.entry_date)}</td>
-                  <td className="px-4 md:px-6 py-3.5">
-                    <div className="flex flex-col">
-                      <span className="text-xs font-black text-white">{je.account_code}</span>
-                      <span className="text-[10px] text-slate-500 truncate max-w-[120px]">{je.account_name}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 md:px-6 py-3.5">
-                    {je.cost_center_code ? (
-                      <span className="px-2 py-1 bg-purple-500/20 rounded-lg text-[10px] font-bold text-purple-400 border border-purple-500/30">{je.cost_center_code}</span>
-                    ) : <span className="text-slate-600">-</span>}
-                  </td>
-                  <td className="px-4 md:px-6 py-3.5 text-sm text-slate-400 max-w-[200px] truncate">{je.description}</td>
-                  <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-rose-400 tabular-nums">{je.debit > 0 ? formatNumber(je.debit) : "-"}</td>
-                  <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-emerald-400 tabular-nums">{je.credit > 0 ? formatNumber(je.credit) : "-"}</td>
-                  <td className="px-4 md:px-6 py-3.5 text-base font-black text-amber-400 tabular-nums">{formatNumber(je.net_amount)}</td>
+          <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
+            <table className="w-full">
+              <thead className="sticky top-0 z-10">
+                <tr className="bg-gradient-to-r from-slate-800 to-slate-900 text-white">
+                  {[
+                    isRTL ? "رقم القيد" : "Entry #",
+                    isRTL ? "التاريخ" : "Date",
+                    isRTL ? "الحساب" : "Account",
+                    isRTL ? "مركز التكلفة" : "Cost Center",
+                    isRTL ? "الوصف" : "Description",
+                    isRTL ? "مدين" : "Debit",
+                    isRTL ? "دائن" : "Credit",
+                    isRTL ? "الصافي" : "Net",
+                  ].map((h, i) => (
+                    <th key={i} className={cn("px-4 md:px-6 py-4 text-xs font-bold whitespace-nowrap", isRTL ? "text-right" : "text-left")}>{h}</th>
+                  ))}
                 </tr>
-              )) : (
-                <EmptyRow colSpan={8} icon={Book} text={isRTL ? "لا توجد مصروفات قيود يومية" : "No journal expense entries"} />
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {details.journalExpenseEntries.length > 0 ? details.journalExpenseEntries.map((je) => (
+                  <tr key={je.id} className="hover:bg-white/5 transition-colors">
+                    <td className="px-4 md:px-6 py-3.5"><span className="px-3 py-1 bg-amber-500/20 rounded-lg text-xs font-black text-amber-400 border border-amber-500/30">{je.entry_number}</span></td>
+                    <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-slate-400">{formatDate(je.entry_date)}</td>
+                    <td className="px-4 md:px-6 py-3.5">
+                      <div className="flex flex-col">
+                        <span className="text-xs font-black text-white">{je.account_code}</span>
+                        <span className="text-[10px] text-slate-500 truncate max-w-[120px]">{je.account_name}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 md:px-6 py-3.5">
+                      {je.cost_center_code ? (
+                        <span className="px-2 py-1 bg-purple-500/20 rounded-lg text-[10px] font-bold text-purple-400 border border-purple-500/30">{je.cost_center_code}</span>
+                      ) : <span className="text-slate-600">-</span>}
+                    </td>
+                    <td className="px-4 md:px-6 py-3.5 text-sm text-slate-400 max-w-[200px] truncate">{je.description}</td>
+                    <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-rose-400 tabular-nums">{je.debit > 0 ? formatNumber(je.debit) : "-"}</td>
+                    <td className="px-4 md:px-6 py-3.5 text-sm font-bold text-emerald-400 tabular-nums">{je.credit > 0 ? formatNumber(je.credit) : "-"}</td>
+                    <td className="px-4 md:px-6 py-3.5 text-base font-black text-amber-400 tabular-nums">{formatNumber(je.net_amount)}</td>
+                  </tr>
+                )) : (
+                  <EmptyRow colSpan={8} icon={Book} text={isRTL ? "لا توجد مصروفات قيود يومية" : "No journal expense entries"} />
+                )}
+              </tbody>
+              {details.journalExpenseEntries.length > 0 && (
+                <tfoot>
+                  <tr className="bg-gradient-to-r from-amber-900/40 to-orange-900/40 border-t border-amber-500/20">
+                    <td colSpan={7} className={cn("px-4 md:px-6 py-4 font-black text-amber-300 text-sm", isRTL ? "text-right" : "text-left")}>{isRTL ? "إجمالي مصروفات القيود" : "Total Journal Expenses"}</td>
+                    <td className="px-4 md:px-6 py-4 font-black text-amber-400 text-base tabular-nums">{formatNumber(summary.journalExpenseTotal)}</td>
+                  </tr>
+                </tfoot>
               )}
-            </tbody>
-            {details.journalExpenseEntries.length > 0 && (
-              <tfoot>
-                <tr className="bg-gradient-to-r from-amber-900/40 to-orange-900/40 border-t border-amber-500/20">
-                  <td colSpan={7} className={cn("px-4 md:px-6 py-4 font-black text-amber-300 text-sm", isRTL ? "text-right" : "text-left")}>{isRTL ? "إجمالي مصروفات القيود" : "Total Journal Expenses"}</td>
-                  <td className="px-4 md:px-6 py-4 font-black text-amber-400 text-base tabular-nums">{formatNumber(summary.journalExpenseTotal)}</td>
-                </tr>
-              </tfoot>
-            )}
-          </table>
+            </table>
+          </div>
         </SectionAccordion>
 
         {/* ═══════════ Footer ═══════════ */}

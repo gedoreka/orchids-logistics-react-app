@@ -9,10 +9,14 @@ import { INITIAL_PREVIOUS_HASH, INVOICE_SUB_TYPES } from "@/lib/zatca/constants"
 import type { ZatcaEnvironment } from "@/lib/zatca/constants";
 import type { ZatcaInvoiceData } from "@/lib/zatca/types";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+export const dynamic = 'force-dynamic';
+
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
   process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key'
-);
+  );
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -133,7 +137,7 @@ export async function POST(request: NextRequest) {
     // Save failed submission
     try {
       const body = await request.clone().json();
-      await supabase.from("zatca_submissions").insert({
+      await getSupabase().from("zatca_submissions").insert({
         company_id: parseInt(body.company_id),
         document_type: body.document_type,
         document_id: body.document_id,

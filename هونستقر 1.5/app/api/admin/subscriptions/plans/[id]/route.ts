@@ -1,5 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { execute, query } from "@/lib/db";
+import { cookies } from "next/headers";
+
+async function requireAdmin(): Promise<boolean> {
+  const cookieStore = await cookies();
+  const session = cookieStore.get("auth_session");
+  if (!session) return false;
+  try { return JSON.parse(session.value).role === "admin"; } catch { return false; }
+}
 
 export async function GET(
   request: NextRequest,
@@ -29,6 +37,7 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  if (!(await requireAdmin())) return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
   try {
     const { id } = await params;
     const body = await request.json();
@@ -91,6 +100,7 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  if (!(await requireAdmin())) return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
   try {
     const { id } = await params;
     const subscriptions = await query(

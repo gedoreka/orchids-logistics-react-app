@@ -90,7 +90,7 @@ export function PageInstructions({
         </div>
         
         <div className="p-6 bg-white border-t border-gray-50 flex justify-center">
-          <p className="text-[10px] font-black text-gray-300 uppercase tracking-[0.2em]">Logistics Systems Pro • الذكاء في إدارة اللوجستيات</p>
+          <p className="text-[10px] font-black text-gray-300 uppercase tracking-[0.2em]">Logistics Hub • الذكاء في إدارة اللوجستيات</p>
         </div>
       </DialogContent>
     </Dialog>

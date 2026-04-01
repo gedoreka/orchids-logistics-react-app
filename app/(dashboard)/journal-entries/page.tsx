@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { JournalEntriesClient } from "./journal-entries-client";
 
 export const metadata = {
-  title: "القيود اليومية - Logistics Systems Pro",
+  title: "القيود اليومية - Logistics Hub",
 };
 
 export default async function JournalEntriesPage() {

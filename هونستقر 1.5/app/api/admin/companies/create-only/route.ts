@@ -1,11 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { execute } from "@/lib/db";
 import { createClient } from "@supabase/supabase-js";
+import { cookies } from "next/headers";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+export const dynamic = 'force-dynamic';
+
+async function requireAdmin(): Promise<boolean> {
+  const cookieStore = await cookies();
+  const session = cookieStore.get("auth_session");
+  if (!session) return false;
+  try { return JSON.parse(session.value).role === "admin"; } catch { return false; }
+}
+
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
   process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key'
-);
+  );
+}
 
 async function uploadFileToSupabase(file: File, folder: string): Promise<string | null> {
   try {
@@ -15,7 +27,7 @@ async function uploadFileToSupabase(file: File, folder: string): Promise<string 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    const { data, error } = await supabase.storage
+    const { data, error } = await getSupabase().storage
       .from('company-files')
       .upload(fileName, buffer, {
         contentType: file.type,
@@ -27,7 +39,7 @@ async function uploadFileToSupabase(file: File, folder: string): Promise<string 
       return null;
     }
 
-    const { data: urlData } = supabase.storage
+    const { data: urlData } = getSupabase().storage
       .from('company-files')
       .getPublicUrl(fileName);
 
@@ -39,6 +51,7 @@ async function uploadFileToSupabase(file: File, folder: string): Promise<string 
 }
 
 export async function POST(request: NextRequest) {
+  if (!(await requireAdmin())) return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
   try {
     const formData = await request.formData();
 

@@ -1051,7 +1051,7 @@ export default function PromissoryNotesClient() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[11px] font-black text-white/30 uppercase tracking-widest pt-6 border-t border-white/10">
             <div className="flex items-center gap-2">
               <Sparkles size={12} className="text-amber-400" />
-              <span>{isRtl ? 'نظام السندات القانونية - Logistics Systems Pro' : 'Legal Vouchers - Logistics Systems Pro'}</span>
+              <span>{isRtl ? 'نظام السندات القانونية - Logistics Hub' : 'Legal Vouchers - Logistics Hub'}</span>
             </div>
             <span className="bg-white/5 px-3 py-1 rounded-lg border border-white/10">{new Date().getFullYear()} © {isRtl ? 'جميع الحقوق محفوظة' : 'All Rights Reserved'}</span>
           </div>

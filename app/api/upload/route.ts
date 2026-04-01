@@ -1,15 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { cookies } from "next/headers";
 
-const supabaseUrl = process.env.SUPABASE_URL || "";
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+export const dynamic = 'force-dynamic';
+
+const ALLOWED_BUCKETS = new Set([
+  "chat-attachments", "driver-photos", "driver-files", "company-files",
+  "invoices", "receipts", "letters", "shipments", "employees",
+  "quotations", "credit-notes", "payment-vouchers", "income-files",
+  "fleet", "ecommerce", "letterheads",
+]);
+
+function getSupabase() {
+  return createClient(
+    process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+    process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key'
+  );
+}
 
 export async function POST(request: NextRequest) {
   try {
+    // Require authenticated session
+    const cookieStore = await cookies();
+    if (!cookieStore.get('auth_session')) {
+      return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+    }
+
     const formData = await request.formData();
     const file = formData.get("file") as File;
-    const bucket = formData.get("bucket") as string || "chat-attachments";
+    // Validate bucket against allowlist to prevent unauthorized bucket access
+    const rawBucket = (formData.get("bucket") as string) || "chat-attachments";
+    const bucket = ALLOWED_BUCKETS.has(rawBucket) ? rawBucket : "chat-attachments";
 
     if (!file) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
@@ -32,7 +53,7 @@ export async function POST(request: NextRequest) {
       ? sanitizedOriginalName 
       : `uploaded_file.${ext}`;
     const fileName = `${Date.now()}_${finalName}`;
-    const { data, error } = await supabase.storage
+    const { data, error } = await getSupabase().storage
       .from(bucket)
       .upload(fileName, buffer, {
         contentType: file.type,
@@ -43,7 +64,7 @@ export async function POST(request: NextRequest) {
       throw error;
     }
 
-    const { data: publicUrlData } = supabase.storage
+    const { data: publicUrlData } = getSupabase().storage
       .from(bucket)
       .getPublicUrl(fileName);
 
