@@ -5,9 +5,18 @@ import Cookies from 'js-cookie';
 
 import arMessages from '@/messages/ar.json';
 import enMessages from '@/messages/en.json';
+import urMessages from '@/messages/ur.json';
 
-type Locale = 'ar' | 'en';
+export type Locale = 'ar' | 'en' | 'ur';
 type Messages = typeof arMessages;
+
+export const LOCALE_ORDER: Locale[] = ['ar', 'en', 'ur'];
+
+export function getNextLocale(current: Locale): Locale {
+  const currentIndex = LOCALE_ORDER.indexOf(current);
+  const nextIndex = currentIndex >= 0 ? (currentIndex + 1) % LOCALE_ORDER.length : 0;
+  return LOCALE_ORDER[nextIndex];
+}
 
 interface LocaleContextType {
   locale: Locale;
@@ -23,6 +32,7 @@ const LocaleContext = createContext<LocaleContextType | undefined>(undefined);
 const messagesMap: Record<Locale, Messages> = {
   ar: arMessages,
   en: enMessages,
+  ur: urMessages,
 };
 
 export function LocaleProvider({ children }: { children: ReactNode }) {
@@ -30,8 +40,8 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const savedLocale = Cookies.get('NEXT_LOCALE') as Locale;
-    if (savedLocale && (savedLocale === 'ar' || savedLocale === 'en')) {
+    const savedLocale = Cookies.get('NEXT_LOCALE') as Locale | undefined;
+    if (savedLocale && LOCALE_ORDER.includes(savedLocale)) {
       setLocaleState(savedLocale);
     }
     setMounted(true);
@@ -40,7 +50,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (mounted) {
       document.documentElement.lang = locale;
-      document.documentElement.dir = locale === 'ar' ? 'rtl' : 'ltr';
+      document.documentElement.dir = locale === 'en' ? 'ltr' : 'rtl';
     }
   }, [locale, mounted]);
 
@@ -72,7 +82,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     return result;
   }, [locale]);
 
-  const isRTL = locale === 'ar';
+  const isRTL = locale !== 'en';
   const messages = messagesMap[locale];
 
   return (

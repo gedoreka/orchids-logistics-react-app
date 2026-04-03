@@ -30,7 +30,7 @@ export default async function RootLayout({
 }>) {
   const cookieStore = await import("next/headers").then((h) => h.cookies());
   const locale = (await cookieStore).get("NEXT_LOCALE")?.value || "ar";
-  const dir = locale === "ar" ? "rtl" : "ltr";
+  const dir = locale === "en" ? "ltr" : "rtl";
 
   return (
     <html 

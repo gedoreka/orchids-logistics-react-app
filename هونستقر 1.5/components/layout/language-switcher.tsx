@@ -1,41 +1,43 @@
 "use client";
 
-import { motion } from 'framer-motion';
-import { Globe } from 'lucide-react';
-import { useLocale } from '@/lib/locale-context';
+import { motion } from "framer-motion";
+import { Globe } from "lucide-react";
+import { useLocale, type Locale } from "@/lib/locale-context";
 import { cn } from "@/lib/utils";
 
-export function LanguageSwitcher() {
-  const { locale, setLocale, isRTL } = useLocale();
+const localeOptions: { code: Locale; label: string }[] = [
+  { code: "ar", label: "AR" },
+  { code: "en", label: "EN" },
+  { code: "ur", label: "UR" },
+];
 
-  const toggleLocale = () => {
-    const newLocale = locale === 'ar' ? 'en' : 'ar';
-    setLocale(newLocale);
-  };
+export function LanguageSwitcher() {
+  const { locale, setLocale } = useLocale();
 
   return (
-    <motion.button
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      onClick={toggleLocale}
-      className="relative flex items-center gap-2 h-9 px-3 bg-white/5 hover:bg-white/10 rounded-xl transition-all border border-white/10 group"
-    >
-      <Globe size={14} className="text-white/40 group-hover:text-violet-400 transition-colors" />
+    <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-2 py-1.5 backdrop-blur-md">
+      <Globe size={14} className="text-cyan-300/70" />
       <div className="flex items-center gap-1">
-        <span className={cn(
-          "text-[10px] font-black transition-colors",
-          isRTL ? "text-violet-400" : "text-white/20"
-        )}>
-          AR
-        </span>
-        <span className="text-white/10 text-[8px]">|</span>
-        <span className={cn(
-          "text-[10px] font-black transition-colors",
-          !isRTL ? "text-violet-400" : "text-white/20"
-        )}>
-          EN
-        </span>
+        {localeOptions.map((option) => {
+          const isActive = locale === option.code;
+          return (
+            <motion.button
+              key={option.code}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setLocale(option.code)}
+              className={cn(
+                "h-7 min-w-10 rounded-lg px-2 text-[10px] font-black transition-all",
+                isActive
+                  ? "bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/30"
+                  : "text-gray-300 hover:text-white hover:bg-white/10"
+              )}
+              aria-label={`Switch language to ${option.code}`}
+            >
+              {option.label}
+            </motion.button>
+          );
+        })}
       </div>
-    </motion.button>
+    </div>
   );
 }
