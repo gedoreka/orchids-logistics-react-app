@@ -47,7 +47,12 @@ export default async function TasksPage({ searchParams }: {
   }
 
     const tasks = (await cachedQuery(
-      `SELECT et.*, e.name as employee_name, e.iqama_number, u.name as created_by_name
+      `SELECT 
+        et.*, 
+        e.name as employee_name, 
+        e.iqama_number, 
+        e.job_title as employee_job_title,
+        u.name as created_by_name
        FROM employee_tasks et
        LEFT JOIN employees e ON et.assigned_to = e.id
        LEFT JOIN users u ON et.created_by = u.id

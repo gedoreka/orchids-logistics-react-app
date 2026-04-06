@@ -503,7 +503,16 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
     isOpen: boolean;
     missingFields: string[];
   }>({ isOpen: false, missingFields: [] });
-    
+
+  const openNativeDatePicker = (
+    event: React.MouseEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>
+  ) => {
+    const input = event.currentTarget as HTMLInputElement & { showPicker?: () => void };
+    if (typeof input.showPicker === "function") {
+      input.showPicker();
+    }
+  };
+
   const validateForm = () => {
     const missing: string[] = [];
     
@@ -622,7 +631,7 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
                       هل أنت متأكد من حفظ الفاتورة رقم
                     </p>
                     <p className="text-emerald-600 dark:text-emerald-400 font-black text-xl mt-2">
-                      "{invoiceNumber}"
+                        &quot;{invoiceNumber}&quot;
                     </p>
                     <div className="mt-4 pt-4 border-t border-emerald-200 dark:border-emerald-800 flex justify-center gap-6">
                       <div className="text-center">
@@ -811,7 +820,7 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
                     >
                       <p className="text-slate-500 font-bold text-sm mb-2">رقم الفاتورة:</p>
                       <p className="text-emerald-600 dark:text-emerald-400 font-black text-xl">
-                        "{invoiceNumber}"
+                        &quot;{invoiceNumber}&quot;
                       </p>
                       <div className="mt-4 pt-4 border-t border-emerald-200 dark:border-emerald-800">
                         <p className="text-emerald-600 font-black text-2xl">
@@ -1154,24 +1163,32 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
                       <label className="block text-[10px] font-black text-black uppercase mb-2">{t("issueDateLabel")}</label>
                       <div className="relative">
                         <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                        <input
-                            type="date"
-                            value={issueDate}
-                            onChange={(e) => setIssueDate(e.target.value)}
-                            className="w-full h-12 pr-12 pl-4 rounded-xl bg-white border border-gray-200 text-sm font-bold text-slate-900 focus:border-teal-500/30 outline-none transition-all"
-                          />
+                          <input
+                              type="date"
+                              lang="en-GB"
+                              inputMode="numeric"
+                              value={issueDate}
+                              onClick={openNativeDatePicker}
+                              onFocus={openNativeDatePicker}
+                              onChange={(e) => setIssueDate(e.target.value)}
+                              className="w-full h-12 pr-12 pl-4 rounded-xl bg-white border border-gray-200 text-sm font-bold text-slate-900 focus:border-teal-500/30 outline-none transition-all"
+                            />
                       </div>
                     </div>
                     <div>
                       <label className="block text-[10px] font-black text-black uppercase mb-2">{t("dueDateLabel")}</label>
                       <div className="relative">
                         <Clock className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                        <input
-                            type="date"
-                            value={dueDate}
-                            onChange={(e) => setDueDate(e.target.value)}
-                            className="w-full h-12 pr-12 pl-4 rounded-xl bg-white border border-gray-200 text-sm font-bold text-slate-900 focus:border-teal-500/30 outline-none transition-all"
-                          />
+                          <input
+                              type="date"
+                              lang="en-GB"
+                              inputMode="numeric"
+                              value={dueDate}
+                              onClick={openNativeDatePicker}
+                              onFocus={openNativeDatePicker}
+                              onChange={(e) => setDueDate(e.target.value)}
+                              className="w-full h-12 pr-12 pl-4 rounded-xl bg-white border border-gray-200 text-sm font-bold text-slate-900 focus:border-teal-500/30 outline-none transition-all"
+                            />
                       </div>
                     </div>
                   <div className="p-3 bg-teal-50 rounded-xl border border-teal-100 flex items-center gap-2">
@@ -1320,17 +1337,25 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
                             )}
                           </td>
                         <td className="px-4 py-4">
-                            <input
-                              type="date"
-                              value={item.period_from}
-                              onChange={(e) => handleItemChange(index, 'period_from', e.target.value)}
-                              className="w-full px-2 py-2 rounded-xl bg-white border border-gray-200 text-[10px] font-bold text-slate-900 focus:border-emerald-500/30 outline-none"
-                            />
+                              <input
+                                type="date"
+                                lang="en-GB"
+                                inputMode="numeric"
+                                value={item.period_from}
+                                onClick={openNativeDatePicker}
+                                onFocus={openNativeDatePicker}
+                                onChange={(e) => handleItemChange(index, 'period_from', e.target.value)}
+                                className="w-full px-2 py-2 rounded-xl bg-white border border-gray-200 text-[10px] font-bold text-slate-900 focus:border-emerald-500/30 outline-none"
+                              />
                         </td>
                           <td className="px-4 py-4">
                             <input
                               type="date"
+                              lang="en-GB"
+                              inputMode="numeric"
                               value={item.period_to}
+                              onClick={openNativeDatePicker}
+                              onFocus={openNativeDatePicker}
                               onChange={(e) => handleItemChange(index, 'period_to', e.target.value)}
                               className="w-full px-2 py-2 rounded-xl bg-white border border-gray-200 text-[10px] font-bold text-slate-900 focus:border-emerald-500/30 outline-none"
                             />

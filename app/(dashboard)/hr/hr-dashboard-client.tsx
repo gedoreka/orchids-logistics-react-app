@@ -227,20 +227,20 @@ export function HRDashboardClient({ stats, activePackages, recentEmployees, comp
                     <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-full -translate-y-16 translate-x-16 dark:hidden z-0" />
                     <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-emerald-500/10 to-teal-500/10 rounded-full translate-y-12 -translate-x-12 dark:hidden z-0" />
                     <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tr from-amber-500/10 to-orange-500/10 rounded-full translate-y-12 translate-x-12 dark:hidden z-0" />
-                  <div className="bg-gradient-to-r from-violet-100 via-purple-100 to-indigo-100 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 px-8 py-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-2xl bg-violet-200/50 dark:bg-white/10 flex items-center justify-center border border-violet-300/50 dark:border-white/10">
-                          <Package className="text-violet-600 dark:text-white" size={24} />
+                    <div className="bg-gradient-to-r from-purple-600 to-violet-600 px-8 py-6">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="h-12 w-12 rounded-2xl bg-white/20 flex items-center justify-center border border-white/10">
+                            <Package className="text-white" size={24} />
+                          </div>
+                          <div>
+                            <h3 className="text-white text-lg font-black">{t('activePackages')}</h3>
+                            <p className="text-purple-100 text-xs font-bold opacity-80">{activePackages.length} {isRTL ? 'باقة نشطة' : 'active packages'}</p>
+                          </div>
                         </div>
-                        <div>
-                          <h3 className="text-slate-900 dark:text-white text-lg font-black">{t('activePackages')}</h3>
-                          <p className="text-slate-600 dark:text-slate-400 text-xs font-bold">{activePackages.length} {isRTL ? 'باقة نشطة' : 'active packages'}</p>
-                        </div>
+                        <Link href="/hr/packages" className="text-xs font-black text-white hover:text-purple-100 transition-colors bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl border border-white/20">{tCommon('viewAll')}</Link>
                       </div>
-                      <Link href="/hr/packages" className="text-xs font-black text-slate-700 dark:text-white hover:text-violet-600 transition-colors bg-violet-100/50 dark:bg-white/5 px-4 py-2 rounded-xl border border-violet-200/60 dark:border-white/10">{tCommon('viewAll')}</Link>
                     </div>
-                  </div>
 
                   <div className="p-8">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">

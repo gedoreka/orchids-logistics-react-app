@@ -4,17 +4,17 @@ import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   ListTodo, Plus, Search, Trash2, CheckCircle2, Clock, AlertTriangle, 
-  X, Save, User, Calendar, LayoutDashboard, ArrowRight, Eye, Edit2,
-  Send, AtSign, Loader2, Printer, Bell, Target, Users, Filter,
-  ChevronDown, Star, Sparkles, Zap, Timer, Flag, Mail, Building2
+  X, Save, User, Calendar, LayoutDashboard, ArrowRight, Eye,
+  Send, AtSign, Loader2, Printer, Target, Users, Filter,
+  ChevronDown, Star, Sparkles, Zap, Timer, Flag, Briefcase, Paperclip, ExternalLink, IdCard
 } from "lucide-react";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
-import { toast } from "sonner";
 import { createTask, updateTaskStatus, deleteTask } from "@/lib/actions/hr";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useTranslations } from "@/lib/locale-context";
+import { ConfirmModal, ErrorModal, NotificationModal } from "@/components/ui/notification-modals";
 
 interface Task {
   id: number;
@@ -23,6 +23,10 @@ interface Task {
   assigned_to: number | null;
   employee_name: string | null;
   iqama_number: string | null;
+  employee_job_title?: string | null;
+  attachment_url?: string | null;
+  attachment_name?: string | null;
+  attachment_type?: string | null;
   due_date: string;
   priority: string;
   status: string;
@@ -91,12 +95,42 @@ export function TasksClient({
     const [emailTask, setEmailTask] = useState<Task | null>(null);
     const [customEmail, setCustomEmail] = useState("");
     const [isSendingEmail, setIsSendingEmail] = useState(false);
-    const [showEmployeeSelector, setShowEmployeeSelector] = useState(false);
-    const [employeeSearch, setEmployeeSearch] = useState("");
-    const [isEditMode, setIsEditMode] = useState(false);
-    const [mounted, setMounted] = useState(false);
-    const router = useRouter();
-    const printRef = useRef<HTMLDivElement>(null);
+  const [showEmployeeSelector, setShowEmployeeSelector] = useState(false);
+  const [employeeSearch, setEmployeeSearch] = useState("");
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
+  const [attachmentUploading, setAttachmentUploading] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const router = useRouter();
+  const printRef = useRef<HTMLDivElement>(null);
+
+  type ModalState =
+    | { type: "idle" }
+    | { type: "delete-confirm"; title: string; description?: string; onConfirm: () => Promise<void> }
+    | { type: "processing"; title: string; description?: string }
+    | { type: "success"; variant: "delete" | "update" | "create"; title: string; details?: string[] }
+    | { type: "error"; title: string; message: string };
+
+  const [modal, setModal] = useState<ModalState>({ type: "idle" });
+  const [modalLoading, setModalLoading] = useState(false);
+
+  const showSavingModal = (section: string) => {
+    setModal({
+      type: "processing",
+      title: "جاري حفظ التعديلات...",
+      description: `القسم: ${section}`,
+    });
+  };
+
+  const showSavedModal = (section: string, details: string[] = [], variant: "delete" | "update" | "create" = "update") => {
+    setModal({
+      type: "success",
+      variant,
+      title: "تم الحفظ بنجاح",
+      details: [`القسم: ${section}`, ...details].filter(Boolean),
+    });
+  };
+
 
     useEffect(() => {
       setMounted(true);
@@ -133,6 +167,24 @@ export function TasksClient({
     status: "pending"
   });
 
+  const uploadTaskAttachment = async (file: File) => {
+    const form = new FormData();
+    form.append("file", file);
+    form.append("bucket", "letters");
+
+    const res = await fetch("/api/upload", { method: "POST", body: form });
+    const data = await res.json();
+    if (!res.ok || data.error || !data.url) {
+      throw new Error(data.error || t("errorOccurred"));
+    }
+
+    return {
+      attachment_url: data.url as string,
+      attachment_name: (data.name as string) || file.name,
+      attachment_type: (data.type as string) || file.type || "application/octet-stream",
+    };
+  };
+
   const resetForm = () => {
     setFormData({
       title: "",
@@ -142,6 +194,8 @@ export function TasksClient({
       priority: "medium",
       status: "pending"
     });
+    setAttachmentFile(null);
+    setAttachmentUploading(false);
     setIsEditMode(false);
     setSelectedTask(null);
   };
@@ -149,43 +203,88 @@ export function TasksClient({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    showSavingModal("المهام");
+
     try {
-      const result = await createTask({ ...formData, company_id: companyId, created_by: userId });
+      let attachmentPayload: Record<string, string | null> = {
+        attachment_url: null,
+        attachment_name: null,
+        attachment_type: null,
+      };
+
+      if (attachmentFile) {
+        setAttachmentUploading(true);
+        attachmentPayload = await uploadTaskAttachment(attachmentFile);
+        setAttachmentUploading(false);
+      }
+
+      const result = await createTask({
+        ...formData,
+        ...attachmentPayload,
+        company_id: companyId,
+        created_by: userId,
+      });
+
       if (result.success) {
-        toast.success(t("taskCreatedSuccess"));
+        showSavedModal(
+          "المهام",
+          [
+            `المهمة: ${formData.title}`,
+            selectedEmployee ? `الموظف: ${selectedEmployee.name}` : "الموظف: غير معين",
+            selectedEmployee?.iqama_number ? `رقم الهوية: ${selectedEmployee.iqama_number}` : "",
+            selectedEmployee?.job_title ? `المسمى الوظيفي: ${selectedEmployee.job_title}` : "",
+            attachmentPayload.attachment_name ? `المرفق: ${attachmentPayload.attachment_name}` : "",
+          ],
+          "create"
+        );
         setIsModalOpen(false);
         resetForm();
         router.refresh();
       } else {
-        toast.error(result.error);
+        setModal({ type: "error", title: "فشل إنشاء المهمة", message: result.error || t("errorOccurred") });
       }
-    } catch (error) {
-      toast.error(t("errorOccurred"));
+    } catch (error: any) {
+      setModal({ type: "error", title: "فشل إنشاء المهمة", message: error?.message || t("errorOccurred") });
     } finally {
       setIsLoading(false);
+      setAttachmentUploading(false);
     }
   };
 
   const handleStatusUpdate = async (id: number, status: string) => {
+    const task = tasks.find((item) => item.id === id);
+    showSavingModal("المهام");
+
     const result = await updateTaskStatus(id, status);
     if (result.success) {
-      toast.success(t("statusUpdatedSuccess"));
-      setTasks(prev => prev.map(t => t.id === id ? { ...t, status } : t));
+      setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, status } : t)));
+      showSavedModal("المهام", [
+        `المهمة: ${task?.title || `#${id}`}`,
+        `الحالة الجديدة: ${statusConfig[status as keyof typeof statusConfig]?.label || status}`,
+      ]);
       router.refresh();
     } else {
-      toast.error(result.error);
+      setModal({ type: "error", title: "فشل تحديث الحالة", message: result.error || t("errorOccurred") });
     }
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm(t("deleteConfirm"))) return;
-    const result = await deleteTask(id);
-    if (result.success) {
-      toast.success(t("taskDeletedSuccess"));
-      setTasks(prev => prev.filter(t => t.id !== id));
-    } else {
-      toast.error(result.error);
-    }
+    const task = tasks.find((item) => item.id === id);
+    setModal({
+      type: "delete-confirm",
+      title: "حذف المهمة",
+      description: task?.title || `#${id}`,
+      onConfirm: async () => {
+        showSavingModal("المهام");
+          const result = await deleteTask(id, companyId);
+        if (result.success) {
+          setTasks((prev) => prev.filter((t) => t.id !== id));
+          showSavedModal("المهام", [`العملية: حذف`, `المهمة: ${task?.title || `#${id}`}`], "delete");
+        } else {
+          setModal({ type: "error", title: "فشل حذف المهمة", message: result.error || t("errorOccurred") });
+        }
+      },
+    });
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -205,120 +304,221 @@ export function TasksClient({
 
   const handleSendEmail = async () => {
     if (!emailTask || !customEmail) {
-      toast.error(t("emailRequired"));
+      setModal({ type: "error", title: "بيانات ناقصة", message: t("emailRequired") });
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(customEmail)) {
-      toast.error(t("invalidEmail"));
+      setModal({ type: "error", title: "صيغة البريد غير صحيحة", message: t("invalidEmail") });
       return;
     }
 
     setIsSendingEmail(true);
-    
+    showSavingModal("المهام");
+
     try {
       const res = await fetch("/api/tasks/send-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           recipientEmail: customEmail,
-          task: emailTask
-        })
+          task: emailTask,
+        }),
       });
 
       const data = await res.json();
-      
+
       if (data.success) {
-        toast.success(t("emailSentSuccess", { email: customEmail }));
+        showSavedModal("المهام", [
+          `العملية: إرسال بريد`,
+          `المهمة: ${emailTask.title}`,
+          `إلى: ${customEmail}`,
+          emailTask.attachment_name ? `المرفق: ${emailTask.attachment_name}` : "",
+        ]);
         setShowEmailModal(false);
         setEmailTask(null);
         setCustomEmail("");
       } else {
-        toast.error(data.error || t("errorOccurred"));
+        setModal({ type: "error", title: "فشل إرسال البريد", message: data.error || t("errorOccurred") });
       }
     } catch (error) {
       console.error("Error sending email:", error);
-      toast.error(t("errorOccurred"));
+      setModal({ type: "error", title: "فشل إرسال البريد", message: t("errorOccurred") });
     } finally {
       setIsSendingEmail(false);
     }
   };
 
   const handlePrint = (task: Task) => {
+    const priorityLabel = priorityConfig[task.priority as keyof typeof priorityConfig]?.label || task.priority;
+    const statusLabel = statusConfig[task.status as keyof typeof statusConfig]?.label || task.status;
+
     const printContent = `
       <!DOCTYPE html>
       <html dir="rtl" lang="ar">
       <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>مهمة - ${task.title}</title>
         <style>
-          @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
-          * { margin: 0; padding: 0; box-sizing: border-box; }
-          body { font-family: 'Tajawal', sans-serif; direction: rtl; background: #f8fafc; padding: 40px; }
-          .container { max-width: 800px; margin: 0 auto; background: white; border-radius: 24px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.1); }
-          .header { background: linear-gradient(135deg, #8b5cf6, #6366f1); padding: 40px; text-align: center; color: white; }
-          .header h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
-          .header p { opacity: 0.9; }
-          .content { padding: 40px; }
-          .task-title { font-size: 24px; font-weight: 800; color: #1e293b; margin-bottom: 16px; text-align: center; }
-          .task-desc { color: #64748b; line-height: 1.8; margin-bottom: 32px; text-align: center; padding: 20px; background: #f8fafc; border-radius: 16px; }
-          .details { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-          .detail-item { padding: 16px 20px; background: #f8fafc; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
-          .detail-label { color: #64748b; font-weight: 600; }
-          .detail-value { color: #1e293b; font-weight: 700; }
+          @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
+          * { box-sizing: border-box; }
+          body {
+            margin: 0;
+            font-family: 'Cairo', sans-serif;
+            background: #eef0f4;
+            color: #0f172a;
+            padding: 30px;
+          }
+          .sheet {
+            max-width: 860px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 28px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+          }
+          .hero {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+            color: #fff;
+            text-align: center;
+            padding: 34px 24px 28px;
+          }
+          .hero h1 {
+            margin: 0;
+            font-size: 48px;
+            line-height: 1;
+          }
+          .hero h2 {
+            margin: 10px 0 0;
+            font-size: 42px;
+            font-weight: 900;
+          }
+          .hero p {
+            margin: 8px 0 0;
+            opacity: 0.92;
+            font-size: 18px;
+            font-weight: 600;
+          }
+          .content { padding: 34px 42px 26px; }
+          .task-title {
+            margin: 0;
+            text-align: center;
+            font-size: 44px;
+            color: #1e293b;
+            font-weight: 900;
+            line-height: 1.2;
+          }
+          .task-desc {
+            margin: 24px 0;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            line-height: 1.9;
+            color: #475569;
+            font-size: 21px;
+            font-weight: 600;
+          }
+          .grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+          }
+          .box {
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            border-radius: 14px;
+            padding: 16px 18px;
+          }
+          .label {
+            color: #64748b;
+            font-size: 17px;
+            margin-bottom: 6px;
+            font-weight: 700;
+          }
+          .value {
+            color: #0f172a;
+            font-size: 26px;
+            font-weight: 800;
+            line-height: 1.4;
+            word-break: break-word;
+          }
           .priority-high { color: #ef4444; }
           .priority-medium { color: #f59e0b; }
-          .priority-low { color: #22c55e; }
-          .footer { padding: 24px 40px; background: #0f172a; text-align: center; color: #64748b; font-size: 12px; }
-          @media print { body { padding: 0; } .container { box-shadow: none; } }
+          .priority-low { color: #16a34a; }
+          .attachment {
+            margin-top: 14px;
+            border: 1px dashed #8b5cf6;
+            background: #f5f3ff;
+            border-radius: 14px;
+            padding: 16px 18px;
+          }
+          .attachment-note {
+            margin-top: 8px;
+            color: #6d28d9;
+            font-size: 15px;
+            font-weight: 700;
+          }
+          .footer {
+            background: #0b1738;
+            color: #cbd5e1;
+            text-align: center;
+            padding: 14px 20px;
+            font-size: 14px;
+            font-weight: 700;
+          }
+          @page { size: A4; margin: 12mm; }
+          @media print {
+            body { background: #fff; padding: 0; }
+            .sheet { box-shadow: none; border-color: #d1d5db; }
+          }
         </style>
       </head>
       <body>
-        <div class="container">
-          <div class="header">
-            <h1>📋 تفاصيل المهمة</h1>
+        <div class="sheet">
+          <div class="hero">
+            <h1>📋</h1>
+            <h2>تفاصيل المهمة</h2>
             <p>نظام إدارة المهام</p>
           </div>
+
           <div class="content">
-            <h2 class="task-title">${task.title}</h2>
-            ${task.description ? `<div class="task-desc">${task.description}</div>` : ''}
-            <div class="details">
-              <div class="detail-item">
-                <span class="detail-label">🎯 الأولوية</span>
-                <span class="detail-value priority-${task.priority}">${priorityConfig[task.priority as keyof typeof priorityConfig]?.label || task.priority}</span>
-              </div>
-              <div class="detail-item">
-                <span class="detail-label">📊 الحالة</span>
-                <span class="detail-value">${statusConfig[task.status as keyof typeof statusConfig]?.label || task.status}</span>
-              </div>
-              <div class="detail-item">
-                <span class="detail-label">📅 تاريخ الاستحقاق</span>
-                <span class="detail-value">${task.due_date}</span>
-              </div>
-              <div class="detail-item">
-                <span class="detail-label">👤 الموظف المعني</span>
-                <span class="detail-value">${task.employee_name || 'غير معين'}</span>
-              </div>
-              <div class="detail-item">
-                <span class="detail-label">✍️ أنشئت بواسطة</span>
-                <span class="detail-value">${task.created_by_name || 'غير معروف'}</span>
-              </div>
-              <div class="detail-item">
-                <span class="detail-label">📆 تاريخ الإنشاء</span>
-                <span class="detail-value">${task.created_at ? format(new Date(task.created_at), 'yyyy-MM-dd', { locale: ar }) : '-'}</span>
-              </div>
+            <h3 class="task-title">${task.title}</h3>
+            ${task.description ? `<div class="task-desc">${task.description}</div>` : ""}
+
+            <div class="grid">
+              <div class="box"><div class="label">🎯 الأولوية</div><div class="value priority-${task.priority}">${priorityLabel}</div></div>
+              <div class="box"><div class="label">📊 الحالة</div><div class="value">${statusLabel}</div></div>
+              <div class="box"><div class="label">📅 تاريخ الاستحقاق</div><div class="value">${task.due_date || "-"}</div></div>
+              <div class="box"><div class="label">👤 الموظف المعني</div><div class="value">${task.employee_name || t("unassigned")}</div></div>
+              <div class="box"><div class="label">🪪 رقم الهوية</div><div class="value">${task.iqama_number || "-"}</div></div>
+              <div class="box"><div class="label">💼 المسمى الوظيفي</div><div class="value">${task.employee_job_title || "-"}</div></div>
+              <div class="box"><div class="label">✍️ أُنشئت بواسطة</div><div class="value">${task.created_by_name || t("unknownUser")}</div></div>
+              <div class="box"><div class="label">📆 تاريخ الإنشاء</div><div class="value">${task.created_at ? format(new Date(task.created_at), 'yyyy-MM-dd', { locale: ar }) : "-"}</div></div>
             </div>
+
+            ${task.attachment_url ? `
+              <div class="attachment">
+                <div class="label">📎 الخطاب / المرفق</div>
+                <div class="value" style="font-size:20px;">${task.attachment_name || "مرفق المهمة"}</div>
+                <div class="attachment-note">هذا المرفق يتم إرساله مع البريد الإلكتروني كمرفق فعلي.</div>
+              </div>
+            ` : ""}
           </div>
+
           <div class="footer">
-            <p>تم الطباعة من نظام إدارة اللوجستيات © ${new Date().getFullYear()}</p>
+            تم الطباعة من نظام إدارة اللوجستيات © ${new Date().getFullYear()}
           </div>
         </div>
       </body>
       </html>
     `;
 
-    const printWindow = window.open('', '_blank');
+    const printWindow = window.open("", "_blank");
     if (printWindow) {
       printWindow.document.write(printContent);
       printWindow.document.close();
@@ -536,30 +736,67 @@ export function TasksClient({
                     <div className="space-y-2">
                       <label className="text-xs font-black text-slate-400 uppercase tracking-wider mr-1">{t("assignedEmployee")}</label>
                       <div className="relative">
-                        <button
-                          type="button"
-                          onClick={() => setShowEmployeeSelector(true)}
-                          className="w-full bg-slate-700/50 border border-slate-600/50 rounded-2xl py-4 px-5 font-bold text-right flex items-center justify-between hover:border-violet-500/50 transition-all"
-                        >
-                          {selectedEmployee ? (
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white font-bold">
-                                {selectedEmployee.name.charAt(0)}
+                          <button
+                            type="button"
+                            onClick={() => setShowEmployeeSelector(true)}
+                            className="w-full bg-slate-700/50 border border-slate-600/50 rounded-2xl py-4 px-5 font-bold text-right flex items-center justify-between hover:border-violet-500/50 transition-all"
+                          >
+                            {selectedEmployee ? (
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white font-bold">
+                                  {selectedEmployee.name.charAt(0)}
+                                </div>
+                                <div className="text-right">
+                                  <p className="text-white font-bold">{selectedEmployee.name}</p>
+                                  <p className="text-slate-400 text-xs">{selectedEmployee.iqama_number || selectedEmployee.user_code}</p>
+                                </div>
                               </div>
-                              <div className="text-right">
-                                <p className="text-white font-bold">{selectedEmployee.name}</p>
-                                <p className="text-slate-400 text-xs">{selectedEmployee.iqama_number || selectedEmployee.user_code}</p>
-                              </div>
-                            </div>
-                          ) : (
-                            <span className="text-slate-400">{t("selectEmployee")}</span>
-                          )}
-                          <ChevronDown className="text-slate-400" size={20} />
-                        </button>
-                      </div>
-                    </div>
+                            ) : (
+                              <span className="text-slate-400">{t("selectEmployee")}</span>
+                            )}
+                            <ChevronDown className="text-slate-400" size={20} />
+                          </button>
+                        </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                        {selectedEmployee && (
+                          <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div className="rounded-2xl bg-slate-700/40 border border-slate-600/50 p-3">
+                              <p className="text-[11px] font-black text-slate-400 mb-1">رقم الهوية</p>
+                              <p className="text-sm font-bold text-white flex items-center gap-2"><IdCard className="w-4 h-4 text-violet-400" />{selectedEmployee.iqama_number || "-"}</p>
+                            </div>
+                            <div className="rounded-2xl bg-slate-700/40 border border-slate-600/50 p-3">
+                              <p className="text-[11px] font-black text-slate-400 mb-1">المسمى الوظيفي</p>
+                              <p className="text-sm font-bold text-white flex items-center gap-2"><Briefcase className="w-4 h-4 text-violet-400" />{selectedEmployee.job_title || "-"}</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-xs font-black text-slate-400 uppercase tracking-wider mr-1">خطاب / مرفق المهمة</label>
+                        <input
+                          type="file"
+                          accept="application/pdf,image/*"
+                          onChange={(e) => setAttachmentFile(e.target.files?.[0] || null)}
+                          className="w-full bg-slate-700/50 border border-slate-600/50 rounded-2xl py-3 px-4 font-bold text-sm text-slate-200 file:ml-3 file:mr-0 file:rounded-xl file:border-0 file:bg-violet-500/20 file:text-violet-200 file:px-4 file:py-2 file:font-black"
+                        />
+                        <p className="text-xs text-slate-500">PDF أو صورة. سيتم إرفاقه مع المهمة وضمن البريد الإلكتروني.</p>
+                        {attachmentFile && (
+                          <div className="rounded-xl border border-violet-500/30 bg-violet-500/10 p-3 text-xs text-violet-200 flex items-center gap-2">
+                            <Paperclip className="w-4 h-4" />
+                            <span className="font-bold">{attachmentFile.name}</span>
+                          </div>
+                        )}
+                        {attachmentUploading && (
+                          <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200 flex items-center gap-2">
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span className="font-bold">جاري رفع المرفق...</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+
                       <div className="space-y-2">
                         <label className="text-xs font-black text-slate-400 uppercase tracking-wider mr-1">{t("dueDate")}</label>
                         <input
@@ -773,24 +1010,48 @@ export function TasksClient({
                       )}
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <DetailItem 
-                        icon={Target} 
-                        label={t("priority")} 
-                        value={priorityConfig[selectedTask.priority as keyof typeof priorityConfig]?.label || selectedTask.priority}
-                        color={priorityConfig[selectedTask.priority as keyof typeof priorityConfig]?.text}
-                      />
-                      <DetailItem 
-                        icon={statusConfig[selectedTask.status as keyof typeof statusConfig]?.icon || Clock} 
-                        label={t("status")} 
-                        value={statusConfig[selectedTask.status as keyof typeof statusConfig]?.label || selectedTask.status}
-                        color={statusConfig[selectedTask.status as keyof typeof statusConfig]?.text}
-                      />
-                      <DetailItem icon={Calendar} label={t("dueDate")} value={selectedTask.due_date} />
-                      <DetailItem icon={User} label={t("assignedEmployee")} value={selectedTask.employee_name || t("unassigned")} />
-                    </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <DetailItem 
+                          icon={Target} 
+                          label={t("priority")} 
+                          value={priorityConfig[selectedTask.priority as keyof typeof priorityConfig]?.label || selectedTask.priority}
+                          color={priorityConfig[selectedTask.priority as keyof typeof priorityConfig]?.text}
+                        />
+                        <DetailItem 
+                          icon={statusConfig[selectedTask.status as keyof typeof statusConfig]?.icon || Clock} 
+                          label="الحالة" 
+                          value={statusConfig[selectedTask.status as keyof typeof statusConfig]?.label || selectedTask.status}
+                          color={statusConfig[selectedTask.status as keyof typeof statusConfig]?.text}
+                        />
+                        <DetailItem icon={Calendar} label={t("dueDate")} value={selectedTask.due_date} />
+                        <DetailItem icon={User} label={t("assignedEmployee")} value={selectedTask.employee_name || t("unassigned")} />
+                        <DetailItem icon={IdCard} label="رقم الهوية" value={selectedTask.iqama_number || "-"} />
+                        <DetailItem icon={Briefcase} label="المسمى الوظيفي" value={selectedTask.employee_job_title || "-"} />
+                      </div>
 
-                    <div className="flex gap-3 pt-4">
+                      {selectedTask.attachment_url && (
+                        <div className="rounded-2xl border border-violet-500/30 bg-violet-500/10 p-4">
+                          <div className="flex items-center justify-between gap-3">
+                            <div>
+                              <p className="text-xs font-black text-violet-300 mb-1">📎 خطاب المهمة المرفق</p>
+                              <p className="text-sm font-bold text-white">{selectedTask.attachment_name || "مرفق المهمة"}</p>
+                              <p className="text-xs text-violet-200/80 mt-1">هذا المرفق يُرسل أيضًا مع البريد الإلكتروني.</p>
+                            </div>
+                            <a
+                              href={selectedTask.attachment_url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 text-violet-200 hover:bg-white/20 transition-all text-sm font-bold"
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                              عرض الملف
+                            </a>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="flex gap-3 pt-4">
+
                       <button
                         onClick={() => handlePrint(selectedTask)}
                         className="flex-1 flex items-center justify-center gap-2 bg-slate-700 text-white py-3 rounded-xl font-bold hover:bg-slate-600 transition-all"

@@ -155,6 +155,7 @@ export function EmployeeDetailsClient({
 
   const [personalInfo, setPersonalInfo] = useState({
     iqama_number: employee.iqama_number || "",
+    name: employee.name || "",
     name_en: employee.name_en || "",
     job_title: employee.job_title || "",
     user_code: employee.user_code || "",
@@ -210,6 +211,23 @@ export function EmployeeDetailsClient({
 
   useEffect(() => { setMounted(true); }, []);
 
+  const showSavingModal = (section: string) => {
+    setModal({
+      type: 'processing',
+      title: 'جاري حفظ التعديلات...',
+      description: `القسم: ${section}`,
+    });
+  };
+
+  const showSavedModal = (section: string, details: string[] = []) => {
+    setModal({
+      type: 'success',
+      variant: 'update',
+      title: 'تم الحفظ بنجاح',
+      details: [`القسم: ${section}`, ...details].filter(Boolean),
+    });
+  };
+
   if (!mounted) {
     return (
       <div className="flex h-[calc(100vh-100px)] w-full px-2 animate-pulse gap-5">
@@ -219,50 +237,52 @@ export function EmployeeDetailsClient({
     );
   }
 
-    const handleUpdatePersonal = async (e: React.FormEvent) => {
-      e.preventDefault();
-      setModal({ type: 'processing', title: 'جاري حفظ البيانات الشخصية...', description: 'يرجى الانتظار' });
-      const result = await updateEmployeePersonalInfo(employee.id, personalInfo);
-      if (result.success) {
-        setModal({ type: 'success', variant: 'update', title: 'تم تحديث البيانات الشخصية', details: [
-          `الموظف: ${employee.name}`,
-          `رقم الهوية: ${personalInfo.iqama_number}`,
-          `المسمى الوظيفي: ${personalInfo.job_title}`
-        ]});
-        setIsEditing(false);
-        router.refresh();
-      } else {
-        setModal({ type: 'error', title: 'فشل تحديث البيانات', message: result.error || 'حدث خطأ غير متوقع' });
-      }
-    };
+  const handleUpdatePersonal = async (e: React.FormEvent) => {
+    e.preventDefault();
+    showSavingModal('البيانات الشخصية');
+    const result = await updateEmployeePersonalInfo(employee.id, personalInfo);
+    if (result.success) {
+      showSavedModal('البيانات الشخصية', [
+        `الموظف: ${personalInfo.name || employee.name}`,
+        personalInfo.name_en ? `الاسم بالإنجليزية: ${personalInfo.name_en}` : '',
+        `رقم الهوية: ${personalInfo.iqama_number}`,
+        `المسمى الوظيفي: ${personalInfo.job_title}`
+      ]);
+      setIsEditing(false);
+      router.refresh();
+    } else {
+      setModal({ type: 'error', title: 'فشل تحديث البيانات', message: result.error || 'حدث خطأ غير متوقع' });
+    }
+  };
 
-    const handleUpdateBank = async (e: React.FormEvent) => {
-      e.preventDefault();
-      setModal({ type: 'processing', title: 'جاري حفظ البيانات البنكية...', description: 'يرجى الانتظار' });
-      const result = await updateEmployeeBankInfo(employee.id, bankInfo);
-      if (result.success) {
-        setModal({ type: 'success', variant: 'update', title: 'تم تحديث البيانات البنكية', details: [
-          `الموظف: ${employee.name}`,
-          `البنك: ${bankInfo.bank_name}`,
-          `الآيبان: ${bankInfo.iban}`
-        ]});
-        setIsEditing(false);
-        router.refresh();
-      } else {
-        setModal({ type: 'error', title: 'فشل تحديث البيانات البنكية', message: result.error || 'حدث خطأ غير متوقع' });
-      }
-    };
+  const handleUpdateBank = async (e: React.FormEvent) => {
+    e.preventDefault();
+    showSavingModal('البيانات البنكية');
+    const result = await updateEmployeeBankInfo(employee.id, bankInfo);
+    if (result.success) {
+      showSavedModal('البيانات البنكية', [
+        `الموظف: ${employee.name}`,
+        `البنك: ${bankInfo.bank_name}`,
+        `الآيبان: ${bankInfo.iban}`
+      ]);
+      setIsEditing(false);
+      router.refresh();
+    } else {
+      setModal({ type: 'error', title: 'فشل تحديث البيانات البنكية', message: result.error || 'حدث خطأ غير متوقع' });
+    }
+  };
+
 
     const handleToggleStatus = async () => {
       const isActive = employee.is_active === 1;
-      setModal({ type: 'processing', title: isActive ? 'جاري تعيين الإجازة...' : 'جاري تفعيل الموظف...', description: employee.name });
+      showSavingModal('البيانات الشخصية');
       const result = await toggleEmployeeStatus(employee.id, employee.is_active);
       if (result.success) {
-        setModal({ type: 'success', variant: 'vacation', title: isActive ? 'تم تعيين الموظف في إجازة' : 'تم تفعيل الموظف', details: [
+        showSavedModal('البيانات الشخصية', [
           `الموظف: ${employee.name}`,
           `الحالة الجديدة: ${isActive ? 'في إجازة' : 'نشط'}`,
           `رقم الهوية: ${employee.iqama_number || '---'}`
-        ]});
+        ]);
         router.refresh();
       } else {
         setModal({ type: 'error', title: 'فشل تغيير الحالة', message: 'حدث خطأ أثناء تغيير حالة الموظف' });
@@ -271,16 +291,16 @@ export function EmployeeDetailsClient({
 
     const handleAddViolation = async (e: React.FormEvent) => {
       e.preventDefault();
-      setModal({ type: 'processing', title: 'جاري إضافة المخالفة...', description: 'يرجى الانتظار' });
+      showSavingModal('المخالفات المرورية');
       const result = await addViolation({ employee_id: employee.id, ...newViolation });
       if (result.success) {
-        setModal({ type: 'success', variant: 'create', title: 'تم إضافة المخالفة بنجاح', details: [
+        showSavedModal('المخالفات المرورية', [
           `الموظف: ${employee.name}`,
           `النوع: ${newViolation.violation_type === 'traffic' ? 'مرورية' : 'عامة'}`,
           `المبلغ: ${newViolation.violation_amount} ر.س`,
           `المخصوم: ${newViolation.deducted_amount} ر.س`,
           newViolation.violation_description ? `الوصف: ${newViolation.violation_description}` : ''
-        ].filter(Boolean)});
+        ]);
         setNewViolation({ violation_type: "traffic", violation_date: format(new Date(), "yyyy-MM-dd"), violation_amount: 0, deducted_amount: 0, status: "pending", violation_description: "" });
         setShowViolationForm(false);
         router.refresh();
@@ -289,39 +309,40 @@ export function EmployeeDetailsClient({
       }
     };
 
-    const handleDeleteViolation = async (id: number) => {
-      const violation = violations.find(v => v.id === id);
-      setModal({
-        type: 'delete-confirm',
-        title: `المخالفة - ${violation?.violation_type === 'traffic' ? 'مرورية' : 'عامة'}`,
-        description: `المبلغ: ${Number(violation?.violation_amount).toLocaleString()} ر.س`,
-        onConfirm: async () => {
-          setModal({ type: 'processing', title: 'جاري حذف المخالفة...' });
-          const result = await deleteViolation(id, employee.id);
-          if (result.success) {
-            setModal({ type: 'success', variant: 'delete', title: 'تم حذف المخالفة بنجاح', details: [
-              `الموظف: ${employee.name}`,
-              `المبلغ: ${Number(violation?.violation_amount).toLocaleString()} ر.س`
-            ]});
-            router.refresh();
-          } else {
-            setModal({ type: 'error', title: 'فشل حذف المخالفة', message: result.error || 'حدث خطأ غير متوقع' });
+      const handleDeleteViolation = async (id: number) => {
+        const violation = violations.find(v => v.id === id);
+        setModal({
+          type: 'delete-confirm',
+          title: `المخالفة - ${violation?.violation_type === 'traffic' ? 'مرورية' : 'عامة'}`,
+          description: `المبلغ: ${Number(violation?.violation_amount).toLocaleString()} ر.س`,
+          onConfirm: async () => {
+            showSavingModal('المخالفات المرورية');
+            const result = await deleteViolation(id, employee.id);
+            if (result.success) {
+              showSavedModal('المخالفات المرورية', [
+                'العملية: حذف مخالفة',
+                `الموظف: ${employee.name}`,
+                `المبلغ: ${Number(violation?.violation_amount).toLocaleString()} ر.س`
+              ]);
+              router.refresh();
+            } else {
+              setModal({ type: 'error', title: 'فشل حذف المخالفة', message: result.error || 'حدث خطأ غير متوقع' });
+            }
           }
-        }
-      });
-    };
+        });
+      };
 
     const handleUpdateViolation = async (e: React.FormEvent) => {
       e.preventDefault();
       if (!editingViolation) return;
-      setModal({ type: 'processing', title: 'جاري تحديث المخالفة...' });
+      showSavingModal('المخالفات المرورية');
       const result = await updateViolation(editingViolation.id, employee.id, editingViolation);
       if (result.success) {
-        setModal({ type: 'success', variant: 'update', title: 'تم تحديث المخالفة بنجاح', details: [
+        showSavedModal('المخالفات المرورية', [
           `الموظف: ${employee.name}`,
           `المبلغ: ${editingViolation.violation_amount} ر.س`,
           `المخصوم: ${editingViolation.deducted_amount} ر.س`
-        ]});
+        ]);
         setEditingViolation(null);
         router.refresh();
       } else {
@@ -335,16 +356,16 @@ export function EmployeeDetailsClient({
 
     const handleAddLetter = async (e: React.FormEvent) => {
       e.preventDefault();
-      setModal({ type: 'processing', title: 'جاري إضافة الخطاب...', description: 'يرجى الانتظار' });
+      showSavingModal('الخطابات والإجازات');
       const result = await addLetter({ employee_id: employee.id, ...newLetter });
       if (result.success) {
-        setModal({ type: 'success', variant: 'create', title: 'تم إضافة الخطاب بنجاح', details: [
+        showSavedModal('الخطابات والإجازات', [
           `الموظف: ${employee.name}`,
           `النوع: ${letterTypeLabels[newLetter.letter_type] || newLetter.letter_type}`,
           `المدة: ${newLetter.duration_days} أيام`,
           `من ${newLetter.start_date} إلى ${newLetter.end_date}`,
           newLetter.violation_amount > 0 ? `الخصم: ${newLetter.violation_amount} ر.س` : ''
-        ].filter(Boolean)});
+        ]);
         setNewLetter({ letter_type: "annual_leave", start_date: format(new Date(), "yyyy-MM-dd"), end_date: format(new Date(), "yyyy-MM-dd"), duration_days: 0, violation_amount: 0, letter_details: "" });
         setShowLetterForm(false);
         router.refresh();
@@ -353,40 +374,41 @@ export function EmployeeDetailsClient({
       }
     };
 
-    const handleDeleteLetter = async (id: number) => {
-      const letter = letters.find(l => l.id === id);
-      const lType = letterTypeLabels[letter?.letter_type] || letter?.letter_type || 'خطاب';
-      setModal({
-        type: 'delete-confirm',
-        title: lType,
-        description: `${letter?.start_date} - ${letter?.end_date} (${letter?.duration_days} أيام)`,
-        onConfirm: async () => {
-          setModal({ type: 'processing', title: 'جاري حذف الخطاب...' });
-          const result = await deleteLetter(id, employee.id);
-          if (result.success) {
-            setModal({ type: 'success', variant: 'delete', title: 'تم حذف الخطاب بنجاح', details: [
-              `الموظف: ${employee.name}`,
-              `النوع: ${lType}`
-            ]});
-            router.refresh();
-          } else {
-            setModal({ type: 'error', title: 'فشل حذف الخطاب', message: result.error || 'حدث خطأ غير متوقع' });
+      const handleDeleteLetter = async (id: number) => {
+        const letter = letters.find(l => l.id === id);
+        const lType = letterTypeLabels[letter?.letter_type] || letter?.letter_type || 'خطاب';
+        setModal({
+          type: 'delete-confirm',
+          title: lType,
+          description: `${letter?.start_date} - ${letter?.end_date} (${letter?.duration_days} أيام)`,
+          onConfirm: async () => {
+            showSavingModal('الخطابات والإجازات');
+            const result = await deleteLetter(id, employee.id);
+            if (result.success) {
+              showSavedModal('الخطابات والإجازات', [
+                'العملية: حذف خطاب/إجازة',
+                `الموظف: ${employee.name}`,
+                `النوع: ${lType}`
+              ]);
+              router.refresh();
+            } else {
+              setModal({ type: 'error', title: 'فشل حذف الخطاب', message: result.error || 'حدث خطأ غير متوقع' });
+            }
           }
-        }
-      });
-    };
+        });
+      };
 
     const handleUpdateLetter = async (e: React.FormEvent) => {
       e.preventDefault();
       if (!editingLetter) return;
-      setModal({ type: 'processing', title: 'جاري تحديث الخطاب...' });
+      showSavingModal('الخطابات والإجازات');
       const result = await updateLetter(editingLetter.id, employee.id, editingLetter);
       if (result.success) {
-        setModal({ type: 'success', variant: 'update', title: 'تم تحديث الخطاب بنجاح', details: [
+        showSavedModal('الخطابات والإجازات', [
           `الموظف: ${employee.name}`,
           `النوع: ${letterTypeLabels[editingLetter.letter_type] || editingLetter.letter_type}`,
           `المدة: ${editingLetter.duration_days} أيام`
-        ]});
+        ]);
         setEditingLetter(null);
         router.refresh();
       } else {
@@ -396,14 +418,14 @@ export function EmployeeDetailsClient({
 
     const handleUpdateExpiry = async (e: React.FormEvent) => {
       e.preventDefault();
-      setModal({ type: 'processing', title: 'جاري تحديث تاريخ الإقامة...' });
+      showSavingModal('حالة الهوية');
       const result = await updateIqamaExpiry(employee.id, newExpiryDate);
       if (result.success) {
-        setModal({ type: 'success', variant: 'iqama', title: 'تم تحديث تاريخ انتهاء الهوية', details: [
+        showSavedModal('حالة الهوية', [
           `الموظف: ${employee.name}`,
           `التاريخ الجديد: ${newExpiryDate}`,
           `رقم الهوية: ${employee.iqama_number || '---'}`
-        ]});
+        ]);
         router.refresh();
       } else {
         setModal({ type: 'error', title: 'فشل تحديث التاريخ', message: result.error || 'حدث خطأ غير متوقع' });
@@ -412,15 +434,15 @@ export function EmployeeDetailsClient({
 
     const handleAddBankAccount = async (e: React.FormEvent) => {
       e.preventDefault();
-      setModal({ type: 'processing', title: 'جاري إضافة الحساب البنكي...', description: 'يرجى الانتظار' });
+      showSavingModal('البيانات البنكية');
       const result = await addBankAccount({ employee_id: employee.id, ...newBankAccount });
       if (result.success) {
-        setModal({ type: 'success', variant: 'create', title: 'تم إضافة الحساب البنكي', details: [
+        showSavedModal('البيانات البنكية', [
           `الموظف: ${employee.name}`,
           `البنك: ${newBankAccount.bank_name}`,
           `الآيبان: ${newBankAccount.iban}`,
           newBankAccount.is_primary ? 'تم تعيينه كحساب أساسي' : ''
-        ].filter(Boolean)});
+        ]);
         setNewBankAccount({ bank_name: "", account_number: "", iban: "", is_primary: false });
         setShowBankForm(false);
         router.refresh();
@@ -432,14 +454,14 @@ export function EmployeeDetailsClient({
     const handleUpdateBankAccount = async (e: React.FormEvent) => {
       e.preventDefault();
       if (!editingBank) return;
-      setModal({ type: 'processing', title: 'جاري تحديث الحساب البنكي...' });
+      showSavingModal('البيانات البنكية');
       const result = await updateBankAccount(editingBank.id, employee.id, editingBank);
       if (result.success) {
-        setModal({ type: 'success', variant: 'update', title: 'تم تحديث الحساب البنكي', details: [
+        showSavedModal('البيانات البنكية', [
           `الموظف: ${employee.name}`,
           `البنك: ${editingBank.bank_name}`,
           `الآيبان: ${editingBank.iban}`
-        ]});
+        ]);
         setEditingBank(null);
         router.refresh();
       } else {
@@ -447,37 +469,38 @@ export function EmployeeDetailsClient({
       }
     };
 
-    const handleDeleteBankAccount = async (id: number) => {
-      const account = bankAccounts.find((a: any) => a.id === id);
-      setModal({
-        type: 'delete-confirm',
-        title: `الحساب البنكي - ${account?.bank_name || 'بدون اسم'}`,
-        description: `الآيبان: ${account?.iban || '---'}`,
-        onConfirm: async () => {
-          setModal({ type: 'processing', title: 'جاري حذف الحساب البنكي...' });
-          const result = await deleteBankAccount(id, employee.id);
-          if (result.success) {
-            setModal({ type: 'success', variant: 'delete', title: 'تم حذف الحساب البنكي', details: [
-              `الموظف: ${employee.name}`,
-              `البنك: ${account?.bank_name || '---'}`
-            ]});
-            router.refresh();
-          } else {
-            setModal({ type: 'error', title: 'فشل حذف الحساب البنكي', message: result.error || 'حدث خطأ غير متوقع' });
+      const handleDeleteBankAccount = async (id: number) => {
+        const account = bankAccounts.find((a: any) => a.id === id);
+        setModal({
+          type: 'delete-confirm',
+          title: `الحساب البنكي - ${account?.bank_name || 'بدون اسم'}`,
+          description: `الآيبان: ${account?.iban || '---'}`,
+          onConfirm: async () => {
+            showSavingModal('البيانات البنكية');
+            const result = await deleteBankAccount(id, employee.id);
+            if (result.success) {
+              showSavedModal('البيانات البنكية', [
+                'العملية: حذف حساب بنكي',
+                `الموظف: ${employee.name}`,
+                `البنك: ${account?.bank_name || '---'}`
+              ]);
+              router.refresh();
+            } else {
+              setModal({ type: 'error', title: 'فشل حذف الحساب البنكي', message: result.error || 'حدث خطأ غير متوقع' });
+            }
           }
-        }
-      });
-    };
+        });
+      };
 
     const handleSetPrimaryBank = async (id: number) => {
       const account = bankAccounts.find((a: any) => a.id === id);
-      setModal({ type: 'processing', title: 'جاري تعيين الحساب الأساسي...' });
+      showSavingModal('البيانات البنكية');
       const result = await setPrimaryBankAccount(id, employee.id);
       if (result.success) {
-        setModal({ type: 'success', variant: 'update', title: 'تم تعيين الحساب كأساسي', details: [
+        showSavedModal('البيانات البنكية', [
           `الموظف: ${employee.name}`,
           `البنك: ${account?.bank_name || '---'}`
-        ]});
+        ]);
         router.refresh();
       } else {
         setModal({ type: 'error', title: 'فشل تعيين الحساب', message: result.error || 'حدث خطأ غير متوقع' });
@@ -527,8 +550,11 @@ export function EmployeeDetailsClient({
                   <div className={`absolute bottom-1 right-1 h-6 w-6 rounded-full border-4 border-indigo-700 dark:border-slate-900 ${employee.is_active === 1 ? 'bg-emerald-400' : 'bg-orange-400'} shadow-lg animate-pulse`} />
                 </motion.div>
                 
-                <h1 className="text-xl font-black text-white mb-1 leading-tight">{employee.name}</h1>
-                <div className="flex items-center gap-2">
+                  <h1 className="text-xl font-black text-white mb-1 leading-tight">{personalInfo.name || employee.name}</h1>
+                  {personalInfo.name_en ? (
+                    <p className="text-[11px] font-bold text-white/75 mb-2 leading-tight">{personalInfo.name_en}</p>
+                  ) : null}
+                  <div className="flex items-center gap-2">
                   <span className="text-xs font-bold text-white/60 bg-white/10 px-3 py-1 rounded-full">#{employee.user_code || '---'}</span>
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/20 text-white`}>
                     {employee.is_active === 1 ? 'نشط' : 'إجازة'}
@@ -726,10 +752,11 @@ export function EmployeeDetailsClient({
             >
               {activeTab === "general" && (
                 <form onSubmit={handleUpdatePersonal}>
-                  <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    <GlassField label="رقم الهوية" value={personalInfo.iqama_number} onChange={(v: string) => setPersonalInfo({...personalInfo, iqama_number: v})} editable={isEditing} icon={<IdCard size={14} />} />
-                    <GlassField label="الاسم بالإنجليزية" value={personalInfo.name_en} onChange={(v: string) => setPersonalInfo({...personalInfo, name_en: v})} editable={isEditing} icon={<User size={14} />} />
-                    <GlassField label="رقم المستخدم" value={personalInfo.user_code} onChange={(v: string) => setPersonalInfo({...personalInfo, user_code: v})} editable={isEditing} icon={<Hash size={14} />} />
+                    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                      <GlassField label="رقم الهوية" value={personalInfo.iqama_number} onChange={(v: string) => setPersonalInfo({...personalInfo, iqama_number: v})} editable={isEditing} icon={<IdCard size={14} />} />
+                      <GlassField label="الاسم العربي" value={personalInfo.name} onChange={(v: string) => setPersonalInfo({...personalInfo, name: v})} editable={isEditing} icon={<User size={14} />} />
+                      <GlassField label="الاسم بالإنجليزية" value={personalInfo.name_en} onChange={(v: string) => setPersonalInfo({...personalInfo, name_en: v})} editable={isEditing} icon={<Globe size={14} />} />
+                      <GlassField label="رقم المستخدم" value={personalInfo.user_code} onChange={(v: string) => setPersonalInfo({...personalInfo, user_code: v})} editable={isEditing} icon={<Hash size={14} />} />
                     <GlassField label="المسمى الوظيفي" value={personalInfo.job_title} onChange={(v: string) => setPersonalInfo({...personalInfo, job_title: v})} editable={isEditing} icon={<Briefcase size={14} />} />
                     <GlassField label="الجنسية" value={personalInfo.nationality} onChange={(v: string) => setPersonalInfo({...personalInfo, nationality: v})} editable={isEditing} icon={<Globe size={14} />} />
                     <GlassField label="رقم الهاتف" value={personalInfo.phone} onChange={(v: string) => setPersonalInfo({...personalInfo, phone: v})} editable={isEditing} icon={<Phone size={14} />} />
@@ -933,16 +960,18 @@ className="bg-slate-100 backdrop-blur-xl p-5 rounded-2xl border border-slate-200
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               onClick={async () => {
-                                if (!newDocTypeName.trim()) return;
-                                const res = await addCustomDocumentType(newDocTypeName.trim());
+                                const docTypeName = newDocTypeName.trim();
+                                if (!docTypeName) return;
+                                showSavingModal('المستندات والملفات');
+                                const res = await addCustomDocumentType(docTypeName);
                                 if (res.success) {
-                                  setCustomDocTypes([...customDocTypes, { id: res.id, name: newDocTypeName.trim() }]);
+                                  setCustomDocTypes([...customDocTypes, { id: res.id, name: docTypeName }]);
                                   setNewDocTypeName("");
                                   setShowAddDocType(false);
-                                    setModal({ type: 'success', variant: 'create', title: 'تم إضافة نوع المستند بنجاح', details: [`النوع: ${newDocTypeName.trim()}`] });
-                                    router.refresh();
-                                  } else {
-                                    setModal({ type: 'error', title: 'فشل إضافة نوع المستند', message: 'حدث خطأ غير متوقع' });
+                                  showSavedModal('المستندات والملفات', [`النوع: ${docTypeName}`]);
+                                  router.refresh();
+                                } else {
+                                  setModal({ type: 'error', title: 'فشل إضافة نوع المستند', message: 'حدث خطأ غير متوقع' });
                                 }
                               }}
                               className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-3 rounded-xl text-xs font-black flex items-center gap-2"
@@ -1613,9 +1642,13 @@ function GlassField({ label, value, onChange, editable, type = "text", icon }: a
     const fileInputRef = React.useRef<HTMLInputElement>(null);
     const [isUploading, setIsUploading] = useState(false);
     const [localExpiry, setLocalExpiry] = useState(expiryDate || "");
+    const sectionLabel = 'المستندات والملفات';
   
     const handleUpload = async (file: File) => {
       setIsUploading(true);
+      if (setModal) {
+        setModal({ type: 'processing', title: 'جاري حفظ التعديلات...', description: `القسم: ${sectionLabel}` });
+      }
       try {
         const formData = new FormData();
         formData.append("file", file);
@@ -1646,7 +1679,12 @@ function GlassField({ label, value, onChange, editable, type = "text", icon }: a
         }
         
         if (setModal) {
-          setModal({ type: 'success', variant: 'upload', title: `تم رفع ${label} بنجاح`, details: [`المستند: ${label}`, `الموظف: #${employeeId}`] });
+          setModal({
+            type: 'success',
+            variant: 'update',
+            title: 'تم الحفظ بنجاح',
+            details: [`القسم: ${sectionLabel}`, `المستند: ${label}`, `الموظف: #${employeeId}`],
+          });
         }
         router.refresh();
       } catch (error: any) {
@@ -1659,6 +1697,9 @@ function GlassField({ label, value, onChange, editable, type = "text", icon }: a
     };
 
     const handleSaveExpiry = async () => {
+      if (setModal) {
+        setModal({ type: 'processing', title: 'جاري حفظ التعديلات...', description: `القسم: ${sectionLabel}` });
+      }
       const res = await upsertEmployeeCustomDocument({
         employee_id: employeeId,
         document_name: label,
@@ -1666,7 +1707,12 @@ function GlassField({ label, value, onChange, editable, type = "text", icon }: a
       });
       if (res.success) {
         if (setModal) {
-          setModal({ type: 'success', variant: 'update', title: 'تم حفظ تاريخ الانتهاء', details: [`المستند: ${label}`, `التاريخ: ${localExpiry}`] });
+          setModal({
+            type: 'success',
+            variant: 'update',
+            title: 'تم الحفظ بنجاح',
+            details: [`القسم: ${sectionLabel}`, `المستند: ${label}`, `تاريخ الانتهاء: ${localExpiry}`],
+          });
         }
         router.refresh();
       } else {
@@ -1676,28 +1722,33 @@ function GlassField({ label, value, onChange, editable, type = "text", icon }: a
       }
     };
 
-    const handleDeleteType = async () => {
-      if (setModal) {
-        setModal({
-          type: 'delete-confirm',
-          title: `نوع المستند "${label}"`,
-          description: 'سيتم حذف جميع الملفات المرتبطة بهذا النوع',
-          onConfirm: async () => {
-            setModal({ type: 'processing', title: 'جاري حذف نوع المستند...' });
-            const res = await deleteCustomDocumentType(customDocTypeId);
-            if (res.success) {
-              setCustomDocTypes((prev: any[]) => prev.filter((t: any) => t.id !== customDocTypeId));
-              setCustomDocuments((prev: any[]) => prev.filter((d: any) => d.document_name !== label));
-              setModal({ type: 'success', variant: 'delete', title: 'تم حذف نوع المستند', details: [`المستند: ${label}`] });
-              router.refresh();
-            } else {
-              setModal({ type: 'error', title: 'فشل حذف نوع المستند', message: 'حدث خطأ أثناء الحذف' });
+      const handleDeleteType = async () => {
+        if (setModal) {
+          setModal({
+            type: 'delete-confirm',
+            title: `نوع المستند "${label}"`,
+            description: 'سيتم حذف جميع الملفات المرتبطة بهذا النوع',
+            onConfirm: async () => {
+              setModal({ type: 'processing', title: 'جاري حفظ التعديلات...', description: 'القسم: المستندات والملفات' });
+              const res = await deleteCustomDocumentType(customDocTypeId);
+              if (res.success) {
+                setCustomDocTypes((prev: any[]) => prev.filter((t: any) => t.id !== customDocTypeId));
+                setCustomDocuments((prev: any[]) => prev.filter((d: any) => d.document_name !== label));
+                setModal({
+                  type: 'success',
+                  variant: 'update',
+                  title: 'تم الحفظ بنجاح',
+                  details: ['القسم: المستندات والملفات', 'العملية: حذف نوع مستند', `المستند: ${label}`],
+                });
+                router.refresh();
+              } else {
+                setModal({ type: 'error', title: 'فشل حذف نوع المستند', message: 'حدث خطأ أثناء الحذف' });
+              }
             }
-          }
-        });
-        return;
-      }
-    };
+          });
+          return;
+        }
+      };
 
     const handleDownload = async (e: React.MouseEvent) => {
       e.stopPropagation();

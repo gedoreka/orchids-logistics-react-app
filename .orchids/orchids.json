@@ -1,1 +1,1 @@
-{ "projectId": "37e0a38a-f7a8-4856-b222-ed47f4108b93", "createdAt": 1775256699141, "startupCommands": ["bun install; bun run dev"], "templateId": "any" }
+{ "projectId": "37e0a38a-f7a8-4856-b222-ed47f4108b93", "createdAt": 1775496455542, "startupCommands": ["bun install; bun run dev"], "templateId": "any" }

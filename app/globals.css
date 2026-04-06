@@ -1466,9 +1466,17 @@ html:not(.dark) main input:not([type="checkbox"]):not([type="radio"]):not([type=
 html:not(.dark) main textarea,
 html:not(.dark) main select {
   background: #ffffff !important;
-  background-image: none !important;
   border-color: var(--glass-border, rgba(226, 232, 240, 0.60)) !important;
   color: var(--heading-color, #000000) !important;
+}
+
+html:not(.dark) main input[type="date"] {
+  color-scheme: light;
+}
+
+html:not(.dark) main input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 1;
+  cursor: pointer;
 }
 
 html:not(.dark) main input:not([type="checkbox"]):not([type="radio"]):hover,
