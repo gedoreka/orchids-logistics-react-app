@@ -38,7 +38,9 @@ import {
   Search,
   ChevronUp,
   FolderTree,
-  Target
+  Target,
+  CircleAlert,
+  Settings
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -104,9 +106,10 @@ interface NewInvoiceClientProps {
   invoiceNumber: string;
   companyId: number;
   userName: string;
+  hasBankAccounts: boolean;
 }
 
-export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName }: NewInvoiceClientProps) {
+export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName, hasBankAccounts }: NewInvoiceClientProps) {
   const t = useTranslations("newInvoicePage");
   const tc = useTranslations("common");
   const router = useRouter();
@@ -503,7 +506,16 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
     isOpen: boolean;
     missingFields: string[];
   }>({ isOpen: false, missingFields: [] });
-    
+
+  const openNativeDatePicker = (
+    event: React.MouseEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>
+  ) => {
+    const input = event.currentTarget as HTMLInputElement & { showPicker?: () => void };
+    if (typeof input.showPicker === "function") {
+      input.showPicker();
+    }
+  };
+
   const validateForm = () => {
     const missing: string[] = [];
     
@@ -540,26 +552,59 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
   };
 
   return (
-      <div className="min-h-screen pb-20">
-        {/* Validation Error Toast */}
-        <AnimatePresence>
-          {validationError && (
-            <motion.div
-              initial={{ opacity: 0, y: -50, x: "-50%" }}
-              animate={{ opacity: 1, y: 0, x: "-50%" }}
-              exit={{ opacity: 0, y: -50, x: "-50%" }}
-              className="fixed top-6 left-1/2 z-50 px-6 py-3 rounded-2xl shadow-2xl bg-rose-600 text-white font-bold flex items-center gap-3 border border-white/20 backdrop-blur-md"
-            >
-              <AlertCircle size={18} />
-              <div>
-                <p className="font-black text-sm">{t("error")}</p>
-                <p className="text-xs opacity-90">{validationError}</p>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <div className="min-h-screen pb-20">
+          {/* Validation Error Toast */}
+          <AnimatePresence>
+            {validationError && (
+              <motion.div
+                initial={{ opacity: 0, y: -50, x: "-50%" }}
+                animate={{ opacity: 1, y: 0, x: "-50%" }}
+                exit={{ opacity: 0, y: -50, x: "-50%" }}
+                className="fixed top-6 left-1/2 z-50 px-6 py-3 rounded-2xl shadow-2xl bg-rose-600 text-white font-bold flex items-center gap-3 border border-white/20 backdrop-blur-md"
+              >
+                <AlertCircle size={18} />
+                <div>
+                  <p className="font-black text-sm">{t("error")}</p>
+                  <p className="text-xs opacity-90">{validationError}</p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-        {/* Confirm Save Modal */}
+          {!hasBankAccounts && (
+            <div className="max-w-[85%] mx-auto px-4 pt-6">
+              <div className="rounded-3xl border border-amber-300 bg-amber-50 p-5 md:p-6 shadow-sm">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <div className="flex items-start gap-3">
+                    <div className="mt-0.5 p-2 rounded-xl bg-amber-100 text-amber-700">
+                      <CircleAlert size={20} />
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-sm md:text-base font-black text-amber-900">
+                        تنبيه مهم قبل إصدار الفاتورة الضريبية
+                      </p>
+                      <p className="text-xs md:text-sm font-bold text-amber-800 leading-relaxed">
+                        لا يوجد حساب بنكي مضاف في بيانات المنشأة. عند إصدار الفاتورة بدون حساب بنكي سيظهر جزء معلومات السداد البنكي فارغًا وتصبح الفاتورة غير مكتملة.
+                      </p>
+                      <p className="text-xs md:text-sm font-bold text-amber-700 leading-relaxed">
+                        يمكنك إضافة أكثر من حساب بنكي من إعدادات المنشأة، ثم اختيار الحساب الذي تريد إظهاره داخل صفحة عرض الفاتورة.
+                      </p>
+                    </div>
+                  </div>
+                  <Link
+                    href="/user_profile"
+                    className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-amber-600 text-white font-black text-sm hover:bg-amber-700 transition-colors whitespace-nowrap"
+                  >
+                    <Settings size={16} />
+                    الانتقال إلى إعدادات المنشأة
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+  
+          {/* Confirm Save Modal */}
+
         <AnimatePresence>
           {confirmModal.isOpen && (
             <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
@@ -622,7 +667,7 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
                       هل أنت متأكد من حفظ الفاتورة رقم
                     </p>
                     <p className="text-emerald-600 dark:text-emerald-400 font-black text-xl mt-2">
-                      "{invoiceNumber}"
+                        &quot;{invoiceNumber}&quot;
                     </p>
                     <div className="mt-4 pt-4 border-t border-emerald-200 dark:border-emerald-800 flex justify-center gap-6">
                       <div className="text-center">
@@ -811,7 +856,7 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
                     >
                       <p className="text-slate-500 font-bold text-sm mb-2">رقم الفاتورة:</p>
                       <p className="text-emerald-600 dark:text-emerald-400 font-black text-xl">
-                        "{invoiceNumber}"
+                        &quot;{invoiceNumber}&quot;
                       </p>
                       <div className="mt-4 pt-4 border-t border-emerald-200 dark:border-emerald-800">
                         <p className="text-emerald-600 font-black text-2xl">
@@ -1154,24 +1199,32 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
                       <label className="block text-[10px] font-black text-black uppercase mb-2">{t("issueDateLabel")}</label>
                       <div className="relative">
                         <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                        <input
-                            type="date"
-                            value={issueDate}
-                            onChange={(e) => setIssueDate(e.target.value)}
-                            className="w-full h-12 pr-12 pl-4 rounded-xl bg-white border border-gray-200 text-sm font-bold text-slate-900 focus:border-teal-500/30 outline-none transition-all"
-                          />
+                          <input
+                              type="date"
+                              lang="en-GB"
+                              inputMode="numeric"
+                              value={issueDate}
+                              onClick={openNativeDatePicker}
+                              onFocus={openNativeDatePicker}
+                              onChange={(e) => setIssueDate(e.target.value)}
+                              className="w-full h-12 pr-12 pl-4 rounded-xl bg-white border border-gray-200 text-sm font-bold text-slate-900 focus:border-teal-500/30 outline-none transition-all"
+                            />
                       </div>
                     </div>
                     <div>
                       <label className="block text-[10px] font-black text-black uppercase mb-2">{t("dueDateLabel")}</label>
                       <div className="relative">
                         <Clock className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                        <input
-                            type="date"
-                            value={dueDate}
-                            onChange={(e) => setDueDate(e.target.value)}
-                            className="w-full h-12 pr-12 pl-4 rounded-xl bg-white border border-gray-200 text-sm font-bold text-slate-900 focus:border-teal-500/30 outline-none transition-all"
-                          />
+                          <input
+                              type="date"
+                              lang="en-GB"
+                              inputMode="numeric"
+                              value={dueDate}
+                              onClick={openNativeDatePicker}
+                              onFocus={openNativeDatePicker}
+                              onChange={(e) => setDueDate(e.target.value)}
+                              className="w-full h-12 pr-12 pl-4 rounded-xl bg-white border border-gray-200 text-sm font-bold text-slate-900 focus:border-teal-500/30 outline-none transition-all"
+                            />
                       </div>
                     </div>
                   <div className="p-3 bg-teal-50 rounded-xl border border-teal-100 flex items-center gap-2">
@@ -1320,17 +1373,25 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
                             )}
                           </td>
                         <td className="px-4 py-4">
-                            <input
-                              type="date"
-                              value={item.period_from}
-                              onChange={(e) => handleItemChange(index, 'period_from', e.target.value)}
-                              className="w-full px-2 py-2 rounded-xl bg-white border border-gray-200 text-[10px] font-bold text-slate-900 focus:border-emerald-500/30 outline-none"
-                            />
+                              <input
+                                type="date"
+                                lang="en-GB"
+                                inputMode="numeric"
+                                value={item.period_from}
+                                onClick={openNativeDatePicker}
+                                onFocus={openNativeDatePicker}
+                                onChange={(e) => handleItemChange(index, 'period_from', e.target.value)}
+                                className="w-full px-2 py-2 rounded-xl bg-white border border-gray-200 text-[10px] font-bold text-slate-900 focus:border-emerald-500/30 outline-none"
+                              />
                         </td>
                           <td className="px-4 py-4">
                             <input
                               type="date"
+                              lang="en-GB"
+                              inputMode="numeric"
                               value={item.period_to}
+                              onClick={openNativeDatePicker}
+                              onFocus={openNativeDatePicker}
                               onChange={(e) => handleItemChange(index, 'period_to', e.target.value)}
                               className="w-full px-2 py-2 rounded-xl bg-white border border-gray-200 text-[10px] font-bold text-slate-900 focus:border-emerald-500/30 outline-none"
                             />

@@ -25,10 +25,16 @@ async function getInvoices(companyId: number) {
       COALESCE((SELECT SUM(total_before_vat) FROM invoice_items WHERE invoice_id = si.id), 0) as subtotal,
       COALESCE((SELECT SUM(vat_amount) FROM invoice_items WHERE invoice_id = si.id), 0) as tax_amount,
       COALESCE((SELECT status FROM invoice_items WHERE invoice_id = si.id LIMIT 1), si.status) as invoice_status
-    FROM sales_invoices si
-    WHERE si.company_id = ?
-    ORDER BY si.id DESC
-  `, [companyId]);
+      FROM sales_invoices si
+      WHERE si.company_id = ?
+      ORDER BY
+        CASE
+          WHEN si.invoice_number REGEXP '^INV[0-9]+$' THEN CAST(SUBSTRING(si.invoice_number, 4) AS UNSIGNED)
+          ELSE 0
+        END DESC,
+        si.id DESC
+    `, [companyId]);
+
   
   return invoices.map((inv: any) => ({
     ...inv,

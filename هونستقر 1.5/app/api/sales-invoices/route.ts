@@ -8,6 +8,21 @@ async function getCompanyId(userId: number) {
   return users[0]?.company_id;
 }
 
+async function getNextCompanyInvoiceNumber(companyId: number) {
+  const rows = await query<any>(
+    `
+      SELECT COALESCE(MAX(CAST(SUBSTRING(invoice_number, 4) AS UNSIGNED)), 0) AS last_number
+      FROM sales_invoices
+      WHERE company_id = ?
+        AND invoice_number REGEXP '^INV[0-9]+$'
+    `,
+    [companyId]
+  );
+
+  const lastNumber = Number(rows[0]?.last_number || 0);
+  return `INV${lastNumber + 1}`;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const cookieStore = await cookies();
@@ -28,16 +43,22 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
     }
 
-    const invoices = await query<any>(`
-      SELECT 
-        si.*,
-        COALESCE((SELECT SUM(total_before_vat) FROM invoice_items WHERE invoice_id = si.id), 0) as subtotal,
-        COALESCE((SELECT SUM(vat_amount) FROM invoice_items WHERE invoice_id = si.id), 0) as tax_amount,
-        COALESCE((SELECT status FROM invoice_items WHERE invoice_id = si.id LIMIT 1), 'due') as invoice_status
-      FROM sales_invoices si
-      WHERE si.company_id = ?
-      ORDER BY si.id DESC
-    `, [companyId]);
+      const invoices = await query<any>(`
+        SELECT 
+          si.*,
+          COALESCE((SELECT SUM(total_before_vat) FROM invoice_items WHERE invoice_id = si.id), 0) as subtotal,
+          COALESCE((SELECT SUM(vat_amount) FROM invoice_items WHERE invoice_id = si.id), 0) as tax_amount,
+          COALESCE((SELECT status FROM invoice_items WHERE invoice_id = si.id LIMIT 1), 'due') as invoice_status
+        FROM sales_invoices si
+        WHERE si.company_id = ?
+        ORDER BY
+          CASE
+            WHEN si.invoice_number REGEXP '^INV[0-9]+$' THEN CAST(SUBSTRING(si.invoice_number, 4) AS UNSIGNED)
+            ELSE 0
+          END DESC,
+          si.id DESC
+      `, [companyId]);
+
 
     return NextResponse.json({ invoices });
   } catch (error: any) {
@@ -80,6 +101,35 @@ export async function POST(request: NextRequest) {
       account_id = null,
       cost_center_id = null
     } = body;
+
+    const normalizedInvoiceNumber =
+      typeof invoice_number === "string" && /^INV\d+$/i.test(invoice_number.trim())
+        ? invoice_number.trim().toUpperCase()
+        : null;
+
+    let finalInvoiceNumber = normalizedInvoiceNumber;
+    let attempts = 0;
+
+    while (attempts < 3) {
+      const candidateNumber = finalInvoiceNumber || (await getNextCompanyInvoiceNumber(companyId));
+      const exists = await query<any>(
+        "SELECT id FROM sales_invoices WHERE company_id = ? AND invoice_number = ? LIMIT 1",
+        [companyId, candidateNumber]
+      );
+
+      if (exists.length === 0) {
+        finalInvoiceNumber = candidateNumber;
+        break;
+      }
+
+      finalInvoiceNumber = null;
+      attempts += 1;
+    }
+
+    if (!finalInvoiceNumber) {
+      return NextResponse.json({ error: "تعذر توليد رقم فاتورة فريد. حاول مرة أخرى" }, { status: 409 });
+    }
+
 
     const customers = await query<any>(
       "SELECT * FROM customers WHERE id = ? AND company_id = ?",
@@ -154,9 +204,10 @@ export async function POST(request: NextRequest) {
         adjustment_title, adjustment_type, adjustment_amount, adjustment_vat, adjustment_total_with_vat,
         account_id, cost_center_id
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `, [
-      invoice_number,
-      invoice_month,
+      `, [
+        finalInvoiceNumber,
+        invoice_month,
+
       client_id,
       client.company_name || client.customer_name || client.name,
       client.vat_number,
@@ -194,14 +245,16 @@ export async function POST(request: NextRequest) {
           {
             account_id: customersAccId,
             cost_center_id: cost_center_id || undefined,
-            description: `فاتورة مبيعات رقم ${invoice_number} - ${client.company_name || client.customer_name}`,
+              description: `فاتورة مبيعات رقم ${finalInvoiceNumber} - ${client.company_name || client.customer_name}`,
+
             debit: totalWithVat,
             credit: 0
           },
           {
             account_id: salesAccId,
             cost_center_id: cost_center_id || undefined,
-            description: `إيراد مبيعات فاتورة ${invoice_number}`,
+              description: `إيراد مبيعات فاتورة ${finalInvoiceNumber}`,
+
             debit: 0,
             credit: totalWithVat - totalVat
           }
@@ -211,7 +264,8 @@ export async function POST(request: NextRequest) {
           journalLines.push({
             account_id: vatAccId,
             cost_center_id: cost_center_id || undefined,
-            description: `ضريبة مخرجات فاتورة ${invoice_number}`,
+              description: `ضريبة مخرجات فاتورة ${finalInvoiceNumber}`,
+
             debit: 0,
             credit: totalVat
           });
@@ -219,8 +273,9 @@ export async function POST(request: NextRequest) {
 
         await recordJournalEntry({
           entry_date: issue_date,
-          entry_number: `INV-${invoice_number}`,
-          description: `فاتورة مبيعات رقم ${invoice_number}`,
+            entry_number: `INV-${finalInvoiceNumber}`,
+            description: `فاتورة مبيعات رقم ${finalInvoiceNumber}`,
+
           company_id: parseInt(companyId),
           created_by: "System",
           source_type: "sales_invoice",
@@ -238,8 +293,9 @@ export async function POST(request: NextRequest) {
         subUserId: userId,
         companyId: companyId,
         actionType: "INVOICE_CREATED",
-        actionDescription: `تم إنشاء فاتورة ضريبية جديدة رقم: ${invoice_number} بمبلغ: ${totalWithVat}`,
-        metadata: { invoice_id: invoiceId, invoice_number, amount: totalWithVat }
+          actionDescription: `تم إنشاء فاتورة ضريبية جديدة رقم: ${finalInvoiceNumber} بمبلغ: ${totalWithVat}`,
+          metadata: { invoice_id: invoiceId, invoice_number: finalInvoiceNumber, amount: totalWithVat }
+
       });
     }
 
@@ -305,12 +361,13 @@ export async function POST(request: NextRequest) {
       ]);
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      message: "تم حفظ الفاتورة بنجاح",
-      invoice_id: invoiceId,
-      invoice_number 
-    });
+      return NextResponse.json({
+        success: true,
+        message: "تم حفظ الفاتورة بنجاح",
+        invoice_id: invoiceId,
+        invoice_number: finalInvoiceNumber
+      });
+
   } catch (error: any) {
     console.error("Error creating invoice:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });

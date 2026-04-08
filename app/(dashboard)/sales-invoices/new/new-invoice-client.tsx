@@ -38,7 +38,9 @@ import {
   Search,
   ChevronUp,
   FolderTree,
-  Target
+  Target,
+  CircleAlert,
+  Settings
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -104,9 +106,10 @@ interface NewInvoiceClientProps {
   invoiceNumber: string;
   companyId: number;
   userName: string;
+  hasBankAccounts: boolean;
 }
 
-export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName }: NewInvoiceClientProps) {
+export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName, hasBankAccounts }: NewInvoiceClientProps) {
   const t = useTranslations("newInvoicePage");
   const tc = useTranslations("common");
   const router = useRouter();
@@ -549,26 +552,59 @@ export function NewInvoiceClient({ customers, invoiceNumber, companyId, userName
   };
 
   return (
-      <div className="min-h-screen pb-20">
-        {/* Validation Error Toast */}
-        <AnimatePresence>
-          {validationError && (
-            <motion.div
-              initial={{ opacity: 0, y: -50, x: "-50%" }}
-              animate={{ opacity: 1, y: 0, x: "-50%" }}
-              exit={{ opacity: 0, y: -50, x: "-50%" }}
-              className="fixed top-6 left-1/2 z-50 px-6 py-3 rounded-2xl shadow-2xl bg-rose-600 text-white font-bold flex items-center gap-3 border border-white/20 backdrop-blur-md"
-            >
-              <AlertCircle size={18} />
-              <div>
-                <p className="font-black text-sm">{t("error")}</p>
-                <p className="text-xs opacity-90">{validationError}</p>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <div className="min-h-screen pb-20">
+          {/* Validation Error Toast */}
+          <AnimatePresence>
+            {validationError && (
+              <motion.div
+                initial={{ opacity: 0, y: -50, x: "-50%" }}
+                animate={{ opacity: 1, y: 0, x: "-50%" }}
+                exit={{ opacity: 0, y: -50, x: "-50%" }}
+                className="fixed top-6 left-1/2 z-50 px-6 py-3 rounded-2xl shadow-2xl bg-rose-600 text-white font-bold flex items-center gap-3 border border-white/20 backdrop-blur-md"
+              >
+                <AlertCircle size={18} />
+                <div>
+                  <p className="font-black text-sm">{t("error")}</p>
+                  <p className="text-xs opacity-90">{validationError}</p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-        {/* Confirm Save Modal */}
+          {!hasBankAccounts && (
+            <div className="max-w-[85%] mx-auto px-4 pt-6">
+              <div className="rounded-3xl border border-amber-300 bg-amber-50 p-5 md:p-6 shadow-sm">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <div className="flex items-start gap-3">
+                    <div className="mt-0.5 p-2 rounded-xl bg-amber-100 text-amber-700">
+                      <CircleAlert size={20} />
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-sm md:text-base font-black text-amber-900">
+                        تنبيه مهم قبل إصدار الفاتورة الضريبية
+                      </p>
+                      <p className="text-xs md:text-sm font-bold text-amber-800 leading-relaxed">
+                        لا يوجد حساب بنكي مضاف في بيانات المنشأة. عند إصدار الفاتورة بدون حساب بنكي سيظهر جزء معلومات السداد البنكي فارغًا وتصبح الفاتورة غير مكتملة.
+                      </p>
+                      <p className="text-xs md:text-sm font-bold text-amber-700 leading-relaxed">
+                        يمكنك إضافة أكثر من حساب بنكي من إعدادات المنشأة، ثم اختيار الحساب الذي تريد إظهاره داخل صفحة عرض الفاتورة.
+                      </p>
+                    </div>
+                  </div>
+                  <Link
+                    href="/user_profile"
+                    className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-amber-600 text-white font-black text-sm hover:bg-amber-700 transition-colors whitespace-nowrap"
+                  >
+                    <Settings size={16} />
+                    الانتقال إلى إعدادات المنشأة
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+  
+          {/* Confirm Save Modal */}
+
         <AnimatePresence>
           {confirmModal.isOpen && (
             <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">

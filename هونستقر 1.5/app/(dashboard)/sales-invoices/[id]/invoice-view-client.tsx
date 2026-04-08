@@ -18,10 +18,12 @@ import {
   Send,
   X,
   Loader2,
-  AlertCircle,
-  RefreshCw,
-  ChevronDown
-} from "lucide-react";
+    AlertCircle,
+    RefreshCw,
+    ChevronDown,
+    Settings
+  } from "lucide-react";
+
 import { toast } from "sonner";
 import Link from "next/link";
 import { QRCodeCanvas } from "qrcode.react";
@@ -211,10 +213,11 @@ export function InvoiceViewClient({
   const [zatcaStatus, setZatcaStatus] = useState<string | null>(null);
 
     // Email sending states
-    const [showEmailDialog, setShowEmailDialog] = useState<'confirm' | 'compose' | null>(null);
-    const [emailSending, setEmailSending] = useState(false);
-    const [emailAccounts, setEmailAccounts] = useState<any[]>([]);
-    const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
+  const [showEmailDialog, setShowEmailDialog] = useState<'confirm' | 'compose' | null>(null);
+  const [emailSending, setEmailSending] = useState(false);
+  const [emailAccounts, setEmailAccounts] = useState<Array<{ id: number; email: string }>>([]);
+  const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
+
     const [emailTo, setEmailTo] = useState('');
     const [emailSubject, setEmailSubject] = useState('');
     const [emailBody, setEmailBody] = useState('');
@@ -623,7 +626,7 @@ export function InvoiceViewClient({
         setZatcaStatus("failed");
         toast.error(data.error || "فشل إرسال الفاتورة");
       }
-    } catch (err: any) {
+    } catch {
       setZatcaStatus("failed");
       toast.error("خطأ في الاتصال بـ ZATCA");
     } finally {
@@ -956,75 +959,98 @@ export function InvoiceViewClient({
                 </div>
               </div>
 
-              {/* Bank Info */}
-              {selectedBank && (
-                <div 
-                  className="bank-info-box rounded-2xl p-5 border border-[#ccfbf1] flex-shrink-0"
-                  style={{ background: '#f0fdfa' }}
-                >
-                  <div className="flex justify-between items-center mb-4">
-                    <div className="flex items-center gap-2">
-                      <University size={16} className="text-[#059669]" />
-                      <h3 className="font-black text-[#0f172a] text-sm">{t("bankInfo")}</h3>
-                    </div>
-                    {/* Bank Selector - hidden in print */}
-                    {bankAccounts.length > 1 && (
-                      <div className="relative no-print">
-                        <button
-                          onClick={(e) => { e.stopPropagation(); setShowBankSelector(!showBankSelector); }}
-                          className="flex items-center gap-2 px-3 py-1.5 bg-white border border-[#059669] text-[#059669] rounded-lg text-xs font-bold hover:bg-[#059669] hover:text-white transition-all"
-                        >
-                          <RefreshCw size={12} />
-                          تبديل الحساب
-                          <ChevronDown size={12} className={`transition-transform ${showBankSelector ? 'rotate-180' : ''}`} />
-                        </button>
-                        {showBankSelector && (
-                          <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-[#e2e8f0] rounded-xl shadow-lg z-20 overflow-hidden min-w-[220px]">
-                            {bankAccounts.map((bank) => (
-                              <button
-                                key={bank.id}
-                                onClick={() => {
-                                  setSelectedBankId(bank.id);
-                                  setShowBankSelector(false);
-                                }}
-                                className={`w-full text-right px-3 py-2.5 text-xs hover:bg-[#f0fdfa] transition-colors border-b border-[#f1f5f9] last:border-0 ${
-                                  bank.id === selectedBankId ? 'bg-[#f0fdfa] font-bold text-[#059669]' : 'text-[#0f172a]'
-                                }`}
-                              >
-                                <div className="font-bold">{bank.bank_name}</div>
-                                <div className="text-[10px] text-[#94a3b8]">{bank.bank_beneficiary}</div>
-                              </button>
-                            ))}
-                          </div>
-                        )}
+                {/* Bank Info */}
+                {selectedBank ? (
+                  <div 
+                    className="bank-info-box rounded-2xl p-5 border border-[#ccfbf1] flex-shrink-0"
+                    style={{ background: '#f0fdfa' }}
+                  >
+                    <div className="flex justify-between items-center mb-4">
+                      <div className="flex items-center gap-2">
+                        <University size={16} className="text-[#059669]" />
+                        <h3 className="font-black text-[#0f172a] text-sm">{t("bankInfo")}</h3>
                       </div>
-                    )}
+                      {/* Bank Selector - hidden in print */}
+                      {bankAccounts.length > 1 && (
+                        <div className="relative no-print">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setShowBankSelector(!showBankSelector); }}
+                            className="flex items-center gap-2 px-3 py-1.5 bg-white border border-[#059669] text-[#059669] rounded-lg text-xs font-bold hover:bg-[#059669] hover:text-white transition-all"
+                          >
+                            <RefreshCw size={12} />
+                            تبديل الحساب
+                            <ChevronDown size={12} className={`transition-transform ${showBankSelector ? 'rotate-180' : ''}`} />
+                          </button>
+                          {showBankSelector && (
+                            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-[#e2e8f0] rounded-xl shadow-lg z-20 overflow-hidden min-w-[220px]">
+                              {bankAccounts.map((bank) => (
+                                <button
+                                  key={bank.id}
+                                  onClick={() => {
+                                    setSelectedBankId(bank.id);
+                                    setShowBankSelector(false);
+                                  }}
+                                  className={`w-full text-right px-3 py-2.5 text-xs hover:bg-[#f0fdfa] transition-colors border-b border-[#f1f5f9] last:border-0 ${
+                                    bank.id === selectedBankId ? 'bg-[#f0fdfa] font-bold text-[#059669]' : 'text-[#0f172a]'
+                                  }`}
+                                >
+                                  <div className="font-bold">{bank.bank_name}</div>
+                                  <div className="text-[10px] text-[#94a3b8]">{bank.bank_beneficiary}</div>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Row 1: Bank Name & Beneficiary */}
+                    <div className="grid grid-cols-2 gap-3 mb-3">
+                      <div className="bg-white rounded-xl p-3 border border-[#f1f5f9] shadow-sm text-center">
+                        <p className="text-[11px] text-[#94a3b8] mb-1">البنك</p>
+                        <p className="font-bold text-[#0f172a] text-sm">{selectedBank.bank_name}</p>
+                      </div>
+                      <div className="bg-white rounded-xl p-3 border border-[#f1f5f9] shadow-sm text-center">
+                        <p className="text-[11px] text-[#94a3b8] mb-1">المستفيد</p>
+                        <p className="font-bold text-[#0f172a] text-sm">{selectedBank.bank_beneficiary}</p>
+                      </div>
+                    </div>
+                    {/* Row 2: Account Number & IBAN */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="bg-white rounded-xl p-3 border border-[#f1f5f9] shadow-sm text-center">
+                        <p className="text-[11px] text-[#94a3b8] mb-1">رقم الحساب</p>
+                        <p className="font-bold text-[#2563eb] text-sm tracking-wide">{selectedBank.bank_account}</p>
+                      </div>
+                      <div className="bg-white rounded-xl p-3 border border-[#f1f5f9] shadow-sm text-center">
+                        <p className="text-[11px] text-[#94a3b8] mb-1">الآيبان</p>
+                        <p className="font-bold text-[#0f172a] text-xs break-all leading-relaxed tracking-wide">{selectedBank.bank_iban}</p>
+                      </div>
+                    </div>
                   </div>
-                  
-                  {/* Row 1: Bank Name & Beneficiary */}
-                  <div className="grid grid-cols-2 gap-3 mb-3">
-                    <div className="bg-white rounded-xl p-3 border border-[#f1f5f9] shadow-sm text-center">
-                      <p className="text-[11px] text-[#94a3b8] mb-1">البنك</p>
-                      <p className="font-bold text-[#0f172a] text-sm">{selectedBank.bank_name}</p>
+                ) : (
+                  <div className="rounded-2xl p-5 border border-amber-300 bg-amber-50 flex-shrink-0">
+                    <div className="flex items-start gap-3 mb-4">
+                      <AlertCircle size={18} className="text-amber-700 mt-0.5" />
+                      <div>
+                        <h3 className="font-black text-amber-900 text-sm">الفاتورة غير مكتملة</h3>
+                        <p className="text-xs font-bold text-amber-800 leading-relaxed mt-1">
+                          لم يتم عرض معلومات الحساب البنكي في الفاتورة لأن بيانات الحساب البنكي غير مضافة في إعدادات المنشأة.
+                        </p>
+                      </div>
                     </div>
-                    <div className="bg-white rounded-xl p-3 border border-[#f1f5f9] shadow-sm text-center">
-                      <p className="text-[11px] text-[#94a3b8] mb-1">المستفيد</p>
-                      <p className="font-bold text-[#0f172a] text-sm">{selectedBank.bank_beneficiary}</p>
-                    </div>
+                    <p className="text-xs font-bold text-amber-700 leading-relaxed mb-4">
+                      يمكنك إضافة أكثر من حساب بنكي، ثم التحكم بالحساب الذي يظهر في الفاتورة من صفحة عرض الفاتورة بعد الإضافة.
+                    </p>
+                    <Link
+                      href="/user_profile"
+                      className="no-print inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-600 text-white text-xs font-black hover:bg-amber-700 transition-colors"
+                    >
+                      <Settings size={14} />
+                      الانتقال إلى إعدادات المنشأة
+                    </Link>
                   </div>
-                  {/* Row 2: Account Number & IBAN */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-white rounded-xl p-3 border border-[#f1f5f9] shadow-sm text-center">
-                      <p className="text-[11px] text-[#94a3b8] mb-1">رقم الحساب</p>
-                      <p className="font-bold text-[#2563eb] text-sm tracking-wide">{selectedBank.bank_account}</p>
-                    </div>
-                    <div className="bg-white rounded-xl p-3 border border-[#f1f5f9] shadow-sm text-center">
-                      <p className="text-[11px] text-[#94a3b8] mb-1">الآيبان</p>
-                      <p className="font-bold text-[#0f172a] text-xs break-all leading-relaxed tracking-wide">{selectedBank.bank_iban}</p>
-                    </div>
-                  </div>
-                </div>
-              )}
+                )}
+
 
 
             </div>
