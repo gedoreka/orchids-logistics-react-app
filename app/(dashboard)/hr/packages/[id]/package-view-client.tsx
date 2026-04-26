@@ -132,6 +132,9 @@ export function PackageViewClient({
   // Export confirmation modal state
     const [exportModal, setExportModal] = useState(false);
 
+  // Update instructions tooltip
+  const [showUpdateTip, setShowUpdateTip] = useState(false);
+
     // Update from Excel modal state
     const [updateModal, setUpdateModal] = useState<{
     isOpen: boolean;
@@ -711,59 +714,73 @@ export function PackageViewClient({
   }
 
     return (
-      <motion.div 
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="min-h-screen pb-20 w-full px-2 pt-6"
-        dir={isRTL ? 'rtl' : 'ltr'}
-      >
-        <motion.div 
-          variants={itemVariants}
-          className="relative bg-gradient-to-br from-slate-800 via-slate-700 to-slate-600 dark:bg-gradient-to-r dark:from-slate-700 dark:to-slate-800 rounded-[3rem] dark:rounded-2xl shadow-2xl dark:shadow-lg border border-slate-500/30 dark:border-0 overflow-hidden"
+      <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen pb-20">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="w-full px-3 md:px-6 pt-6 space-y-5"
         >
-          {/* Top colored bar */}
-          <div className="h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 via-purple-500 via-emerald-500 to-blue-500 dark:hidden"></div>
-          
-          {/* Decorative circles - light mode only */}
-          <div className="absolute top-4 left-4 w-32 h-32 bg-gradient-to-br from-violet-500/10 to-purple-500/10 rounded-full blur-2xl dark:hidden"></div>
-          <div className="absolute top-4 right-4 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-full blur-2xl dark:hidden"></div>
-          <div className="absolute bottom-4 left-4 w-24 h-24 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 rounded-full blur-2xl dark:hidden"></div>
-          <div className="absolute bottom-4 right-4 w-24 h-24 bg-gradient-to-br from-amber-500/10 to-orange-500/10 rounded-full blur-2xl dark:hidden"></div>
-
-          <div className="relative z-10 p-6 border-b border-white/10">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center">
-                  <Package className="text-white" size={22} />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2 text-xs font-bold text-white/60">
-                      <Link href="/hr" className="hover:text-white transition-colors flex items-center gap-1">
-                        <LayoutDashboard size={12} />
-                        {t('hrAffairs')}
-                      </Link>
-                      {isRTL ? <ArrowLeft size={12} /> : <ArrowRight size={12} />}
-                      <Link href="/hr/packages" className="hover:text-white transition-colors">{t('packages')}</Link>
-                      {isRTL ? <ArrowLeft size={12} /> : <ArrowRight size={12} />}
-                      <span className="text-purple-300">{packageData.group_name}</span>
+          {/* ══ CARD 1 — HEADER ══ */}
+          <motion.div
+            variants={itemVariants}
+            className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-violet-900 border border-white/10 shadow-2xl shadow-violet-500/10"
+          >
+            <div className="h-1 w-full bg-gradient-to-r from-blue-500 via-purple-500 to-emerald-500" />
+            <div className={`absolute top-0 ${isRTL ? 'left-0' : 'right-0'} w-64 h-64 bg-violet-600/15 rounded-full blur-3xl -translate-y-1/2 ${isRTL ? '-translate-x-1/3' : 'translate-x-1/3'}`} />
+            <div className="relative z-10 p-6 md:p-8">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-xs font-bold text-white/40">
+                    <Link href="/hr" className="hover:text-blue-400 transition-colors flex items-center gap-1">
+                      <LayoutDashboard size={12} />
+                      {t('hrAffairs')}
+                    </Link>
+                    {isRTL ? <ArrowLeft size={12} /> : <ArrowRight size={12} />}
+                    <Link href="/hr/packages" className="hover:text-purple-400 transition-colors">{t('packages')}</Link>
+                    {isRTL ? <ArrowLeft size={12} /> : <ArrowRight size={12} />}
+                    <span className="text-purple-400 font-black">{packageData.group_name}</span>
+                  </div>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center shadow-lg shadow-purple-500/30">
+                      <Package className="text-white" size={20} />
                     </div>
+                    <h1 className="text-2xl font-black text-white">{packageData.group_name}</h1>
+                    <span className={`px-3 py-1 rounded-xl text-[10px] font-black uppercase ${
+                      packageData.work_type === 'target'
+                        ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                        : packageData.work_type === 'salary'
+                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                        : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                    }`}>
+                      {getWorkTypeLabel(packageData.work_type)}
+                    </span>
+                  </div>
+                  {packageData.work_type === 'target' && (
+                    <div className="flex items-center gap-4 text-white/50 text-xs font-bold">
+                      <span className="flex items-center gap-1.5">
+                        <Target size={14} className="text-blue-400" />
+                        {t('target')}: {packageData.monthly_target}
+                      </span>
+                      <span className="h-1 w-1 rounded-full bg-white/20" />
+                      <span className="flex items-center gap-1.5">
+                        <Trophy size={14} className="text-amber-400" />
+                        {t('bonus')}: {packageData.bonus_after_target} {isRTL ? 'ر.س' : 'SAR'}
+                      </span>
+                    </div>
+                  )}
                 </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/10 rounded-xl">
-                  <div className="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></div>
-                  <span className="text-xs font-black text-white/80">{stats.total_employees} {t('employee')}</span>
-                </div>
-                
-                {prevPackage && (
-                  <Link href={`/hr/packages/${prevPackage.id}`}>
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                        className="h-10 px-4 rounded-xl transition-all flex items-center gap-2 text-xs font-black"
-                        style={{ backgroundColor: '#e2e8f0', color: '#4f46e5', border: '1px solid #c7d2fe', WebkitTextFillColor: '#4f46e5' }}
+                <div className="flex items-center gap-3 flex-wrap">
+                  <div className="flex items-center gap-2 px-4 py-2 bg-white/8 border border-white/10 rounded-xl">
+                    <div className="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></div>
+                    <span className="text-xs font-black text-white/80">{stats.total_employees} {t('employee')}</span>
+                  </div>
+                  {prevPackage && (
+                    <Link href={`/hr/packages/${prevPackage.id}`}>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="h-10 px-4 rounded-xl bg-white/10 border border-white/10 text-white hover:bg-white/20 transition-all flex items-center gap-2 text-xs font-black"
                       >
                         {isRTL ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
                         {t('previous')}
@@ -775,181 +792,138 @@ export function PackageViewClient({
                       <motion.button
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        className="h-10 px-4 rounded-xl transition-all flex items-center gap-2 text-xs font-black"
-                        style={{ backgroundColor: '#e2e8f0', color: '#4f46e5', border: '1px solid #c7d2fe', WebkitTextFillColor: '#4f46e5' }}
+                        className="h-10 px-4 rounded-xl bg-white/10 border border-white/10 text-white hover:bg-white/20 transition-all flex items-center gap-2 text-xs font-black"
                       >
                         {t('next')}
                         {isRTL ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
                       </motion.button>
-                  </Link>
-                )}
-                
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setIsAddModalOpen(true)}
-                      className="flex items-center gap-2 px-5 py-2.5 rounded-2xl transition-all font-black text-sm"
-                      style={{ backgroundColor: '#4f46e5', color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
-                >
-                  <UserPlus size={18} />
-                  {t('addEmployees')}
-                </motion.button>
-              </div>
-            </div>
-          </div>
-
-          <div className="relative z-10 p-6 border-b border-white/10">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-              <div className="flex items-center gap-5">
-                <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/30">
-                  <Package size={32} />
-                </div>
-                <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <h2 className="text-2xl font-black tracking-tight text-white">{packageData.group_name}</h2>
-                    <span className={`px-3 py-1 rounded-xl text-[10px] font-black uppercase ${
-                      packageData.work_type === 'target' 
-                        ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' 
-                        : packageData.work_type === 'salary'
-                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                        : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                    }`}>
-                      {getWorkTypeLabel(packageData.work_type)}
-                    </span>
-                  </div>
-                  {packageData.work_type === 'target' && (
-                    <div className="flex items-center gap-4 text-slate-400 text-xs font-bold">
-                      <span className="flex items-center gap-1.5">
-                        <Target size={14} className="text-blue-400" />
-                        {t('target')}: {packageData.monthly_target}
-                      </span>
-                      <span className="h-1 w-1 rounded-full bg-slate-600" />
-                      <span className="flex items-center gap-1.5">
-                        <Trophy size={14} className="text-amber-400" />
-                        {t('bonus')}: {packageData.bonus_after_target} {isRTL ? 'ر.س' : 'SAR'}
-                      </span>
-                    </div>
+                    </Link>
                   )}
-                </div>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-3">
-                <StatCard 
-                  icon={<Users size={18} />}
-                  label={t('totalEmployees')}
-                  value={stats.total_employees}
-                  color="purple"
-                />
-                <StatCard 
-                  icon={<IdCard size={18} />}
-                  label={t('iqamaCompletion')}
-                  value={`${stats.iqama_complete}/${stats.total_employees}`}
-                  color="blue"
-                />
-                <StatCard 
-                  icon={<FileImage size={18} />}
-                  label={t('photoCompletion')}
-                  value={`${stats.photo_complete}/${stats.total_employees}`}
-                  color="emerald"
-                />
-                <StatCard 
-                  icon={<FileCheck size={18} />}
-                  label={t('licenseCompletion')}
-                  value={`${stats.license_complete}/${stats.total_employees}`}
-                  color="amber"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="relative z-10 p-6 border-b border-white/10">
-            <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-3">
-              <div className="flex-1 relative">
-                <Search className={cn("absolute top-1/2 -translate-y-1/2 text-slate-400", isRTL ? "right-4" : "left-4")} size={18} />
-                <input 
-                  type="text"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder={t('searchPlaceholder')}
-                  className={cn(
-                    "w-full h-12 rounded-xl bg-white/10 border border-white/10 text-sm font-bold text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500/30 focus:bg-white/20 outline-none transition-all",
-                    isRTL ? "pr-12 pl-4" : "pl-12 pr-4"
-                  )}
-                />
-              </div>
-              
-              <div className="flex gap-2 flex-wrap">
-                {['all', 'active', 'soon', 'expired', 'on_leave'].map((f) => (
                   <motion.button
-                    key={f}
-                    type="button"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => handleFilterChange(f)}
-                      className={`h-12 px-4 rounded-xl text-xs font-black transition-all ${
-                        filter === f 
-                          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/30' 
-                          : 'bg-white/10 text-white/70 hover:bg-white/20 border border-white/10'
-                      }`}
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => setIsAddModalOpen(true)}
+                    className="flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-violet-600 text-white hover:from-purple-600 hover:to-violet-700 transition-all font-black text-sm shadow-xl shadow-purple-500/30"
                   >
-                    {f === 'all' && t('all')}
-                    {f === 'active' && t('active')}
-                    {f === 'soon' && t('expiringSoon')}
-                    {f === 'expired' && t('expired')}
-                    {f === 'on_leave' && t('onLeave')}
+                    <UserPlus size={18} />
+                    {t('addEmployees')}
                   </motion.button>
-                ))}
+                </div>
               </div>
+            </div>
+          </motion.div>
 
-              <motion.button 
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                type="submit" 
-                    className="h-12 px-8 rounded-2xl text-xs font-black transition-all"
-                    style={{ backgroundColor: '#4f46e5', color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
-              >
-                {t('search')}
-              </motion.button>
-            </form>
+          {/* ══ CARD 2 — STATS GRID ══ */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { gradient: "from-purple-500 to-violet-600", glow: "bg-purple-500/10", icon: <Users size={18} className="text-white" />, badgeColor: "text-purple-300 bg-purple-500/20 border-purple-500/30", badge: isRTL ? "الإجمالي" : "Total", label: t('totalEmployees'), value: stats.total_employees, sub: isRTL ? "في الباقة" : "In package", delay: 0.2 },
+              { gradient: "from-blue-500 to-indigo-600", glow: "bg-blue-500/10", icon: <IdCard size={18} className="text-white" />, badgeColor: "text-blue-300 bg-blue-500/20 border-blue-500/30", badge: isRTL ? "هوية" : "Iqama", label: t('iqamaCompletion'), value: `${stats.iqama_complete}/${stats.total_employees}`, sub: isRTL ? "مكتملة" : "Completed", delay: 0.3 },
+              { gradient: "from-emerald-500 to-teal-600", glow: "bg-emerald-500/10", icon: <FileImage size={18} className="text-white" />, badgeColor: "text-emerald-300 bg-emerald-500/20 border-emerald-500/30", badge: isRTL ? "صورة" : "Photo", label: t('photoCompletion'), value: `${stats.photo_complete}/${stats.total_employees}`, sub: isRTL ? "مكتملة" : "Completed", delay: 0.4 },
+              { gradient: "from-amber-500 to-orange-600", glow: "bg-amber-500/10", icon: <FileCheck size={18} className="text-white" />, badgeColor: "text-amber-300 bg-amber-500/20 border-amber-500/30", badge: isRTL ? "رخصة" : "License", label: t('licenseCompletion'), value: `${stats.license_complete}/${stats.total_employees}`, sub: isRTL ? "مكتملة" : "Completed", delay: 0.5 },
+            ].map((stat, idx) => (
+              <motion.div key={idx} variants={itemVariants}>
+                <div className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${stat.gradient} p-5 shadow-xl border border-white/10 hover:-translate-y-1 transition-all`}>
+                  <div className={`absolute top-0 right-0 w-20 h-20 ${stat.glow} rounded-full -translate-y-8 translate-x-8 blur-xl`} />
+                  <div className="relative z-10 flex items-start justify-between">
+                    <div className="p-2 bg-white/15 rounded-xl">{stat.icon}</div>
+                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-full border ${stat.badgeColor}`}>{stat.badge}</span>
+                  </div>
+                  <div className="mt-4 relative z-10">
+                    <p className="text-white/60 text-[10px] font-black uppercase tracking-wider">{stat.label}</p>
+                    <motion.p initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: stat.delay, type: "spring" }} className="text-3xl font-black text-white mt-1">{stat.value}</motion.p>
+                    <p className="text-white/40 text-[10px] font-bold mt-1">{stat.sub}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
           </div>
 
-          <div className="relative z-10 px-6 py-4 border-b border-white/10">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center">
-                  <Users className="text-white" size={20} />
+          {/* ══ CARD 3 — EMPLOYEES LIST ══ */}
+          <motion.div
+            variants={itemVariants}
+            className="relative overflow-hidden rounded-2xl bg-slate-800/95 border border-slate-600/40 shadow-xl"
+          >
+            {/* Card header */}
+            <div className="px-6 py-4 border-b border-white/8 bg-slate-900/40">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center shadow-lg">
+                    <Users className="text-white" size={18} />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-black text-sm">{t('employeesList')}</h3>
+                    <p className="text-white/40 text-[11px] font-bold">{employees.length} {t('employeesInList')}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-white font-black">{t('employeesList')}</h3>
-                  <p className="text-slate-400 text-xs font-bold">{employees.length} {t('employeesInList')}</p>
-                </div>
-              </div>
                 <div className="flex items-center gap-2">
                   <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => {
-                        if (employees.length === 0) {
-                          toast.error(t('noMatchingEmployees'));
-                          return;
-                        }
-                        setExportModal(true);
-                      }}
-                      className="h-9 px-4 rounded-lg bg-white/10 text-white text-xs font-bold hover:bg-white/20 transition-all flex items-center gap-2"
-                    >
-                      <Download size={14} />
-                      {t('exportExcel')}
-                    </motion.button>
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                      if (employees.length === 0) {
+                        toast.error(t('noMatchingEmployees'));
+                        return;
+                      }
+                      setExportModal(true);
+                    }}
+                    className="h-9 px-4 rounded-lg bg-white/10 text-white text-xs font-bold hover:bg-white/20 transition-all flex items-center gap-2 border border-white/10"
+                  >
+                    <Download size={14} />
+                    {t('exportExcel')}
+                  </motion.button>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => updateFileInputRef.current?.click()}
                     className="h-9 px-4 rounded-lg bg-emerald-500/20 text-emerald-300 text-xs font-bold hover:bg-emerald-500/30 transition-all flex items-center gap-2 border border-emerald-500/20"
-                    title={t('updateFormatNote')}
                   >
                     <Upload size={14} />
-                    {t('updateFromExcel')}
+                    تحديث بيانات الموظفين الحالي
                   </motion.button>
+                  <div className="relative">
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setShowUpdateTip(v => !v)}
+                      className="h-8 w-8 rounded-full bg-white/10 text-white/70 hover:bg-white/20 hover:text-white transition-all flex items-center justify-center border border-white/10"
+                      title="تعليمات"
+                    >
+                      <Info size={14} />
+                    </motion.button>
+                    <AnimatePresence>
+                      {showUpdateTip && (
+                        <>
+                          <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 z-[200]"
+                            onClick={() => setShowUpdateTip(false)}
+                          />
+                          <motion.div
+                            initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                            transition={{ duration: 0.15 }}
+                            className="absolute left-1/2 -translate-x-1/2 top-10 z-[201] w-80 bg-slate-900 border border-white/10 rounded-2xl shadow-2xl p-5 text-right"
+                          >
+                            <div className="flex items-center gap-2 mb-3">
+                              <div className="h-7 w-7 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
+                                <Info size={14} className="text-emerald-400" />
+                              </div>
+                              <span className="text-sm font-black text-white">كيفية تحديث بيانات الموظفين</span>
+                            </div>
+                            <p className="text-xs font-bold text-white/70 leading-relaxed">
+                              يمكنك تحميل نموذج Excel يحتوي على بيانات الموظفين المضافين مسبقاً، ثم تعديل أي بيانات ناقصة أو غير مكتملة. بعد الانتهاء من التعديل، ارفع الملف وسيقوم النظام تلقائياً بالبحث عن التغييرات وتحديثها في ملف كل موظف على حدة — دون المساس بأي بيانات أخرى لم تقم بتعديلها.
+                            </p>
+                            <div className="mt-3 flex justify-end">
+                              <button onClick={() => setShowUpdateTip(false)} className="text-[11px] font-black text-white/40 hover:text-white/70 transition-colors">إغلاق</button>
+                            </div>
+                          </motion.div>
+                        </>
+                      )}
+                    </AnimatePresence>
+                  </div>
                   <input
                     ref={updateFileInputRef}
                     type="file"
@@ -958,10 +932,60 @@ export function PackageViewClient({
                     onChange={handleUpdateFileUpload}
                   />
                 </div>
+              </div>
             </div>
-          </div>
 
-          <div className="relative z-10 bg-gradient-to-r from-violet-50/80 via-purple-50/50 to-indigo-50/80 dark:bg-gray-50 dark:bg-none mx-4 mb-4 rounded-2xl border-2 border-violet-200/60 dark:border-gray-200 shadow-sm">
+            {/* Search + filter */}
+            <div className="px-6 py-4 border-b border-white/8">
+              <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-3">
+                <div className="flex-1 relative">
+                  <Search className={cn("absolute top-1/2 -translate-y-1/2 text-white/30", isRTL ? "right-4" : "left-4")} size={16} />
+                  <input
+                    type="text"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder={t('searchPlaceholder')}
+                    className={cn(
+                      "w-full h-11 rounded-xl bg-white/5 border border-white/10 text-sm font-bold text-white placeholder-white/20 focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/40 outline-none transition-all",
+                      isRTL ? "pr-10 pl-4" : "pl-10 pr-4"
+                    )}
+                  />
+                </div>
+                <div className="flex gap-2 flex-wrap">
+                  {['all', 'active', 'soon', 'expired', 'on_leave'].map((f) => (
+                    <motion.button
+                      key={f}
+                      type="button"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => handleFilterChange(f)}
+                      className={`h-11 px-4 rounded-xl text-xs font-black transition-all ${
+                        filter === f
+                          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/30'
+                          : 'bg-white/5 text-white/60 hover:bg-white/10 border border-white/10'
+                      }`}
+                    >
+                      {f === 'all' && t('all')}
+                      {f === 'active' && t('active')}
+                      {f === 'soon' && t('expiringSoon')}
+                      {f === 'expired' && t('expired')}
+                      {f === 'on_leave' && t('onLeave')}
+                    </motion.button>
+                  ))}
+                </div>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit"
+                  className="h-11 px-6 rounded-xl bg-gradient-to-r from-purple-500 to-violet-600 text-white text-xs font-black shadow-lg shadow-purple-500/20"
+                >
+                  {t('search')}
+                </motion.button>
+              </form>
+            </div>
+
+            {/* Employees table */}
+            <div className="bg-white mx-4 mb-4 mt-4 rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
             <div className="overflow-auto max-h-[650px] scrollbar-hide">
               <table className={cn("w-full border-separate border-spacing-0", isRTL ? "text-right" : "text-left")}>
                 <thead className="sticky top-0 z-20">
@@ -1078,24 +1102,28 @@ export function PackageViewClient({
             </div>
           </div>
 
-          <div className="relative z-10 bg-slate-600 px-6 py-4 rounded-b-[3rem] dark:rounded-b-none">
-            <div className="flex items-center justify-between text-xs font-bold text-white/70">
+            {/* Card footer */}
+            <div className="px-6 py-4 border-t border-white/8 bg-slate-900/30 flex items-center justify-between text-xs font-bold text-white/40">
               <span>{t('totalEmployeesFooter')}: {employees.length}</span>
               <div className="flex items-center gap-2">
                 <Sparkles size={14} className="text-purple-400" />
                 <span>{t('package')} {packageData.group_name}</span>
               </div>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
 
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-gray-400 uppercase tracking-widest pt-4">
-          <div className="flex items-center gap-2">
-            <Sparkles size={12} className="text-purple-500" />
-            <span>{t('systemManagement')}</span>
-          </div>
-          <span>{t('allRightsReserved')} © {new Date().getFullYear()}</span>
-        </div>
+          {/* ══ FOOTER ══ */}
+          <motion.div
+            variants={itemVariants}
+            className="flex flex-col sm:flex-row justify-between items-center gap-3 py-4 px-5 rounded-2xl bg-slate-800/50 border border-slate-700/30 text-[10px] font-black text-white/30 uppercase tracking-widest"
+          >
+            <div className="flex items-center gap-2">
+              <Sparkles size={12} className="text-purple-400" />
+              <span>{t('systemManagement')}</span>
+            </div>
+            <span>{t('allRightsReserved')} © {new Date().getFullYear()}</span>
+          </motion.div>
+        </motion.div>
 
         {/* ========== EXPORT CONFIRMATION PREMIUM MODAL ========== */}
         <AnimatePresence>
@@ -2050,7 +2078,7 @@ export function PackageViewClient({
               </div>
             )}
           </AnimatePresence>
-        </motion.div>
+      </div>
     );
 }
 

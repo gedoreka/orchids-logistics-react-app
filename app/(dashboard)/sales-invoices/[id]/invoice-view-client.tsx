@@ -21,7 +21,9 @@ import {
     AlertCircle,
     RefreshCw,
     ChevronDown,
-    Settings
+    Settings,
+    Layers,
+    Check
   } from "lucide-react";
 
 import { toast } from "sonner";
@@ -211,6 +213,8 @@ export function InvoiceViewClient({
   const [isMounted, setIsMounted] = useState(false);
   const [zatcaSubmitting, setZatcaSubmitting] = useState(false);
   const [zatcaStatus, setZatcaStatus] = useState<string | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState(0);
+  const [showTemplateSelector, setShowTemplateSelector] = useState(false);
 
     // Email sending states
   const [showEmailDialog, setShowEmailDialog] = useState<'confirm' | 'compose' | null>(null);
@@ -647,6 +651,42 @@ export function InvoiceViewClient({
             </button>
           </Link>
           <button
+            onClick={() => setShowTemplateSelector(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#6d28d9] text-white hover:bg-[#5b21b6] font-bold text-sm transition-all shadow-md"
+          >
+            <Layers size={18} />
+            القوالب {selectedTemplate > 0 ? `(${selectedTemplate})` : ''}
+          </button>
+          {/* Bank Account Selector — works for all templates */}
+          {bankAccounts.length >= 1 && (
+            <div className="relative">
+              <button
+                onClick={(e) => { e.stopPropagation(); setShowBankSelector(!showBankSelector); }}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#0369a1] text-white hover:bg-[#0284c7] font-bold text-sm transition-all shadow-md"
+              >
+                <University size={18} />
+                {selectedBank?.bank_name || 'الحساب البنكي'}
+                <ChevronDown size={14} className={`transition-transform ${showBankSelector ? 'rotate-180' : ''}`} />
+              </button>
+              {showBankSelector && (
+                <div className="absolute top-full right-0 mt-1 bg-white border border-[#e2e8f0] rounded-xl shadow-xl z-30 overflow-hidden min-w-[230px]" onClick={(e) => e.stopPropagation()}>
+                  {bankAccounts.map((bank) => (
+                    <button
+                      key={bank.id}
+                      onClick={() => { setSelectedBankId(bank.id); setShowBankSelector(false); }}
+                      className={`w-full text-right px-4 py-3 text-xs hover:bg-[#f0f9ff] transition-colors border-b border-[#f1f5f9] last:border-0 ${
+                        bank.id === selectedBankId ? 'bg-[#f0f9ff] font-bold text-[#0369a1]' : 'text-[#0f172a]'
+                      }`}
+                    >
+                      <div className="font-bold text-sm">{bank.bank_name}</div>
+                      <div className="text-[10px] text-[#94a3b8] mt-0.5">{bank.bank_beneficiary}</div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+          <button
             onClick={() => handlePrint()}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1e293b] text-white hover:bg-[#0f172a] font-bold text-sm transition-all shadow-md"
           >
@@ -688,8 +728,9 @@ export function InvoiceViewClient({
               <div 
                 ref={printRef} 
                 className="invoice-container bg-white shadow-xl overflow-hidden border border-[#f1f5f9] mx-auto"
-                style={{ 
-                  width: '210mm', 
+                style={{
+                  width: '210mm',
+                  minHeight: '297mm',
                   backgroundColor: '#ffffff',
                   color: '#0f172a',
                   display: 'flex',
@@ -735,8 +776,9 @@ export function InvoiceViewClient({
                 `}</style>
 
 
+            {selectedTemplate === 0 && (<>
             {/* Header */}
-            <div 
+            <div
                 className="text-white px-6 py-4 relative overflow-hidden flex-shrink-0"
                 style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}
               >
@@ -765,9 +807,8 @@ export function InvoiceViewClient({
                   </div>
 
                 {/* System Logo */}
-                <div className="flex flex-col items-center gap-1 p-3 rounded-xl border border-[#ffffff1a] min-w-[110px] flex-shrink-0" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
-                  <Truck size={24} className="text-[#3b82f6]" />
-                  <h2 className="text-[10px] font-black text-white uppercase">Logistics Systems</h2>
+                <div className="flex flex-col items-center justify-center p-2 rounded-xl border border-[#ffffff1a] min-w-[90px] max-w-[110px] flex-shrink-0" style={{ backgroundColor: 'rgba(255,255,255,0.07)' }}>
+                  <img src="/logo.png" alt="System Logo" className="max-h-12 max-w-full object-contain" />
                 </div>
               </div>
 
@@ -971,7 +1012,7 @@ export function InvoiceViewClient({
                         <h3 className="font-black text-[#0f172a] text-sm">{t("bankInfo")}</h3>
                       </div>
                       {/* Bank Selector - hidden in print */}
-                      {bankAccounts.length > 1 && (
+                      {bankAccounts.length >= 1 && (
                         <div className="relative no-print">
                           <button
                             onClick={(e) => { e.stopPropagation(); setShowBankSelector(!showBankSelector); }}
@@ -1054,9 +1095,430 @@ export function InvoiceViewClient({
 
 
             </div>
+            </>)}
+
+            {/* ═══════════ TEMPLATE 1 — Blue Professional ═══════════ */}
+            {selectedTemplate === 1 && (<>
+              <div style={{height:'6px',background:'linear-gradient(90deg,#1e40af,#3b82f6,#1e40af)'}} />
+              <div style={{background:'#fff',padding:'20px 28px',borderBottom:'1px solid #e2e8f0'}}>
+                <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:'12px'}}>
+                  <div style={{display:'flex',alignItems:'center',gap:'12px'}}>
+                    <div style={{width:'56px',height:'56px',borderRadius:'10px',overflow:'hidden',border:'2px solid #dbeafe',background:'#eff6ff',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                      {company.logo_path?<img src={getPublicUrl(company.logo_path)||''}alt="Logo"style={{maxWidth:'100%',maxHeight:'100%',objectFit:'contain'}}crossOrigin="anonymous"/>:<Building2 size={24}color="#1e40af"/>}
+                    </div>
+                    <div>
+                      <p style={{fontWeight:900,fontSize:'15px',color:'#0f172a',margin:0}}>{company.name}</p>
+                      <p style={{fontSize:'10px',color:'#64748b',margin:'2px 0 0'}}>CR: {company.commercial_number}</p>
+                      <p style={{fontSize:'10px',color:'#3b82f6',margin:'1px 0 0'}}>VAT: {company.vat_number}</p>
+                    </div>
+                  </div>
+                  <div style={{textAlign:'center'}}>
+                    <p style={{fontWeight:900,fontSize:'22px',color:'#1e40af',margin:0,letterSpacing:'2px'}}>فاتورة ضريبية</p>
+                    <p style={{fontSize:'11px',color:'#94a3b8',fontWeight:700,margin:'2px 0 0',letterSpacing:'3px'}}>VAT INVOICE</p>
+                  </div>
+                  <div style={{textAlign:'center'}}>
+                    <div style={{background:'#1e40af',color:'#fff',padding:'8px 18px',borderRadius:'10px',display:'inline-block'}}>
+                      <p style={{fontSize:'9px',color:'#93c5fd',margin:0,letterSpacing:'1px'}}>INVOICE NO.</p>
+                      <p style={{fontWeight:900,fontSize:'17px',margin:0}}>{invoice.invoice_number}</p>
+                    </div>
+                    <p style={{fontSize:'11px',color:'#64748b',margin:'5px 0 0',fontWeight:700}}>{formatDate(invoice.issue_date)}</p>
+                  </div>
+                </div>
+                <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'10px',marginTop:'14px',paddingTop:'14px',borderTop:'1px solid #f1f5f9'}}>
+                  {[{label:'شهر المطالبة',value:invoice.invoice_month||getClaimMonth(invoice.issue_date)},{label:'تاريخ الاستحقاق',value:formatDate(invoice.due_date)},{label:'الفترة من',value:formatDate(items[0]?.period_from)},{label:'الفترة إلى',value:formatDate(items[0]?.period_to)}].map((m,i)=>(
+                    <div key={i} style={{background:'#f8fafc',borderRadius:'8px',padding:'8px 10px',border:'1px solid #e2e8f0'}}>
+                      <p style={{fontSize:'9px',color:'#94a3b8',fontWeight:700,margin:0}}>{m.label}</p>
+                      <p style={{fontWeight:800,fontSize:'12px',color:'#0f172a',margin:'2px 0 0'}}>{m.value}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div style={{padding:'24px 32px',display:'flex',flexDirection:'column',gap:'20px'}}>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'14px'}}>
+                  {[{title:'بيانات العميل',border:'#bfdbfe',bg:'#eff6ff',accent:'#1e40af',rows:[{label:'الاسم',value:customer?.company_name||customer?.name||invoice.client_name},{label:'السجل التجاري',value:customer?.commercial_number||'-'},{label:'الرقم الضريبي',value:customer?.vat_number||invoice.client_vat||'-'},{label:'العنوان',value:customer?.short_address||customer?.address||invoice.client_address||'-'}]},{title:'بيانات المنشأة',border:'#e2e8f0',bg:'#f8fafc',accent:'#0f172a',rows:[{label:'الاسم',value:company.name},{label:'السجل التجاري',value:company.commercial_number},{label:'الرقم الضريبي',value:company.vat_number},{label:'العنوان',value:companyAddress||'-'}]}].map((card,ci)=>(
+                    <div key={ci} style={{borderRadius:'12px',padding:'14px',border:`1px solid ${card.border}`,background:card.bg}}>
+                      <h3 style={{fontWeight:900,fontSize:'11px',color:card.accent,margin:'0 0 8px',paddingBottom:'6px',borderBottom:`1px solid ${card.border}`}}>{card.title}</h3>
+                      {card.rows.map((row,ri)=>(
+                        <div key={ri} style={{display:'flex',justifyContent:'space-between',marginBottom:'5px',fontSize:'11px'}}>
+                          <span style={{color:'#64748b'}}>{row.label}:</span>
+                          <span style={{fontWeight:700,color:'#0f172a',textAlign:'right',maxWidth:'60%'}}>{row.value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+                <div style={{borderRadius:'10px',overflow:'hidden',border:'1px solid #e2e8f0'}}>
+                  <table style={{width:'100%',borderCollapse:'collapse',fontSize:'12px'}}>
+                    <thead><tr style={{background:'#1e40af',color:'#fff'}}>{['البيان','الكمية','السعر','قبل الضريبة','ضريبة 15%','الإجمالي'].map((h,i)=>(<th key={i} style={{padding:'10px 12px',textAlign:i===0?'right':'center',fontWeight:800}}>{h}</th>))}</tr></thead>
+                    <tbody>
+                      {items.map((item,i)=>(<tr key={item.id} style={{background:i%2===0?'#fff':'#f8fafc',borderBottom:'1px solid #f1f5f9'}}><td style={{padding:'8px 12px',color:'#0f172a',fontWeight:600}}>{item.product_name}</td><td style={{padding:'8px 12px',textAlign:'center'}}>{item.quantity}</td><td style={{padding:'8px 12px',textAlign:'center'}}>{parseFloat(String(item.unit_price)).toFixed(2)}</td><td style={{padding:'8px 12px',textAlign:'center'}}>{parseFloat(String(item.total_before_vat)).toLocaleString('en-US',{minimumFractionDigits:2})}</td><td style={{padding:'8px 12px',textAlign:'center',color:'#1e40af',fontWeight:700}}>{parseFloat(String(item.vat_amount)).toLocaleString('en-US',{minimumFractionDigits:2})}</td><td style={{padding:'8px 12px',textAlign:'center',fontWeight:900}}>{parseFloat(String(item.total_with_vat)).toLocaleString('en-US',{minimumFractionDigits:2})}</td></tr>))}
+                      {adjustments.map((adj)=>(<tr key={adj.id} style={{background:adj.type==='discount'?'#fff1f2':'#f0fdf4',borderBottom:'1px solid #f1f5f9'}}><td style={{padding:'8px 12px',fontWeight:700}}>{adj.title} <span style={{fontSize:'10px',opacity:0.6}}>({adj.type==='discount'?'خصم':'إضافة'})</span></td><td style={{padding:'8px 12px',textAlign:'center',opacity:0.4}}>-</td><td style={{padding:'8px 12px',textAlign:'center',opacity:0.4}}>-</td><td style={{padding:'8px 12px',textAlign:'center',fontWeight:700,color:adj.type==='discount'?'#e11d48':'#059669'}}>{adj.type==='discount'?'-':''}{parseFloat(String(adj.amount)).toLocaleString('en-US',{minimumFractionDigits:2})}</td><td style={{padding:'8px 12px',textAlign:'center',opacity:0.4}}>-</td><td style={{padding:'8px 12px',textAlign:'center',fontWeight:900,color:adj.type==='discount'?'#be123c':'#047857'}}>{adj.type==='discount'?'-':''}{parseFloat(String(adj.total_with_vat)).toLocaleString('en-US',{minimumFractionDigits:2})}</td></tr>))}
+                    </tbody>
+                  </table>
+                </div>
+                <div style={{display:'grid',gridTemplateColumns:'236px 1fr 1fr',gap:'14px',alignItems:'start'}}>
+                  <div style={{background:'#eff6ff',borderRadius:'12px',padding:'14px',border:'1px solid #bfdbfe',textAlign:'center'}}>
+                    <p style={{fontSize:'9px',fontWeight:800,color:'#1e40af',margin:'0 0 8px',letterSpacing:'1px'}}>ZATCA QR</p>
+                    {isMounted&&<QRCodeCanvas value={qrData} size={200} level="H" includeMargin={false}/>}
+                  </div>
+                  <div style={{borderRadius:'12px',padding:'14px',border:'1px solid #e2e8f0',background:'#f8fafc'}}>
+                    <p style={{fontWeight:900,fontSize:'11px',color:'#0f172a',margin:'0 0 8px'}}>ملخص الفاتورة</p>
+                    {[{label:'المبلغ قبل الضريبة',value:`${totalBeforeVat.toLocaleString('en-US',{minimumFractionDigits:2})} SAR`,c:'#0f172a'},{label:'ضريبة القيمة المضافة (15%)',value:`${totalVat.toLocaleString('en-US',{minimumFractionDigits:2})} SAR`,c:'#1e40af'}].map((r,i)=>(<div key={i} style={{display:'flex',justifyContent:'space-between',padding:'5px 0',borderBottom:'1px dashed #e2e8f0',fontSize:'11px'}}><span style={{color:'#64748b'}}>{r.label}</span><span style={{fontWeight:700,color:r.c}}>{r.value}</span></div>))}
+                    <div style={{background:'#1e40af',color:'#fff',borderRadius:'8px',padding:'10px 14px',marginTop:'10px',display:'flex',justifyContent:'space-between'}}><span style={{fontWeight:900,fontSize:'12px'}}>الإجمالي المستحق</span><span style={{fontWeight:900,fontSize:'15px'}}>{grandTotal.toLocaleString('en-US',{minimumFractionDigits:2})} SAR</span></div>
+                  </div>
+                  {selectedBank&&(<div style={{borderRadius:'12px',padding:'14px',border:'1px solid #e2e8f0',background:'#f8fafc'}}><div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'8px'}}><p style={{fontWeight:900,fontSize:'11px',color:'#0f172a',margin:0}}>بيانات التحويل البنكي</p>{bankAccounts.length>=1&&<div className="no-print" style={{position:'relative'}}><button onClick={(e)=>{e.stopPropagation();setShowBankSelector(s=>!s);}} style={{display:'flex',alignItems:'center',gap:'4px',padding:'4px 9px',border:'1px solid #1e40af',color:'#1e40af',background:'#fff',borderRadius:'6px',fontSize:'10px',fontWeight:700,cursor:'pointer'}}><RefreshCw size={9}/>تبديل الحساب<ChevronDown size={9}/></button>{showBankSelector&&<div onClick={(e)=>e.stopPropagation()} style={{position:'absolute',top:'calc(100% + 3px)',left:0,background:'#fff',border:'1px solid #e2e8f0',borderRadius:'10px',boxShadow:'0 6px 20px rgba(0,0,0,0.12)',zIndex:30,minWidth:'210px',overflow:'hidden'}}>{bankAccounts.map(b=><button key={b.id} onClick={()=>{setSelectedBankId(b.id);setShowBankSelector(false);}} style={{display:'block',width:'100%',textAlign:'right',padding:'9px 13px',fontSize:'11px',background:b.id===selectedBankId?'#eff6ff':'transparent',color:b.id===selectedBankId?'#1e40af':'#0f172a',fontWeight:b.id===selectedBankId?700:400,cursor:'pointer',borderBottom:'1px solid #f1f5f9'}}><div style={{fontWeight:700}}>{b.bank_name}</div><div style={{fontSize:'10px',color:'#94a3b8'}}>{b.bank_beneficiary}</div></button>)}</div>}</div>}</div>{[{label:'البنك',value:selectedBank.bank_name},{label:'المستفيد',value:selectedBank.bank_beneficiary},{label:'رقم الحساب',value:selectedBank.bank_account},{label:'الآيبان',value:selectedBank.bank_iban}].map((r,i)=>(<div key={i} style={{marginBottom:'5px',fontSize:'11px'}}><span style={{color:'#64748b'}}>{r.label}: </span><span style={{fontWeight:700,color:'#0f172a'}}>{r.value}</span></div>))}</div>)}
+                </div>
+              </div>
+            </>)}
+
+            {/* ═══════════ TEMPLATE 2 — Emerald Classic ═══════════ */}
+            {selectedTemplate === 2 && (<>
+              <div style={{background:'linear-gradient(135deg,#064e3b,#065f46)',padding:'26px 32px',textAlign:'center'}}>
+                <div style={{display:'flex',justifyContent:'center',marginBottom:'12px'}}>
+                  <div style={{width:'76px',height:'76px',borderRadius:'50%',overflow:'hidden',border:'3px solid rgba(255,255,255,0.3)',background:'rgba(255,255,255,0.1)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                    {company.logo_path?<img src={getPublicUrl(company.logo_path)||''}alt="Logo"style={{width:'100%',height:'100%',objectFit:'contain'}}crossOrigin="anonymous"/>:<Building2 size={30}color="white"/>}
+                  </div>
+                </div>
+                <h1 style={{fontWeight:900,fontSize:'18px',color:'#fff',margin:'0 0 4px'}}>{company.name}</h1>
+                <p style={{fontSize:'11px',color:'rgba(255,255,255,0.55)',margin:0}}>{company.vat_number} | {company.commercial_number}</p>
+              </div>
+              <div style={{margin:'-14px 24px 0',background:'#fff',borderRadius:'14px',boxShadow:'0 4px 20px rgba(0,0,0,0.1)',padding:'14px 20px',border:'1px solid #d1fae5',position:'relative',zIndex:2}}>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                  <div><p style={{fontSize:'10px',color:'#059669',fontWeight:800,letterSpacing:'2px',margin:0}}>فاتورة ضريبية إلكترونية</p><p style={{fontWeight:900,fontSize:'20px',color:'#0f172a',margin:'2px 0 0'}}>رقم {invoice.invoice_number}</p></div>
+                  <div style={{display:'flex',gap:'18px'}}>
+                    {[{label:'تاريخ الإصدار',value:formatDate(invoice.issue_date)},{label:'شهر المطالبة',value:invoice.invoice_month||getClaimMonth(invoice.issue_date)},{label:'الفترة',value:`${formatDate(items[0]?.period_from)} - ${formatDate(items[0]?.period_to)}`}].map((m,i)=>(<div key={i} style={{textAlign:'center'}}><p style={{fontSize:'9px',color:'#94a3b8',margin:0,fontWeight:700}}>{m.label}</p><p style={{fontWeight:800,fontSize:'11px',color:'#0f172a',margin:'2px 0 0'}}>{m.value}</p></div>))}
+                  </div>
+                </div>
+              </div>
+              <div style={{padding:'24px 32px',display:'flex',flexDirection:'column',gap:'20px',marginTop:'8px'}}>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'14px'}}>
+                  {[{title:'بيانات المنشأة',borderColor:'#059669',rows:[{label:'الاسم',value:company.name},{label:'السجل التجاري',value:company.commercial_number},{label:'الرقم الضريبي',value:company.vat_number},{label:'العنوان',value:companyAddress||'-'}]},{title:'بيانات العميل',borderColor:'#94a3b8',rows:[{label:'الاسم',value:customer?.company_name||customer?.name||invoice.client_name},{label:'السجل التجاري',value:customer?.commercial_number||'-'},{label:'الرقم الضريبي',value:customer?.vat_number||invoice.client_vat||'-'},{label:'العنوان',value:customer?.short_address||customer?.address||invoice.client_address||'-'}]}].map((card,ci)=>(
+                    <div key={ci} style={{background:'#f8fafc',borderRadius:'12px',padding:'14px',borderRight:`4px solid ${card.borderColor}`}}>
+                      <h3 style={{fontWeight:900,fontSize:'11px',color:'#0f172a',margin:'0 0 8px'}}>{card.title}</h3>
+                      {card.rows.map((row,ri)=>(<div key={ri} style={{display:'flex',justifyContent:'space-between',marginBottom:'5px',fontSize:'11px'}}><span style={{color:'#64748b'}}>{row.label}:</span><span style={{fontWeight:700,color:'#0f172a',textAlign:'right',maxWidth:'60%'}}>{row.value}</span></div>))}
+                    </div>
+                  ))}
+                </div>
+                <div style={{borderRadius:'10px',overflow:'hidden',border:'1px solid #d1fae5'}}>
+                  <table style={{width:'100%',borderCollapse:'collapse',fontSize:'12px'}}>
+                    <thead><tr style={{background:'#065f46',color:'#fff'}}>{['البيان','الكمية','السعر','قبل الضريبة','ضريبة 15%','الإجمالي'].map((h,i)=>(<th key={i} style={{padding:'10px 12px',textAlign:i===0?'right':'center',fontWeight:800}}>{h}</th>))}</tr></thead>
+                    <tbody>
+                      {items.map((item,i)=>(<tr key={item.id} style={{background:i%2===0?'#fff':'#f0fdf4',borderBottom:'1px solid #ecfdf5'}}><td style={{padding:'8px 12px',color:'#0f172a',fontWeight:600}}>{item.product_name}</td><td style={{padding:'8px 12px',textAlign:'center'}}>{item.quantity}</td><td style={{padding:'8px 12px',textAlign:'center'}}>{parseFloat(String(item.unit_price)).toFixed(2)}</td><td style={{padding:'8px 12px',textAlign:'center'}}>{parseFloat(String(item.total_before_vat)).toLocaleString('en-US',{minimumFractionDigits:2})}</td><td style={{padding:'8px 12px',textAlign:'center',color:'#059669',fontWeight:700}}>{parseFloat(String(item.vat_amount)).toLocaleString('en-US',{minimumFractionDigits:2})}</td><td style={{padding:'8px 12px',textAlign:'center',fontWeight:900}}>{parseFloat(String(item.total_with_vat)).toLocaleString('en-US',{minimumFractionDigits:2})}</td></tr>))}
+                    </tbody>
+                  </table>
+                </div>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr auto',gap:'14px',alignItems:'start'}}>
+                  {selectedBank&&(<div style={{background:'#065f46',borderRadius:'12px',padding:'16px',color:'#fff'}}><div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'10px'}}><p style={{fontWeight:900,fontSize:'11px',color:'#6ee7b7',margin:0}}>التحويل البنكي</p>{bankAccounts.length>=1&&<div className="no-print" style={{position:'relative'}}><button onClick={(e)=>{e.stopPropagation();setShowBankSelector(s=>!s);}} style={{display:'flex',alignItems:'center',gap:'4px',padding:'4px 9px',border:'1px solid #6ee7b7',color:'#6ee7b7',background:'rgba(255,255,255,0.08)',borderRadius:'6px',fontSize:'10px',fontWeight:700,cursor:'pointer'}}><RefreshCw size={9}/>تبديل الحساب<ChevronDown size={9}/></button>{showBankSelector&&<div onClick={(e)=>e.stopPropagation()} style={{position:'absolute',top:'calc(100% + 3px)',left:0,background:'#fff',border:'1px solid #e2e8f0',borderRadius:'10px',boxShadow:'0 6px 20px rgba(0,0,0,0.15)',zIndex:30,minWidth:'210px',overflow:'hidden'}}>{bankAccounts.map(b=><button key={b.id} onClick={()=>{setSelectedBankId(b.id);setShowBankSelector(false);}} style={{display:'block',width:'100%',textAlign:'right',padding:'9px 13px',fontSize:'11px',background:b.id===selectedBankId?'#ecfdf5':'transparent',color:b.id===selectedBankId?'#059669':'#0f172a',fontWeight:b.id===selectedBankId?700:400,cursor:'pointer',borderBottom:'1px solid #f1f5f9'}}><div style={{fontWeight:700}}>{b.bank_name}</div><div style={{fontSize:'10px',color:'#94a3b8'}}>{b.bank_beneficiary}</div></button>)}</div>}</div>}</div>{[{label:'البنك',value:selectedBank.bank_name},{label:'المستفيد',value:selectedBank.bank_beneficiary},{label:'رقم الحساب',value:selectedBank.bank_account},{label:'الآيبان',value:selectedBank.bank_iban}].map((r,i)=>(<div key={i} style={{marginBottom:'5px',fontSize:'11px'}}><span style={{color:'rgba(255,255,255,0.5)'}}>{r.label}: </span><span style={{fontWeight:700,color:'#fff'}}>{r.value}</span></div>))}</div>)}
+                  <div style={{background:'#f0fdf4',borderRadius:'12px',padding:'16px',border:'1px solid #d1fae5'}}>
+                    <p style={{fontWeight:900,fontSize:'11px',color:'#065f46',margin:'0 0 8px'}}>ملخص المبالغ</p>
+                    {[{label:'قبل الضريبة',value:`${totalBeforeVat.toLocaleString('en-US',{minimumFractionDigits:2})} SAR`},{label:'الضريبة (15%)',value:`${totalVat.toLocaleString('en-US',{minimumFractionDigits:2})} SAR`}].map((r,i)=>(<div key={i} style={{display:'flex',justifyContent:'space-between',padding:'4px 0',borderBottom:'1px dashed #d1fae5',fontSize:'11px'}}><span style={{color:'#6b7280'}}>{r.label}</span><span style={{fontWeight:700}}>{r.value}</span></div>))}
+                    <div style={{background:'#059669',color:'#fff',borderRadius:'8px',padding:'10px 14px',marginTop:'10px',display:'flex',justifyContent:'space-between'}}><span style={{fontWeight:900,fontSize:'12px'}}>الإجمالي</span><span style={{fontWeight:900,fontSize:'15px'}}>{grandTotal.toLocaleString('en-US',{minimumFractionDigits:2})} SAR</span></div>
+                  </div>
+                  <div style={{background:'#fff',borderRadius:'12px',padding:'14px',border:'2px solid #d1fae5',textAlign:'center'}}>
+                    <p style={{fontSize:'9px',fontWeight:800,color:'#059669',margin:'0 0 8px'}}>ZATCA QR</p>
+                    {isMounted&&<QRCodeCanvas value={qrData} size={200} level="H" includeMargin={false}/>}
+                  </div>
+                </div>
+              </div>
+            </>)}
+
+            {/* ═══════════ TEMPLATE 3 — Black & Gold ═══════════ */}
+            {selectedTemplate === 3 && (<>
+              <div style={{background:'#0a0a0a',padding:'26px 32px',textAlign:'center',position:'relative',overflow:'hidden'}}>
+                <div style={{position:'absolute',top:0,left:0,right:0,height:'3px',background:'linear-gradient(90deg,#d97706,#fbbf24,#d97706)'}} />
+                <div style={{display:'flex',justifyContent:'center',marginBottom:'12px'}}>
+                  <div style={{width:'70px',height:'70px',borderRadius:'12px',overflow:'hidden',border:'2px solid #d97706',background:'#1a1a1a',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                    {company.logo_path?<img src={getPublicUrl(company.logo_path)||''}alt="Logo"style={{maxWidth:'100%',maxHeight:'100%',objectFit:'contain'}}crossOrigin="anonymous"/>:<Building2 size={30}color="#d97706"/>}
+                  </div>
+                </div>
+                <h1 style={{fontWeight:900,fontSize:'19px',color:'#fff',margin:'0 0 4px',letterSpacing:'2px'}}>{company.name}</h1>
+                <p style={{fontSize:'10px',color:'rgba(255,255,255,0.4)',margin:0,letterSpacing:'1px'}}>{company.commercial_number} • {company.vat_number}</p>
+                <div style={{marginTop:'14px',paddingTop:'12px',borderTop:'1px solid rgba(217,119,6,0.3)',display:'flex',justifyContent:'center',gap:'24px'}}>
+                  {[{label:'INVOICE NO.',value:invoice.invoice_number,big:true},{label:'DATE',value:formatDate(invoice.issue_date),big:false},{label:'PERIOD',value:`${formatDate(items[0]?.period_from)} — ${formatDate(items[0]?.period_to)}`,big:false}].map((m,i)=>(<React.Fragment key={i}>{i>0&&<div style={{width:'1px',background:'rgba(217,119,6,0.3)'}} />}<div style={{textAlign:'center'}}><p style={{fontSize:'9px',color:'#d97706',fontWeight:700,letterSpacing:'2px',margin:0}}>{m.label}</p><p style={{fontWeight:900,fontSize:m.big?'18px':'13px',color:m.big?'#fbbf24':'#fff',margin:'2px 0 0',letterSpacing:m.big?'2px':'0'}}>{m.value}</p></div></React.Fragment>))}
+                </div>
+                <div style={{position:'absolute',bottom:0,left:0,right:0,height:'3px',background:'linear-gradient(90deg,#d97706,#fbbf24,#d97706)'}} />
+              </div>
+              <div style={{padding:'24px 32px',display:'flex',flexDirection:'column',gap:'20px',background:'#fff'}}>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'14px'}}>
+                  {[{title:'بيانات المنشأة',top:'#d97706',bg:'#fffbeb',rows:[{label:'الاسم',value:company.name},{label:'السجل التجاري',value:company.commercial_number},{label:'الرقم الضريبي',value:company.vat_number},{label:'العنوان',value:companyAddress||'-'}]},{title:'بيانات العميل',top:'#94a3b8',bg:'#f8fafc',rows:[{label:'الاسم',value:customer?.company_name||customer?.name||invoice.client_name},{label:'السجل التجاري',value:customer?.commercial_number||'-'},{label:'الرقم الضريبي',value:customer?.vat_number||invoice.client_vat||'-'},{label:'العنوان',value:customer?.short_address||customer?.address||invoice.client_address||'-'}]}].map((card,ci)=>(
+                    <div key={ci} style={{borderRadius:'10px',padding:'14px',background:card.bg,borderTop:`3px solid ${card.top}`}}>
+                      <h3 style={{fontWeight:900,fontSize:'11px',color:'#0f172a',margin:'0 0 8px',paddingBottom:'6px',borderBottom:'1px solid #e2e8f0'}}>{card.title}</h3>
+                      {card.rows.map((row,ri)=>(<div key={ri} style={{display:'flex',justifyContent:'space-between',marginBottom:'5px',fontSize:'11px'}}><span style={{color:'#64748b'}}>{row.label}:</span><span style={{fontWeight:700,color:'#0f172a',textAlign:'right',maxWidth:'60%'}}>{row.value}</span></div>))}
+                    </div>
+                  ))}
+                </div>
+                <div style={{borderRadius:'10px',overflow:'hidden',border:'1px solid #e2e8f0'}}>
+                  <table style={{width:'100%',borderCollapse:'collapse',fontSize:'12px'}}>
+                    <thead><tr style={{background:'#0a0a0a',color:'#fbbf24'}}>{['البيان','الكمية','السعر','قبل الضريبة','ضريبة 15%','الإجمالي'].map((h,i)=>(<th key={i} style={{padding:'10px 12px',textAlign:i===0?'right':'center',fontWeight:800}}>{h}</th>))}</tr></thead>
+                    <tbody>
+                      {items.map((item,i)=>(<tr key={item.id} style={{background:i%2===0?'#fff':'#fffbeb',borderBottom:'1px solid #f5f5f5'}}><td style={{padding:'8px 12px',color:'#0f172a',fontWeight:600}}>{item.product_name}</td><td style={{padding:'8px 12px',textAlign:'center'}}>{item.quantity}</td><td style={{padding:'8px 12px',textAlign:'center'}}>{parseFloat(String(item.unit_price)).toFixed(2)}</td><td style={{padding:'8px 12px',textAlign:'center'}}>{parseFloat(String(item.total_before_vat)).toLocaleString('en-US',{minimumFractionDigits:2})}</td><td style={{padding:'8px 12px',textAlign:'center',color:'#d97706',fontWeight:700}}>{parseFloat(String(item.vat_amount)).toLocaleString('en-US',{minimumFractionDigits:2})}</td><td style={{padding:'8px 12px',textAlign:'center',fontWeight:900}}>{parseFloat(String(item.total_with_vat)).toLocaleString('en-US',{minimumFractionDigits:2})}</td></tr>))}
+                    </tbody>
+                  </table>
+                </div>
+                <div style={{background:'#0a0a0a',borderRadius:'12px',padding:'16px 20px',border:'1px solid #d97706'}}>
+                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr auto',gap:'20px',alignItems:'start'}}>
+                    {selectedBank&&(<div><div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'8px'}}><p style={{fontWeight:900,fontSize:'11px',color:'#d97706',margin:0,letterSpacing:'1px'}}>التحويل البنكي</p>{bankAccounts.length>=1&&<div className="no-print" style={{position:'relative'}}><button onClick={(e)=>{e.stopPropagation();setShowBankSelector(s=>!s);}} style={{display:'flex',alignItems:'center',gap:'4px',padding:'4px 9px',border:'1px solid #d97706',color:'#d97706',background:'rgba(255,255,255,0.06)',borderRadius:'6px',fontSize:'10px',fontWeight:700,cursor:'pointer'}}><RefreshCw size={9}/>تبديل الحساب<ChevronDown size={9}/></button>{showBankSelector&&<div onClick={(e)=>e.stopPropagation()} style={{position:'absolute',top:'calc(100% + 3px)',left:0,background:'#fff',border:'1px solid #e2e8f0',borderRadius:'10px',boxShadow:'0 6px 20px rgba(0,0,0,0.2)',zIndex:30,minWidth:'210px',overflow:'hidden'}}>{bankAccounts.map(b=><button key={b.id} onClick={()=>{setSelectedBankId(b.id);setShowBankSelector(false);}} style={{display:'block',width:'100%',textAlign:'right',padding:'9px 13px',fontSize:'11px',background:b.id===selectedBankId?'#fffbeb':'transparent',color:b.id===selectedBankId?'#d97706':'#0f172a',fontWeight:b.id===selectedBankId?700:400,cursor:'pointer',borderBottom:'1px solid #f1f5f9'}}><div style={{fontWeight:700}}>{b.bank_name}</div><div style={{fontSize:'10px',color:'#94a3b8'}}>{b.bank_beneficiary}</div></button>)}</div>}</div>}</div>{[{label:'البنك',value:selectedBank.bank_name},{label:'المستفيد',value:selectedBank.bank_beneficiary},{label:'رقم الحساب',value:selectedBank.bank_account},{label:'الآيبان',value:selectedBank.bank_iban}].map((r,i)=>(<div key={i} style={{marginBottom:'5px',fontSize:'11px'}}><span style={{color:'rgba(255,255,255,0.4)'}}>{r.label}: </span><span style={{fontWeight:700,color:'#fbbf24'}}>{r.value}</span></div>))}</div>)}
+                    <div>
+                      <p style={{fontWeight:900,fontSize:'11px',color:'#d97706',margin:'0 0 8px',letterSpacing:'1px'}}>الملخص المالي</p>
+                      {[{label:'قبل الضريبة',value:totalBeforeVat.toLocaleString('en-US',{minimumFractionDigits:2})},{label:'الضريبة (15%)',value:totalVat.toLocaleString('en-US',{minimumFractionDigits:2})}].map((r,i)=>(<div key={i} style={{display:'flex',justifyContent:'space-between',marginBottom:'5px',fontSize:'11px',borderBottom:'1px solid rgba(217,119,6,0.2)',paddingBottom:'4px'}}><span style={{color:'rgba(255,255,255,0.45)'}}>{r.label}</span><span style={{fontWeight:700,color:'#fbbf24'}}>{r.value} SAR</span></div>))}
+                      <div style={{background:'#d97706',borderRadius:'8px',padding:'10px 14px',marginTop:'10px',display:'flex',justifyContent:'space-between'}}><span style={{fontWeight:900,fontSize:'12px',color:'#0a0a0a'}}>الإجمالي</span><span style={{fontWeight:900,fontSize:'16px',color:'#0a0a0a'}}>{grandTotal.toLocaleString('en-US',{minimumFractionDigits:2})} SAR</span></div>
+                    </div>
+                    <div style={{background:'rgba(255,255,255,0.04)',borderRadius:'10px',padding:'14px',border:'1px solid rgba(217,119,6,0.4)',textAlign:'center'}}>
+                      <p style={{fontSize:'9px',fontWeight:700,color:'#d97706',margin:'0 0 8px'}}>ZATCA QR</p>
+                      {isMounted&&<QRCodeCanvas value={qrData} size={200} level="H" includeMargin={false} bgColor="#1a1a1a" fgColor="#fbbf24"/>}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>)}
+
+            {/* ═══════════ TEMPLATE 4 — Minimal Modern ═══════════ */}
+            {selectedTemplate === 4 && (<>
+              <div style={{padding:'28px 36px',background:'#fff',borderBottom:'1px solid #e2e8f0'}}>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
+                  <div style={{display:'flex',alignItems:'center',gap:'12px'}}>
+                    <div style={{width:'50px',height:'50px',borderRadius:'8px',overflow:'hidden',border:'1px solid #e2e8f0',display:'flex',alignItems:'center',justifyContent:'center',background:'#f8fafc',flexShrink:0}}>
+                      {company.logo_path?<img src={getPublicUrl(company.logo_path)||''}alt="Logo"style={{maxWidth:'100%',maxHeight:'100%',objectFit:'contain'}}crossOrigin="anonymous"/>:<Building2 size={22}color="#94a3b8"/>}
+                    </div>
+                    <div><p style={{fontWeight:900,fontSize:'15px',color:'#0f172a',margin:0}}>{company.name}</p><p style={{fontSize:'10px',color:'#94a3b8',margin:'2px 0 0'}}>{companyAddress||'—'}</p></div>
+                  </div>
+                  <div style={{textAlign:'right'}}>
+                    <p style={{fontWeight:900,fontSize:'40px',color:'#e2e8f0',margin:0,lineHeight:1,letterSpacing:'-2px'}}>{invoice.invoice_number}</p>
+                    <p style={{fontSize:'11px',color:'#94a3b8',margin:'4px 0 0',fontWeight:700}}>فاتورة ضريبية — {formatDate(invoice.issue_date)}</p>
+                  </div>
+                </div>
+              </div>
+              <div style={{height:'2px',background:'#e2e8f0'}} />
+              <div style={{padding:'16px 36px',background:'#f8fafc',display:'flex',gap:'24px',flexWrap:'wrap'}}>
+                {[{label:'العميل',value:customer?.company_name||customer?.name||invoice.client_name},{label:'الرقم الضريبي للعميل',value:customer?.vat_number||invoice.client_vat||'-'},{label:'شهر المطالبة',value:invoice.invoice_month||getClaimMonth(invoice.issue_date)},{label:'الفترة',value:`${formatDate(items[0]?.period_from)} — ${formatDate(items[0]?.period_to)}`}].map((m,i)=>(<div key={i} style={{minWidth:'120px'}}><p style={{fontSize:'9px',color:'#94a3b8',fontWeight:700,letterSpacing:'1px',margin:0,textTransform:'uppercase'}}>{m.label}</p><p style={{fontWeight:800,fontSize:'12px',color:'#0f172a',margin:'3px 0 0'}}>{m.value}</p></div>))}
+              </div>
+              <div style={{height:'2px',background:'#e2e8f0'}} />
+              <div style={{padding:'24px 36px',display:'flex',flexDirection:'column',gap:'22px'}}>
+                <div style={{borderRadius:'8px',overflow:'hidden',border:'1px solid #e2e8f0'}}>
+                  <table style={{width:'100%',borderCollapse:'collapse',fontSize:'12px'}}>
+                    <thead><tr style={{background:'#1e293b',color:'#fff'}}>{['البيان','الكمية','السعر','قبل الضريبة','ضريبة 15%','الإجمالي'].map((h,i)=>(<th key={i} style={{padding:'10px 12px',textAlign:i===0?'right':'center',fontWeight:700}}>{h}</th>))}</tr></thead>
+                    <tbody>
+                      {items.map((item,i)=>(<tr key={item.id} style={{background:i%2===0?'#fff':'#f8fafc',borderBottom:'1px solid #f1f5f9'}}><td style={{padding:'8px 12px',color:'#0f172a',fontWeight:600}}>{item.product_name}</td><td style={{padding:'8px 12px',textAlign:'center',color:'#64748b'}}>{item.quantity}</td><td style={{padding:'8px 12px',textAlign:'center',color:'#64748b'}}>{parseFloat(String(item.unit_price)).toFixed(2)}</td><td style={{padding:'8px 12px',textAlign:'center',color:'#64748b'}}>{parseFloat(String(item.total_before_vat)).toLocaleString('en-US',{minimumFractionDigits:2})}</td><td style={{padding:'8px 12px',textAlign:'center',color:'#64748b'}}>{parseFloat(String(item.vat_amount)).toLocaleString('en-US',{minimumFractionDigits:2})}</td><td style={{padding:'8px 12px',textAlign:'center',fontWeight:900,color:'#0f172a'}}>{parseFloat(String(item.total_with_vat)).toLocaleString('en-US',{minimumFractionDigits:2})}</td></tr>))}
+                    </tbody>
+                  </table>
+                </div>
+                <div style={{height:'1px',background:'#e2e8f0'}} />
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr auto',gap:'20px',alignItems:'start'}}>
+                  {selectedBank&&(<div><div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'10px'}}><p style={{fontSize:'9px',color:'#94a3b8',fontWeight:700,letterSpacing:'1px',margin:0,textTransform:'uppercase'}}>بيانات البنك</p>{bankAccounts.length>=1&&<div className="no-print" style={{position:'relative'}}><button onClick={(e)=>{e.stopPropagation();setShowBankSelector(s=>!s);}} style={{display:'flex',alignItems:'center',gap:'4px',padding:'4px 9px',border:'1px solid #94a3b8',color:'#64748b',background:'#f8fafc',borderRadius:'6px',fontSize:'10px',fontWeight:700,cursor:'pointer'}}><RefreshCw size={9}/>تبديل الحساب<ChevronDown size={9}/></button>{showBankSelector&&<div onClick={(e)=>e.stopPropagation()} style={{position:'absolute',top:'calc(100% + 3px)',left:0,background:'#fff',border:'1px solid #e2e8f0',borderRadius:'10px',boxShadow:'0 6px 20px rgba(0,0,0,0.1)',zIndex:30,minWidth:'210px',overflow:'hidden'}}>{bankAccounts.map(b=><button key={b.id} onClick={()=>{setSelectedBankId(b.id);setShowBankSelector(false);}} style={{display:'block',width:'100%',textAlign:'right',padding:'9px 13px',fontSize:'11px',background:b.id===selectedBankId?'#f8fafc':'transparent',color:b.id===selectedBankId?'#1e293b':'#0f172a',fontWeight:b.id===selectedBankId?700:400,cursor:'pointer',borderBottom:'1px solid #f1f5f9'}}><div style={{fontWeight:700}}>{b.bank_name}</div><div style={{fontSize:'10px',color:'#94a3b8'}}>{b.bank_beneficiary}</div></button>)}</div>}</div>}</div>{[{label:'البنك',value:selectedBank.bank_name},{label:'المستفيد',value:selectedBank.bank_beneficiary},{label:'رقم الحساب',value:selectedBank.bank_account},{label:'الآيبان',value:selectedBank.bank_iban}].map((r,i)=>(<div key={i} style={{marginBottom:'5px',fontSize:'11px'}}><span style={{color:'#94a3b8'}}>{r.label}: </span><span style={{fontWeight:700,color:'#0f172a'}}>{r.value}</span></div>))}</div>)}
+                  <div>
+                    <p style={{fontSize:'9px',color:'#94a3b8',fontWeight:700,letterSpacing:'1px',margin:'0 0 10px',textTransform:'uppercase'}}>الملخص</p>
+                    {[{label:'قبل الضريبة',value:`${totalBeforeVat.toLocaleString('en-US',{minimumFractionDigits:2})} SAR`},{label:'ضريبة القيمة المضافة',value:`${totalVat.toLocaleString('en-US',{minimumFractionDigits:2})} SAR`}].map((r,i)=>(<div key={i} style={{display:'flex',justifyContent:'space-between',padding:'5px 0',borderBottom:'1px solid #f1f5f9',fontSize:'11px'}}><span style={{color:'#94a3b8'}}>{r.label}</span><span style={{fontWeight:700}}>{r.value}</span></div>))}
+                    <div style={{marginTop:'10px',padding:'12px 0',borderTop:'2px solid #0f172a',display:'flex',justifyContent:'space-between',alignItems:'center'}}><span style={{fontWeight:900,fontSize:'13px',color:'#0f172a'}}>الإجمالي المستحق</span><span style={{fontWeight:900,fontSize:'20px',color:'#0f172a'}}>{grandTotal.toLocaleString('en-US',{minimumFractionDigits:2})} <span style={{fontSize:'12px',fontWeight:700,color:'#64748b'}}>SAR</span></span></div>
+                  </div>
+                  <div style={{textAlign:'center'}}>
+                    <p style={{fontSize:'9px',color:'#94a3b8',fontWeight:700,letterSpacing:'1px',margin:'0 0 8px',textTransform:'uppercase'}}>باركود ZATCA</p>
+                    <div style={{border:'1px solid #e2e8f0',borderRadius:'8px',padding:'10px',display:'inline-block'}}>
+                      {isMounted&&<QRCodeCanvas value={qrData} size={200} level="H" includeMargin={false}/>}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>)}
+
+            {/* ═══════════ TEMPLATE 5 — Royal Violet (2 logos) ═══════════ */}
+            {selectedTemplate === 5 && (<>
+              <div style={{display:'flex',minHeight:'118px'}}>
+                <div style={{background:'linear-gradient(135deg,#4c1d95,#6d28d9)',padding:'20px 22px',minWidth:'190px',display:'flex',flexDirection:'column',justifyContent:'space-between',flexShrink:0}}>
+                  <div><p style={{fontSize:'9px',color:'rgba(255,255,255,0.5)',fontWeight:700,letterSpacing:'3px',margin:'0 0 5px'}}>INVOICE</p><p style={{fontWeight:900,fontSize:'14px',color:'#c4b5fd',margin:'0 0 3px'}}>{invoice.invoice_number}</p><p style={{fontSize:'10px',color:'rgba(255,255,255,0.5)',margin:0}}>{formatDate(invoice.issue_date)}</p></div>
+                  <div style={{width:'52px',height:'52px',borderRadius:'10px',overflow:'hidden',border:'2px solid rgba(255,255,255,0.2)',background:'rgba(255,255,255,0.1)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}><img src="/logo.png" alt="System" style={{maxWidth:'100%',maxHeight:'100%',objectFit:'contain'}}/></div>
+                </div>
+                <div style={{flex:1,background:'#fff',padding:'20px 22px',borderBottom:'1px solid #f3e8ff',display:'flex',flexDirection:'column',justifyContent:'space-between'}}>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
+                    <div><h1 style={{fontWeight:900,fontSize:'18px',color:'#0f172a',margin:'0 0 2px'}}>فاتورة ضريبية</h1><p style={{fontSize:'11px',color:'#7c3aed',fontWeight:700,margin:0}}>Electronic VAT Invoice</p></div>
+                    <div style={{width:'58px',height:'58px',borderRadius:'10px',overflow:'hidden',border:'1px solid #e9d5ff',background:'#f5f3ff',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                      {company.logo_path?<img src={getPublicUrl(company.logo_path)||''}alt="Logo"style={{maxWidth:'100%',maxHeight:'100%',objectFit:'contain'}}crossOrigin="anonymous"/>:<Building2 size={24}color="#7c3aed"/>}
+                    </div>
+                  </div>
+                  <div><p style={{fontWeight:800,fontSize:'13px',color:'#0f172a',margin:'0 0 2px'}}>{company.name}</p><p style={{fontSize:'10px',color:'#94a3b8',margin:0}}>VAT: {company.vat_number} | CR: {company.commercial_number}</p></div>
+                </div>
+              </div>
+              <div style={{background:'linear-gradient(90deg,#4c1d95,#7c3aed)',height:'3px'}} />
+              <div style={{padding:'24px 28px',display:'flex',flexDirection:'column',gap:'18px',background:'#faf5ff'}}>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'14px'}}>
+                  {[{title:'بيانات المنشأة',accent:'#7c3aed',rows:[{label:'الاسم',value:company.name},{label:'السجل التجاري',value:company.commercial_number},{label:'الرقم الضريبي',value:company.vat_number},{label:'العنوان',value:companyAddress||'-'}]},{title:'بيانات العميل',accent:'#94a3b8',rows:[{label:'الاسم',value:customer?.company_name||customer?.name||invoice.client_name},{label:'السجل التجاري',value:customer?.commercial_number||'-'},{label:'الرقم الضريبي',value:customer?.vat_number||invoice.client_vat||'-'},{label:'العنوان',value:customer?.short_address||customer?.address||invoice.client_address||'-'}]}].map((card,ci)=>(
+                    <div key={ci} style={{background:'#fff',borderRadius:'12px',padding:'14px',border:'1px solid #e9d5ff',borderTop:`3px solid ${card.accent}`}}>
+                      <h3 style={{fontWeight:900,fontSize:'11px',color:card.accent,margin:'0 0 8px'}}>{card.title}</h3>
+                      {card.rows.map((row,ri)=>(<div key={ri} style={{display:'flex',justifyContent:'space-between',marginBottom:'5px',fontSize:'11px'}}><span style={{color:'#94a3b8'}}>{row.label}:</span><span style={{fontWeight:700,color:'#0f172a',textAlign:'right',maxWidth:'60%'}}>{row.value}</span></div>))}
+                    </div>
+                  ))}
+                </div>
+                <div style={{display:'flex',gap:'0',background:'#fff',borderRadius:'10px',border:'1px solid #e9d5ff',overflow:'hidden'}}>
+                  {[{label:'شهر المطالبة',value:invoice.invoice_month||getClaimMonth(invoice.issue_date)},{label:'تاريخ الإصدار',value:formatDate(invoice.issue_date)},{label:'تاريخ الاستحقاق',value:formatDate(invoice.due_date)},{label:'الفترة',value:`${formatDate(items[0]?.period_from)} — ${formatDate(items[0]?.period_to)}`}].map((m,i)=>(<div key={i} style={{flex:1,textAlign:'center',padding:'8px 6px',borderRight:i<3?'1px solid #f3e8ff':'none'}}><p style={{fontSize:'9px',color:'#a78bfa',fontWeight:700,margin:0}}>{m.label}</p><p style={{fontWeight:800,fontSize:'11px',color:'#0f172a',margin:'2px 0 0'}}>{m.value}</p></div>))}
+                </div>
+                <div style={{background:'#fff',borderRadius:'10px',overflow:'hidden',border:'1px solid #e9d5ff'}}>
+                  <table style={{width:'100%',borderCollapse:'collapse',fontSize:'12px'}}>
+                    <thead><tr style={{background:'linear-gradient(90deg,#4c1d95,#7c3aed)',color:'#fff'}}>{['البيان','الكمية','السعر','قبل الضريبة','ضريبة 15%','الإجمالي'].map((h,i)=>(<th key={i} style={{padding:'10px 12px',textAlign:i===0?'right':'center',fontWeight:800}}>{h}</th>))}</tr></thead>
+                    <tbody>
+                      {items.map((item,i)=>(<tr key={item.id} style={{background:i%2===0?'#fff':'#faf5ff',borderBottom:'1px solid #f3e8ff'}}><td style={{padding:'8px 12px',color:'#0f172a',fontWeight:600}}>{item.product_name}</td><td style={{padding:'8px 12px',textAlign:'center'}}>{item.quantity}</td><td style={{padding:'8px 12px',textAlign:'center'}}>{parseFloat(String(item.unit_price)).toFixed(2)}</td><td style={{padding:'8px 12px',textAlign:'center'}}>{parseFloat(String(item.total_before_vat)).toLocaleString('en-US',{minimumFractionDigits:2})}</td><td style={{padding:'8px 12px',textAlign:'center',color:'#7c3aed',fontWeight:700}}>{parseFloat(String(item.vat_amount)).toLocaleString('en-US',{minimumFractionDigits:2})}</td><td style={{padding:'8px 12px',textAlign:'center',fontWeight:900}}>{parseFloat(String(item.total_with_vat)).toLocaleString('en-US',{minimumFractionDigits:2})}</td></tr>))}
+                    </tbody>
+                  </table>
+                </div>
+                <div style={{display:'grid',gridTemplateColumns:'1fr auto 1fr',gap:'14px',alignItems:'start'}}>
+                  {selectedBank&&(<div style={{background:'#fff',borderRadius:'12px',padding:'14px',border:'1px solid #e9d5ff'}}><div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'8px'}}><p style={{fontWeight:900,fontSize:'11px',color:'#7c3aed',margin:0}}>التحويل البنكي</p>{bankAccounts.length>=1&&<div className="no-print" style={{position:'relative'}}><button onClick={(e)=>{e.stopPropagation();setShowBankSelector(s=>!s);}} style={{display:'flex',alignItems:'center',gap:'4px',padding:'4px 9px',border:'1px solid #7c3aed',color:'#7c3aed',background:'#faf5ff',borderRadius:'6px',fontSize:'10px',fontWeight:700,cursor:'pointer'}}><RefreshCw size={9}/>تبديل الحساب<ChevronDown size={9}/></button>{showBankSelector&&<div onClick={(e)=>e.stopPropagation()} style={{position:'absolute',top:'calc(100% + 3px)',left:0,background:'#fff',border:'1px solid #e9d5ff',borderRadius:'10px',boxShadow:'0 6px 20px rgba(124,58,237,0.15)',zIndex:30,minWidth:'210px',overflow:'hidden'}}>{bankAccounts.map(b=><button key={b.id} onClick={()=>{setSelectedBankId(b.id);setShowBankSelector(false);}} style={{display:'block',width:'100%',textAlign:'right',padding:'9px 13px',fontSize:'11px',background:b.id===selectedBankId?'#faf5ff':'transparent',color:b.id===selectedBankId?'#7c3aed':'#0f172a',fontWeight:b.id===selectedBankId?700:400,cursor:'pointer',borderBottom:'1px solid #f3e8ff'}}><div style={{fontWeight:700}}>{b.bank_name}</div><div style={{fontSize:'10px',color:'#94a3b8'}}>{b.bank_beneficiary}</div></button>)}</div>}</div>}</div>{[{label:'البنك',value:selectedBank.bank_name},{label:'المستفيد',value:selectedBank.bank_beneficiary},{label:'رقم الحساب',value:selectedBank.bank_account},{label:'الآيبان',value:selectedBank.bank_iban}].map((r,i)=>(<div key={i} style={{marginBottom:'5px',fontSize:'11px'}}><span style={{color:'#94a3b8'}}>{r.label}: </span><span style={{fontWeight:700,color:'#0f172a'}}>{r.value}</span></div>))}</div>)}
+                  <div style={{background:'#f5f3ff',borderRadius:'12px',padding:'14px',border:'2px solid #c4b5fd',textAlign:'center'}}>
+                    <p style={{fontSize:'9px',fontWeight:800,color:'#7c3aed',margin:'0 0 8px'}}>ZATCA QR</p>
+                    {isMounted&&<QRCodeCanvas value={qrData} size={200} level="H" includeMargin={false}/>}
+                  </div>
+                  <div style={{background:'linear-gradient(135deg,#4c1d95,#6d28d9)',borderRadius:'12px',padding:'16px',color:'#fff'}}>
+                    <p style={{fontWeight:900,fontSize:'11px',color:'#c4b5fd',margin:'0 0 8px'}}>الملخص المالي</p>
+                    {[{label:'قبل الضريبة',value:totalBeforeVat.toLocaleString('en-US',{minimumFractionDigits:2})},{label:'الضريبة (15%)',value:totalVat.toLocaleString('en-US',{minimumFractionDigits:2})}].map((r,i)=>(<div key={i} style={{display:'flex',justifyContent:'space-between',padding:'5px 0',borderBottom:'1px solid rgba(196,181,253,0.2)',fontSize:'11px'}}><span style={{color:'rgba(255,255,255,0.55)'}}>{r.label}</span><span style={{fontWeight:700,color:'#c4b5fd'}}>{r.value} SAR</span></div>))}
+                    <div style={{background:'rgba(255,255,255,0.15)',borderRadius:'8px',padding:'10px 14px',marginTop:'10px',display:'flex',justifyContent:'space-between',alignItems:'center',border:'1px solid rgba(255,255,255,0.2)'}}><span style={{fontWeight:900,fontSize:'12px'}}>الإجمالي</span><span style={{fontWeight:900,fontSize:'16px'}}>{grandTotal.toLocaleString('en-US',{minimumFractionDigits:2})} SAR</span></div>
+                  </div>
+                </div>
+              </div>
+            </>)}
+
+            {/* ═══════════ TEMPLATE 6 — Elegant Rose (2 logos) ═══════════ */}
+            {selectedTemplate === 6 && (<>
+              {/* Rose header — two logos */}
+              <div style={{background:'#fff',borderTop:'5px solid #e11d48',padding:'22px 28px'}}>
+                <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:'12px'}}>
+                  {/* System logo */}
+                  <div style={{display:'flex',alignItems:'center',gap:'12px',flexShrink:0}}>
+                    <div style={{width:'54px',height:'54px',borderRadius:'12px',overflow:'hidden',border:'2px solid #fecdd3',background:'#fff1f2',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                      <img src="/logo.png" alt="System" style={{maxWidth:'100%',maxHeight:'100%',objectFit:'contain'}}/>
+                    </div>
+                    <div style={{width:'1px',height:'40px',background:'#fecdd3'}} />
+                    {/* Company logo */}
+                    <div style={{width:'54px',height:'54px',borderRadius:'12px',overflow:'hidden',border:'2px solid #fecdd3',background:'#fff1f2',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                      {company.logo_path?<img src={getPublicUrl(company.logo_path)||''}alt="Logo"style={{maxWidth:'100%',maxHeight:'100%',objectFit:'contain'}}crossOrigin="anonymous"/>:<Building2 size={24}color="#e11d48"/>}
+                    </div>
+                    <div><p style={{fontWeight:900,fontSize:'15px',color:'#0f172a',margin:0}}>{company.name}</p><p style={{fontSize:'10px',color:'#fb7185',fontWeight:700,margin:'2px 0 0'}}>VAT: {company.vat_number}</p></div>
+                  </div>
+                  {/* Invoice title & number */}
+                  <div style={{textAlign:'center'}}>
+                    <p style={{fontWeight:900,fontSize:'22px',color:'#e11d48',margin:0,letterSpacing:'1px'}}>فاتورة ضريبية</p>
+                    <p style={{fontSize:'11px',color:'#94a3b8',fontWeight:700,margin:'3px 0 0',letterSpacing:'2px'}}>VAT INVOICE</p>
+                    <div style={{background:'#fff1f2',borderRadius:'10px',padding:'6px 16px',display:'inline-block',marginTop:'6px',border:'1px solid #fecdd3'}}>
+                      <p style={{fontSize:'9px',color:'#fb7185',margin:0,fontWeight:700}}>رقم الفاتورة</p>
+                      <p style={{fontWeight:900,fontSize:'16px',color:'#e11d48',margin:'1px 0 0',letterSpacing:'2px'}}>{invoice.invoice_number}</p>
+                    </div>
+                  </div>
+                  {/* Dates */}
+                  <div style={{textAlign:'center',background:'#fff1f2',borderRadius:'12px',padding:'12px 16px',border:'1px solid #fecdd3',flexShrink:0}}>
+                    {[{label:'تاريخ الإصدار',value:formatDate(invoice.issue_date)},{label:'شهر المطالبة',value:invoice.invoice_month||getClaimMonth(invoice.issue_date)},{label:'الفترة',value:`${formatDate(items[0]?.period_from)}→${formatDate(items[0]?.period_to)}`}].map((m,i)=>(
+                      <div key={i} style={{marginBottom:i<2?'8px':0}}>
+                        <p style={{fontSize:'9px',color:'#fb7185',fontWeight:700,margin:0,letterSpacing:'1px'}}>{m.label}</p>
+                        <p style={{fontWeight:800,fontSize:'11px',color:'#0f172a',margin:'1px 0 0'}}>{m.value}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              {/* Rose divider */}
+              <div style={{height:'3px',background:'linear-gradient(90deg,#e11d48,#fb7185,#fda4af,#fb7185,#e11d48)'}} />
+              {/* Content */}
+              <div style={{padding:'24px 28px',background:'#fff',display:'flex',flexDirection:'column',gap:'20px'}}>
+                {/* Info cards */}
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'16px'}}>
+                  {[{title:'بيانات المنشأة',accent:'#e11d48',bg:'#fff1f2',border:'#fecdd3',rows:[{label:'الاسم',value:company.name},{label:'السجل التجاري',value:company.commercial_number},{label:'الرقم الضريبي',value:company.vat_number},{label:'العنوان',value:companyAddress||'-'}]},{title:'بيانات العميل',accent:'#fb7185',bg:'#fff7f7',border:'#fce7f3',rows:[{label:'الاسم',value:customer?.company_name||customer?.name||invoice.client_name},{label:'السجل التجاري',value:customer?.commercial_number||'-'},{label:'الرقم الضريبي',value:customer?.vat_number||invoice.client_vat||'-'},{label:'العنوان',value:customer?.short_address||customer?.address||invoice.client_address||'-'}]}].map((card,ci)=>(
+                    <div key={ci} style={{borderRadius:'12px',padding:'14px',background:card.bg,border:`1px solid ${card.border}`}}>
+                      <h3 style={{fontWeight:900,fontSize:'11px',color:card.accent,margin:'0 0 10px',paddingBottom:'6px',borderBottom:`1px solid ${card.border}`}}>{card.title}</h3>
+                      {card.rows.map((row,ri)=>(<div key={ri} style={{display:'flex',justifyContent:'space-between',marginBottom:'5px',fontSize:'11px'}}><span style={{color:'#64748b'}}>{row.label}:</span><span style={{fontWeight:700,color:'#0f172a',textAlign:'right',maxWidth:'60%'}}>{row.value}</span></div>))}
+                    </div>
+                  ))}
+                </div>
+                {/* Items table */}
+                <div style={{borderRadius:'10px',overflow:'hidden',border:'1px solid #fecdd3'}}>
+                  <table style={{width:'100%',borderCollapse:'collapse',fontSize:'12px'}}>
+                    <thead><tr style={{background:'linear-gradient(90deg,#e11d48,#f43f5e)',color:'#fff'}}>{['البيان','الكمية','السعر','قبل الضريبة','ضريبة 15%','الإجمالي'].map((h,i)=>(<th key={i} style={{padding:'10px 12px',textAlign:i===0?'right':'center',fontWeight:800}}>{h}</th>))}</tr></thead>
+                    <tbody>
+                      {items.map((item,i)=>(<tr key={item.id} style={{background:i%2===0?'#fff':'#fff7f7',borderBottom:'1px solid #fce7f3'}}><td style={{padding:'8px 12px',color:'#0f172a',fontWeight:600}}>{item.product_name}</td><td style={{padding:'8px 12px',textAlign:'center'}}>{item.quantity}</td><td style={{padding:'8px 12px',textAlign:'center'}}>{parseFloat(String(item.unit_price)).toFixed(2)}</td><td style={{padding:'8px 12px',textAlign:'center'}}>{parseFloat(String(item.total_before_vat)).toLocaleString('en-US',{minimumFractionDigits:2})}</td><td style={{padding:'8px 12px',textAlign:'center',color:'#e11d48',fontWeight:700}}>{parseFloat(String(item.vat_amount)).toLocaleString('en-US',{minimumFractionDigits:2})}</td><td style={{padding:'8px 12px',textAlign:'center',fontWeight:900,color:'#0f172a'}}>{parseFloat(String(item.total_with_vat)).toLocaleString('en-US',{minimumFractionDigits:2})}</td></tr>))}
+                      {adjustments.map((adj)=>(<tr key={adj.id} style={{background:adj.type==='discount'?'#fff1f2':'#f0fdf4',borderBottom:'1px solid #fce7f3'}}><td style={{padding:'8px 12px',fontWeight:700}}>{adj.title} <span style={{fontSize:'10px',opacity:0.6}}>({adj.type==='discount'?'خصم':'إضافة'})</span></td><td style={{padding:'8px 12px',textAlign:'center',opacity:0.4}}>-</td><td style={{padding:'8px 12px',textAlign:'center',opacity:0.4}}>-</td><td style={{padding:'8px 12px',textAlign:'center',fontWeight:700,color:adj.type==='discount'?'#e11d48':'#059669'}}>{adj.type==='discount'?'-':''}{parseFloat(String(adj.amount)).toLocaleString('en-US',{minimumFractionDigits:2})}</td><td style={{padding:'8px 12px',textAlign:'center',opacity:0.4}}>-</td><td style={{padding:'8px 12px',textAlign:'center',fontWeight:900,color:adj.type==='discount'?'#be123c':'#047857'}}>{adj.type==='discount'?'-':''}{parseFloat(String(adj.total_with_vat)).toLocaleString('en-US',{minimumFractionDigits:2})}</td></tr>))}
+                    </tbody>
+                  </table>
+                </div>
+                {/* QR + Summary */}
+                <div style={{display:'grid',gridTemplateColumns:'236px 1fr',gap:'18px',alignItems:'start'}}>
+                  <div style={{background:'#fff1f2',borderRadius:'14px',padding:'16px',border:'2px solid #fecdd3',textAlign:'center'}}>
+                    <p style={{fontSize:'9px',fontWeight:800,color:'#e11d48',margin:'0 0 10px',letterSpacing:'1px'}}>ZATCA QR CODE</p>
+                    {isMounted&&<QRCodeCanvas value={qrData} size={200} level="H" includeMargin={false}/>}
+                  </div>
+                  <div style={{background:'#fff7f7',borderRadius:'14px',padding:'18px',border:'1px solid #fecdd3',display:'flex',flexDirection:'column',justifyContent:'space-between'}}>
+                    <div>
+                      <p style={{fontWeight:900,fontSize:'13px',color:'#e11d48',margin:'0 0 12px',borderBottom:'1px solid #fecdd3',paddingBottom:'8px'}}>ملخص الفاتورة</p>
+                      {[{label:'المبلغ قبل الضريبة',value:`${totalBeforeVat.toLocaleString('en-US',{minimumFractionDigits:2})} SAR`,c:'#0f172a'},{label:'ضريبة القيمة المضافة (15%)',value:`${totalVat.toLocaleString('en-US',{minimumFractionDigits:2})} SAR`,c:'#e11d48'},...(discountTotal>0||additionTotal>0?[{label:'خصم / إضافة',value:`${(additionTotal-discountTotal).toLocaleString('en-US',{minimumFractionDigits:2})} SAR`,c:additionTotal-discountTotal<0?'#e11d48':'#059669'}]:[])].map((r,i)=>(<div key={i} style={{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px dashed #fecdd3',fontSize:'12px'}}><span style={{color:'#64748b'}}>{r.label}</span><span style={{fontWeight:700,color:r.c}}>{r.value}</span></div>))}
+                    </div>
+                    <div style={{background:'linear-gradient(135deg,#e11d48,#f43f5e)',color:'#fff',borderRadius:'10px',padding:'12px 16px',marginTop:'14px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                      <span style={{fontWeight:900,fontSize:'13px'}}>الإجمالي المستحق</span>
+                      <span style={{fontWeight:900,fontSize:'18px'}}>{grandTotal.toLocaleString('en-US',{minimumFractionDigits:2})} SAR</span>
+                    </div>
+                  </div>
+                </div>
+                {/* Bank info */}
+                {selectedBank&&(
+                  <div style={{background:'#fff1f2',borderRadius:'14px',padding:'16px',border:'1px solid #fecdd3'}}>
+                    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'14px'}}>
+                      <div style={{display:'flex',alignItems:'center',gap:'8px'}}><University size={16} color="#e11d48"/><h3 style={{fontWeight:900,fontSize:'13px',color:'#0f172a',margin:0}}>معلومات السداد البنكي</h3></div>
+                      {bankAccounts.length>=1&&<div className="no-print" style={{position:'relative'}}><button onClick={(e)=>{e.stopPropagation();setShowBankSelector(s=>!s);}} style={{display:'flex',alignItems:'center',gap:'5px',padding:'6px 12px',border:'1px solid #e11d48',color:'#e11d48',background:'#fff',borderRadius:'8px',fontSize:'11px',fontWeight:700,cursor:'pointer'}}><RefreshCw size={11}/>تبديل الحساب<ChevronDown size={11}/></button>{showBankSelector&&<div onClick={(e)=>e.stopPropagation()} style={{position:'absolute',top:'calc(100% + 4px)',left:0,background:'#fff',border:'1px solid #fecdd3',borderRadius:'12px',boxShadow:'0 6px 24px rgba(225,29,72,0.15)',zIndex:30,minWidth:'220px',overflow:'hidden'}}>{bankAccounts.map(b=><button key={b.id} onClick={()=>{setSelectedBankId(b.id);setShowBankSelector(false);}} style={{display:'block',width:'100%',textAlign:'right',padding:'10px 14px',fontSize:'11px',background:b.id===selectedBankId?'#fff1f2':'transparent',color:b.id===selectedBankId?'#e11d48':'#0f172a',fontWeight:b.id===selectedBankId?700:400,cursor:'pointer',borderBottom:'1px solid #fce7f3'}}><div style={{fontWeight:700}}>{b.bank_name}</div><div style={{fontSize:'10px',color:'#94a3b8'}}>{b.bank_beneficiary}</div></button>)}</div>}</div>}
+                    </div>
+                    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
+                      {[{label:'البنك',value:selectedBank.bank_name},{label:'المستفيد',value:selectedBank.bank_beneficiary},{label:'رقم الحساب',value:selectedBank.bank_account},{label:'الآيبان',value:selectedBank.bank_iban}].map((r,i)=>(
+                        <div key={i} style={{background:'#fff',borderRadius:'10px',padding:'10px 14px',border:'1px solid #fce7f3',textAlign:'center'}}>
+                          <p style={{fontSize:'10px',color:'#fb7185',fontWeight:700,margin:'0 0 4px'}}>{r.label}</p>
+                          <p style={{fontWeight:800,fontSize:i>=2?'11px':'13px',color:'#0f172a',margin:0,wordBreak:'break-all'}}>{r.value}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </>)}
+
           </div>
 
           </div>
+
+          {/* Template Selector Modal */}
+          {showTemplateSelector && (
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 no-print" onClick={() => setShowTemplateSelector(false)}>
+              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden" onClick={(e) => e.stopPropagation()} dir="rtl">
+                <div className="px-6 py-4 flex items-center justify-between" style={{background:'linear-gradient(135deg,#4c1d95,#6d28d9)'}}>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center"><Layers size={20} className="text-white" /></div>
+                    <div><h3 className="text-white font-bold text-base">قوالب الفاتورة</h3><p className="text-white/70 text-xs">اختر تصميماً — يُطبق على الطباعة والتحميل والإرسال</p></div>
+                  </div>
+                  <button onClick={() => setShowTemplateSelector(false)} className="text-white/70 hover:text-white transition-colors"><X size={20} /></button>
+                </div>
+                <div className="p-5 grid grid-cols-3 gap-4 overflow-y-auto" style={{maxHeight:'65vh'}}>
+                  {[
+                    {id:0,name:'القالب الافتراضي',desc:'خلفية داكنة مع شعاري المنشأة والنظام',color:'#0f172a',accent:'#3b82f6',logos:'شعاران'},
+                    {id:1,name:'الأزرق الاحترافي',desc:'أبيض بشريط أزرق وتوزيع ثلاثي سفلي',color:'#1e40af',accent:'#3b82f6',logos:'شعار المنشأة'},
+                    {id:2,name:'الأخضر الفاخر',desc:'ترويسة زمردية وبطاقة عائمة وتذييل داكن',color:'#065f46',accent:'#059669',logos:'شعار المنشأة'},
+                    {id:3,name:'الأسود والذهب',desc:'تصميم فاخر أسود مع عناصر ذهبية',color:'#0a0a0a',accent:'#d97706',logos:'شعار المنشأة'},
+                    {id:4,name:'النقاء العصري',desc:'أبيض بسيط مع رقم فاتورة ضخم',color:'#1e293b',accent:'#94a3b8',logos:'شعار المنشأة'},
+                    {id:5,name:'البنفسجي الملكي',desc:'ترويسة منقسمة بنفسجية مع شعارين',color:'#4c1d95',accent:'#8b5cf6',logos:'شعاران'},
+                    {id:6,name:'الوردي الأنيق',desc:'تصميم فاتح راقٍ بألوان الوردي مع شعارين',color:'#e11d48',accent:'#fb7185',logos:'شعاران'},
+                  ].map((tpl) => (
+                    <button key={tpl.id} onClick={() => { setSelectedTemplate(tpl.id); setShowTemplateSelector(false); }} className="relative rounded-xl border-2 overflow-hidden transition-all hover:scale-[1.03] text-right" style={{borderColor: selectedTemplate === tpl.id ? tpl.accent : '#e2e8f0', outline:'none'}}>
+                      {selectedTemplate === tpl.id && (<div className="absolute top-2 left-2 z-10 w-6 h-6 rounded-full flex items-center justify-center" style={{background:tpl.accent}}><Check size={12} className="text-white" /></div>)}
+                      <div className="h-20 flex items-center justify-center relative overflow-hidden" style={{background:`linear-gradient(135deg,${tpl.color},${tpl.accent})`}}>
+                        <div className="absolute inset-0 opacity-20 pointer-events-none">
+                          <div className="absolute top-4 right-4 h-1 w-14 bg-white/40 rounded" />
+                          <div className="absolute top-7 right-4 h-1 w-9 bg-white/40 rounded" />
+                          <div className="absolute top-10 right-4 h-1 w-11 bg-white/40 rounded" />
+                        </div>
+                        <span className="text-white font-black text-2xl opacity-30">{tpl.id + 1}</span>
+                      </div>
+                      <div className="p-3" style={{background: tpl.id === 0 ? '#1e293b' : '#f8fafc'}}>
+                        <p className="font-black text-sm" style={{color: tpl.id === 0 ? '#fff' : '#0f172a'}}>{tpl.name}</p>
+                        <p className="text-[10px] mt-1 leading-relaxed" style={{color: tpl.id === 0 ? 'rgba(255,255,255,0.45)' : '#94a3b8'}}>{tpl.desc}</p>
+                        <p className="text-[9px] mt-1.5 font-bold" style={{color:tpl.accent}}>{tpl.logos}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                <div className="border-t border-gray-100 px-6 py-4 flex justify-end">
+                  <button onClick={() => setShowTemplateSelector(false)} className="px-6 py-2 rounded-xl bg-gray-100 text-gray-700 font-bold text-sm hover:bg-gray-200 transition-all">إغلاق</button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Email Dialog */}
           {showEmailDialog && (

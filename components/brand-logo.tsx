@@ -19,11 +19,11 @@ const sizeConfig = {
     gap: "mt-1",
   },
   md: {
-    imgSize: 96,
-    containerClass: "w-24 h-24",
-    glow: "-m-5",
+    imgSize: 64,
+    containerClass: "w-16 h-16",
+    glow: "-m-3",
     title: "text-sm font-black",
-    gap: "mt-2",
+    gap: "mt-1",
   },
   lg: {
     imgSize: 200,
@@ -93,16 +93,6 @@ export default function BrandLogo({ size = "lg", className = "" }: BrandLogoProp
         </div>
       </motion.div>
 
-      {/* Brand text */}
-      <motion.h2
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className={`${s.gap} ${s.title} bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500 bg-clip-text text-transparent tracking-tight`}
-        style={{ backgroundSize: "200% 200%" }}
-      >
-        LOGISTICS HUB
-      </motion.h2>
     </div>
   );
 }

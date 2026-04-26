@@ -71,13 +71,19 @@ export async function updateVehicle(id: number, data: any) {
   }
 }
 
-export async function deleteVehicle(id: number) {
+export async function deleteVehicle(id: number, companyId: number) {
   try {
-    // First delete associated records if any (accidents, violations, etc.)
-    await query("DELETE FROM vehicle_accidents WHERE vehicle_id = ?", [id]);
-    await query("DELETE FROM vehicle_violations WHERE vehicle_id = ?", [id]);
-    await query("DELETE FROM maintenance_requests WHERE vehicle_id = ?", [id]);
-    await query("DELETE FROM vehicles WHERE id = ?", [id]);
+    const result = await execute(
+      "DELETE FROM vehicles WHERE id = ? AND company_id = ?",
+      [id, companyId]
+    );
+
+    const affectedRows = Number((result as { affectedRows?: number })?.affectedRows || 0);
+
+    if (affectedRows === 0) {
+      return { success: false, error: "Vehicle not found or not allowed" };
+    }
+
     revalidatePath("/fleet");
     return { success: true };
   } catch (error: any) {

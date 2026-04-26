@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { AutoSeedCheck } from "@/components/auto-seed-check";
 
 const DashboardLayout = dynamic(() => import("./dashboard-layout").then(m => m.DashboardLayout), {
   ssr: false,
@@ -29,5 +30,14 @@ interface DashboardLayoutWrapperProps {
 }
 
 export function DashboardLayoutWrapper(props: DashboardLayoutWrapperProps) {
-  return <DashboardLayout {...props} />;
+  const companyId = props.user?.company_id;
+  const isAdmin = props.user?.role === "admin";
+
+  return (
+    <>
+      {/* Auto-initialize chart of accounts & cost centers on every login session */}
+      {companyId && !isAdmin && <AutoSeedCheck companyId={companyId} />}
+      <DashboardLayout {...props} />
+    </>
+  );
 }

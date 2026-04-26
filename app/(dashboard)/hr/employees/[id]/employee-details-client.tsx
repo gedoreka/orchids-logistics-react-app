@@ -198,6 +198,7 @@ export function EmployeeDetailsClient({
   });
 
   const [newExpiryDate, setNewExpiryDate] = useState(employee.iqama_expiry || "");
+  const [currentIqamaExpiry, setCurrentIqamaExpiry] = useState(employee.iqama_expiry || "");
   const [editingViolation, setEditingViolation] = useState<any>(null);
   const [editingLetter, setEditingLetter] = useState<any>(null);
   const [showBankForm, setShowBankForm] = useState(false);
@@ -421,6 +422,7 @@ export function EmployeeDetailsClient({
       showSavingModal('حالة الهوية');
       const result = await updateIqamaExpiry(employee.id, newExpiryDate);
       if (result.success) {
+        setCurrentIqamaExpiry(newExpiryDate);
         showSavedModal('حالة الهوية', [
           `الموظف: ${employee.name}`,
           `التاريخ الجديد: ${newExpiryDate}`,
@@ -510,8 +512,8 @@ export function EmployeeDetailsClient({
   const activeConfig = tabConfig[activeTab] || tabConfig.general;
 
   let iqamaStatus = { text: "غير محددة", color: "gray", days: null as number | null };
-  if (employee.iqama_expiry) {
-    const days = differenceInDays(parseISO(employee.iqama_expiry), new Date());
+  if (currentIqamaExpiry) {
+    const days = differenceInDays(parseISO(currentIqamaExpiry), new Date());
     if (days < 0) { iqamaStatus = { text: `منتهية منذ ${Math.abs(days)} يوم`, color: "red", days }; }
     else if (days <= 30) { iqamaStatus = { text: `تنتهي خلال ${days} يوم`, color: "orange", days }; }
     else { iqamaStatus = { text: `سارية (${days} يوم متبقي)`, color: "green", days }; }

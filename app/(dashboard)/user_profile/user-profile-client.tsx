@@ -616,12 +616,24 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
         <form className="space-y-4" onSubmit={async (e) => {
           e.preventDefault();
           let res;
-          if(editingBank) res = await updateBankAccount(editingBank.id, company.id, bankFormData);
-          else res = await addBankAccount(company.id, bankFormData);
-
-          if(res.success) {
-            toast.success(t("messages.saveSuccess"));
-            window.location.reload();
+          if (editingBank) {
+            res = await updateBankAccount(editingBank.id, company.id, bankFormData);
+            if (res.success) {
+              setBankAccounts(prev => prev.map(b => b.id === editingBank.id ? { ...b, ...bankFormData } : b));
+              setIsBankModalOpen(false);
+              setEditingBank(null);
+              setBankFormData({ bank_beneficiary: "", bank_name: "", bank_account: "", bank_iban: "" });
+              toast.success(t("messages.saveSuccess"));
+            }
+          } else {
+            res = await addBankAccount(company.id, bankFormData);
+            if (res.success) {
+              const newBank = { id: (res as any).id, company_id: company.id, ...bankFormData };
+              setBankAccounts(prev => [...prev, newBank]);
+              setIsBankModalOpen(false);
+              setBankFormData({ bank_beneficiary: "", bank_name: "", bank_account: "", bank_iban: "" });
+              toast.success(t("messages.saveSuccess"));
+            }
           }
         }}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -638,12 +650,24 @@ export function UserProfileClient({ user, company, bankAccounts: initialBankAcco
         <form className="space-y-4" onSubmit={async (e) => {
           e.preventDefault();
           let res;
-          if(editingLicense) res = await updateLicense(editingLicense.id, company.id, licenseFormData);
-          else res = await addLicense(company.id, licenseFormData);
-
-          if(res.success) {
-            toast.success(t("messages.saveSuccess"));
-            window.location.reload();
+          if (editingLicense) {
+            res = await updateLicense(editingLicense.id, company.id, licenseFormData);
+            if (res.success) {
+              setLicenses(prev => prev.map(l => l.id === editingLicense.id ? { ...l, ...licenseFormData } : l));
+              setIsLicenseModalOpen(false);
+              setEditingLicense(null);
+              setLicenseFormData({ license_type: "", license_number: "", start_date: "", end_date: "", license_image: "" });
+              toast.success(t("messages.saveSuccess"));
+            }
+          } else {
+            res = await addLicense(company.id, licenseFormData);
+            if (res.success) {
+              const newLicense = { id: (res as any).id, company_id: company.id, ...licenseFormData };
+              setLicenses(prev => [...prev, newLicense]);
+              setIsLicenseModalOpen(false);
+              setLicenseFormData({ license_type: "", license_number: "", start_date: "", end_date: "", license_image: "" });
+              toast.success(t("messages.saveSuccess"));
+            }
           }
         }}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

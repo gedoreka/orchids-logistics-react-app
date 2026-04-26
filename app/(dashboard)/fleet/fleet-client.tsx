@@ -1620,6 +1620,7 @@ export function FleetClient({
 }: FleetClientProps) {
   const t = useTranslations('fleet');
   const { locale } = useLocale();
+  const isArabic = locale === 'ar';
   const [vehicles, setVehicles] = useState(initialVehicles);
   const [spares, setSpares] = useState(initialSpares);
   const [maintenance, setMaintenance] = useState(initialMaintenance);
@@ -1628,6 +1629,8 @@ export function FleetClient({
     const [viewingMaintenance, setViewingMaintenance] = useState<any>(null);
     const [deleteVehicleId, setDeleteVehicleId] = useState<number | null>(null);
     const [showDeleteSuccess, setShowDeleteSuccess] = useState(false);
+    const [showDeleteError, setShowDeleteError] = useState(false);
+    const [deleteErrorMsg, setDeleteErrorMsg] = useState("");
     const [showCompletionBanner, setShowCompletionBanner] = useState(false);
     const [completedMaintenanceInfo, setCompletedMaintenanceInfo] = useState("");
     const [showPendingBanner, setShowPendingBanner] = useState(false);
@@ -1723,7 +1726,7 @@ export function FleetClient({
 
           <div className="relative z-10 space-y-10">
             <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
-              <div className="text-center lg:text-right space-y-4">
+                <div className={cn("text-center space-y-4", isArabic ? "lg:text-right" : "lg:text-left")}>
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
@@ -1740,7 +1743,7 @@ export function FleetClient({
                     {t('subtitle', { name: companyName })}
                   </p>
 
-                <div className="flex flex-wrap justify-center lg:justify-start gap-4 mt-8">
+                  <div className={cn("flex flex-wrap justify-center gap-4 mt-8", isArabic ? "lg:justify-start" : "lg:justify-end")}>
                   <AddVehicleDialog companyId={companyId} employees={employees} vehicleCategories={vehicleCategories} t={t} />
                   <AddSpareDialog companyId={companyId} categories={categories} t={t} />
                   <MaintenanceRequestDialog companyId={companyId} vehicles={vehicles} spares={spares} t={t} companyEmail={companyEmail} />
@@ -1899,16 +1902,19 @@ export function FleetClient({
                     <p className="text-white/60 text-sm font-medium">{t('fleetRegistryDesc')}</p>
                   </div>
                 </div>
-                <div className="relative w-full md:w-96">
-                  <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20" size={20} />
-                  <input
-                    type="text"
-                    placeholder={t('searchVehicle')}
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pr-12 pl-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-medium focus:bg-white/10 focus:border-blue-500/50 outline-none transition-all placeholder:text-white/20"
-                  />
-                </div>
+                  <div className="relative w-full md:w-96">
+                    <Search className={cn("absolute top-1/2 -translate-y-1/2 text-white/20", isArabic ? "right-4" : "left-4")} size={20} />
+                    <input
+                      type="text"
+                      placeholder={t('searchVehicle')}
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className={cn(
+                        "w-full py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-medium focus:bg-white/10 focus:border-blue-500/50 outline-none transition-all placeholder:text-white/20",
+                        isArabic ? "pr-12 pl-4" : "pl-12 pr-4"
+                      )}
+                    />
+                  </div>
               </CardHeader>
               <CardContent className="p-0">
                 <Table>
@@ -1918,8 +1924,8 @@ export function FleetClient({
                       <TableHead className="text-white/60 font-black uppercase text-[10px]">{t('brand')} & {t('model')}</TableHead>
                       <TableHead className="text-white/60 font-black uppercase text-[10px]">{t('driver')}</TableHead>
                       <TableHead className="text-white/60 font-black uppercase text-[10px]">{t('currentMileage')}</TableHead>
-                      <TableHead className="text-white/60 font-black uppercase text-[10px] text-center">{t('status')}</TableHead>
-                      <TableHead className="text-white/60 font-black uppercase text-[10px] text-left px-8">{t('actions')}</TableHead>
+                        <TableHead className="text-white/60 font-black uppercase text-[10px] text-center">{t('status')}</TableHead>
+                        <TableHead className={cn("text-white/60 font-black uppercase text-[10px] px-8", isArabic ? "text-right" : "text-left")}>{t('actions')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -1952,11 +1958,11 @@ export function FleetClient({
                             <small className="text-[10px] font-black text-white/20 uppercase">KM</small>
                           </div>
                         </TableCell>
-                        <TableCell className="text-center">
-                          <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 font-black text-[10px] px-3">{locale === 'ar' ? 'نشط' : 'Active'}</Badge>
-                        </TableCell>
-                        <TableCell className="text-left px-8">
-                          <div className="flex justify-end gap-2">
+                          <TableCell className="text-center">
+                            <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 font-black text-[10px] px-3">{t('active')}</Badge>
+                          </TableCell>
+                          <TableCell className={cn("px-8", isArabic ? "text-right" : "text-left")}>
+                            <div className={cn("flex gap-2", isArabic ? "justify-start" : "justify-end")}>
                             <button className="h-9 w-9 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all">
                               <Edit size={16} />
                             </button>
@@ -2022,7 +2028,7 @@ export function FleetClient({
                         <TableHead className="text-white/60 font-black uppercase text-[10px]">{t('category')}</TableHead>
                         <TableHead className="text-white/60 font-black uppercase text-[10px]">{t('quantity')}</TableHead>
                         <TableHead className="text-white/60 font-black uppercase text-[10px]">{t('costPrice')}</TableHead>
-                        <TableHead className="text-white/60 font-black uppercase text-[10px] text-left px-8">{t('actions')}</TableHead>
+                        <TableHead className={cn("text-white/60 font-black uppercase text-[10px] px-8", isArabic ? "text-right" : "text-left")}>{t('actions')}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -2056,8 +2062,8 @@ export function FleetClient({
                               <span className="text-[10px] font-black text-white/30 uppercase">{t('sar')}</span>
                             </div>
                           </TableCell>
-                          <TableCell className="text-left px-8">
-                            <div className="flex justify-end gap-2">
+                          <TableCell className={cn("px-8", isArabic ? "text-right" : "text-left")}>
+                            <div className={cn("flex gap-2", isArabic ? "justify-start" : "justify-end")}>
                               <button className="h-9 w-9 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all">
                                 <Edit size={16} />
                               </button>
@@ -2088,10 +2094,10 @@ export function FleetClient({
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <button className="flex items-center gap-2 px-5 py-2.5 bg-white/5 rounded-xl border border-white/10 text-white/50 font-black text-xs hover:bg-white/10 transition-all">
-                    <Filter size={16} />
-                    {locale === 'ar' ? 'تصفية' : 'Filter'}
-                  </button>
+                    <button className="flex items-center gap-2 px-5 py-2.5 bg-white/5 rounded-xl border border-white/10 text-white/50 font-black text-xs hover:bg-white/10 transition-all">
+                      <Filter size={16} />
+                      {t('filter')}
+                    </button>
                 </div>
               </CardHeader>
               <CardContent className="p-0">
@@ -2103,8 +2109,8 @@ export function FleetClient({
                       <TableHead className="text-white/60 font-black uppercase text-[10px]">{t('technician')}</TableHead>
                       <TableHead className="text-white/60 font-black uppercase text-[10px]">{t('date')}</TableHead>
                       <TableHead className="text-white/60 font-black uppercase text-[10px]">{t('totalCost')}</TableHead>
-                      <TableHead className="text-white/60 font-black uppercase text-[10px] text-center">{t('status')}</TableHead>
-                      <TableHead className="text-white/60 font-black uppercase text-[10px] text-left px-8">{t('actions')}</TableHead>
+                        <TableHead className="text-white/60 font-black uppercase text-[10px] text-center">{t('status')}</TableHead>
+                        <TableHead className={cn("text-white/60 font-black uppercase text-[10px] px-8", isArabic ? "text-right" : "text-left")}>{t('actions')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -2151,8 +2157,8 @@ export function FleetClient({
                             {m.status === 'pending' ? t('pending') : t('completed')}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-left px-8">
-                          <div className="flex justify-end gap-2 items-center">
+                          <TableCell className={cn("px-8", isArabic ? "text-right" : "text-left")}>
+                            <div className={cn("flex gap-2 items-center", isArabic ? "justify-start" : "justify-end")}>
                             {m.status === 'pending' && (
                               <SlideConfirmButton 
                                 id={m.id} 
@@ -2397,17 +2403,24 @@ export function FleetClient({
       <DeleteConfirmModal
         open={deleteVehicleId !== null}
         onClose={() => setDeleteVehicleId(null)}
-        onConfirm={async () => {
-          if (deleteVehicleId) {
-            await deleteVehicle(deleteVehicleId);
-            setDeleteVehicleId(null);
-            setShowDeleteSuccess(true);
-            window.location.reload();
-          }
-        }}
+          onConfirm={async () => {
+            if (deleteVehicleId) {
+              const result = await deleteVehicle(deleteVehicleId, companyId);
+              if (result.success) {
+                setVehicles(prev => prev.filter(vehicle => vehicle.id !== deleteVehicleId));
+                setDeleteVehicleId(null);
+                setShowDeleteSuccess(true);
+                return;
+              }
+              setDeleteVehicleId(null);
+              setDeleteErrorMsg(result.error || t('error'));
+              setShowDeleteError(true);
+            }
+          }}
         title={t('confirmDelete')}
       />
       <SuccessModal open={showDeleteSuccess} onClose={() => setShowDeleteSuccess(false)} title={t('success')} />
+      <ErrorModal open={showDeleteError} onClose={() => setShowDeleteError(false)} title={deleteErrorMsg || t('error')} />
     </div>
   );
 }

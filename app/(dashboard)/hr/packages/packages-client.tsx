@@ -673,48 +673,47 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
 
   return (
     <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen pb-20">
-      <motion.div 
+      <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="w-full px-2 pt-6"
+        className="w-full px-3 md:px-6 pt-6 space-y-5"
       >
-          <motion.div
-            variants={itemVariants}
-            className="relative bg-gradient-to-br from-slate-800 via-slate-700 to-slate-600 rounded-[3rem] shadow-2xl border border-slate-500/30 overflow-hidden"
-          >
-            {/* Rainbow bar */}
-            <div className="h-1.5 w-full bg-gradient-to-r from-blue-500 via-indigo-500 via-purple-500 via-emerald-500 to-blue-500" />
-
-          <div className="relative z-10 p-6 border-b border-white/10">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center shadow-lg shadow-purple-500/25">
-                  <Package className="text-white" size={22} />
+        {/* ══════════════════ CARD 1 — HEADER ══════════════════ */}
+        <motion.div
+          variants={itemVariants}
+          className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-violet-900 border border-white/10 shadow-2xl shadow-violet-500/10"
+        >
+          <div className="h-1 w-full bg-gradient-to-r from-blue-500 via-purple-500 to-emerald-500" />
+          <div className={`absolute top-0 ${isRTL ? 'left-0' : 'right-0'} w-64 h-64 bg-violet-600/15 rounded-full blur-3xl -translate-y-1/2 ${isRTL ? '-translate-x-1/3' : 'translate-x-1/3'}`} />
+          <div className="relative z-10 p-6 md:p-8">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-xs font-bold text-white/40">
+                  <Link href="/hr" className="hover:text-blue-400 transition-colors flex items-center gap-1">
+                    <LayoutDashboard size={12} />
+                    {t('hrAffairs')}
+                  </Link>
+                  {isRTL ? <ArrowLeft size={12} /> : <ArrowRight size={12} />}
+                  <span className="text-purple-400 font-black">{t('packagesManagement')}</span>
                 </div>
-                <div>
-                    <div className="flex items-center gap-2 text-xs font-bold text-white/40">
-                      <Link href="/hr" className="hover:text-blue-400 transition-colors flex items-center gap-1">
-                        <LayoutDashboard size={12} />
-                        {t('hrAffairs')}
-                      </Link>
-                      {isRTL ? <ArrowLeft size={12} /> : <ArrowRight size={12} />}
-                      <span className="text-purple-400">{t('packagesManagement')}</span>
-                    </div>
-                    <h1 className="text-xl font-black text-white">{t('title')}</h1>
+                <div className="flex items-center gap-3">
+                  <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center shadow-lg shadow-purple-500/30">
+                    <Package className="text-white" size={20} />
+                  </div>
+                  <h1 className="text-2xl font-black text-white">{t('title')}</h1>
                 </div>
               </div>
-
               <div className="flex items-center gap-3">
-                <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/10 rounded-xl">
-                    <div className="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></div>
-                    <span className="text-xs font-black text-white/70">{packages.length} {t('packagesCount')}</span>
+                <div className="flex items-center gap-2 px-4 py-2.5 bg-white/8 border border-white/10 rounded-xl backdrop-blur-sm">
+                  <div className="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></div>
+                  <span className="text-sm font-black text-white/70">{packages.length} {t('packagesCount')}</span>
                 </div>
                 <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
                   onClick={() => setIsModalOpen(true)}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-violet-500 text-white hover:from-purple-600 hover:to-violet-600 transition-all font-black text-sm shadow-lg"
+                  className="flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-violet-600 text-white hover:from-purple-600 hover:to-violet-700 transition-all font-black text-sm shadow-xl shadow-purple-500/30"
                 >
                   <Plus size={18} />
                   {t('createNewPackage')}
@@ -722,113 +721,60 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
               </div>
             </div>
           </div>
+        </motion.div>
 
-            <div className="relative z-10 p-6 border-b border-white/10">
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="relative overflow-hidden rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-5 hover:bg-white/8 transition-all">
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-purple-500/10 rounded-full -translate-y-8 translate-x-8 blur-xl" />
-                  <div className="relative z-10 flex items-start justify-between">
-                    <div className="p-2 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl shadow-lg"><Package size={18} className="text-white" /></div>
-                    <span className="text-[10px] font-black text-purple-400 bg-purple-500/15 px-2 py-0.5 rounded-full border border-purple-500/20">{t('total')}</span>
-                  </div>
-                  <div className="mt-4">
-                    <p className="text-white/50 text-[10px] font-black uppercase tracking-wider">{t('totalPackages')}</p>
-                    <motion.p
-                      initial={{ opacity: 0, scale: 0.5 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.2, type: "spring" }}
-                      className="text-3xl font-black text-white mt-1"
-                    >
-                      {stats.total}
-                    </motion.p>
-                    <p className="text-white/30 text-[10px] font-bold mt-1">{t('allWorkGroups')}</p>
-                  </div>
+        {/* ══════════════════ CARD 2 — STATS GRID ══════════════════ */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            { gradient: "from-purple-500 to-violet-600", glow: "bg-purple-500/10", icon: <Package size={18} className="text-white" />, badgeColor: "text-purple-300 bg-purple-500/20 border-purple-500/30", badge: t('total'), label: t('totalPackages'), value: stats.total, sub: t('allWorkGroups'), delay: 0.2 },
+            { gradient: "from-blue-500 to-indigo-600", glow: "bg-blue-500/10", icon: <Target size={18} className="text-white" />, badgeColor: "text-blue-300 bg-blue-500/20 border-blue-500/30", badge: t('targetLabel'), label: t('targetSystem'), value: stats.targetType, sub: t('targetPackages'), delay: 0.3 },
+            { gradient: "from-emerald-500 to-teal-600", glow: "bg-emerald-500/10", icon: <DollarSign size={18} className="text-white" />, badgeColor: "text-emerald-300 bg-emerald-500/20 border-emerald-500/30", badge: t('salaryLabel'), label: t('salarySystem'), value: stats.salaryType, sub: t('salaryPackages'), delay: 0.4 },
+            { gradient: "from-amber-500 to-orange-600", glow: "bg-amber-500/10", icon: <Zap size={18} className="text-white" />, badgeColor: "text-amber-300 bg-amber-500/20 border-amber-500/30", badge: t('commissionLabel'), label: t('commissionSystem'), value: stats.commissionType, sub: t('commissionPackages'), delay: 0.5 },
+          ].map((stat, idx) => (
+            <motion.div key={idx} variants={itemVariants}>
+              <div className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${stat.gradient} p-5 shadow-xl border border-white/10 hover:-translate-y-1 transition-all`}>
+                <div className={`absolute top-0 right-0 w-20 h-20 ${stat.glow} rounded-full -translate-y-8 translate-x-8 blur-xl`} />
+                <div className="relative z-10 flex items-start justify-between">
+                  <div className="p-2 bg-white/15 rounded-xl">{stat.icon}</div>
+                  <span className={`text-[10px] font-black px-2 py-0.5 rounded-full border ${stat.badgeColor}`}>{stat.badge}</span>
                 </div>
-
-                <div className="relative overflow-hidden rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-5 hover:bg-white/8 transition-all">
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full -translate-y-8 translate-x-8 blur-xl" />
-                  <div className="relative z-10 flex items-start justify-between">
-                    <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg"><Target size={18} className="text-white" /></div>
-                    <span className="text-[10px] font-black text-blue-400 bg-blue-500/15 px-2 py-0.5 rounded-full border border-blue-500/20">{t('targetLabel')}</span>
-                  </div>
-                  <div className="mt-4">
-                    <p className="text-white/50 text-[10px] font-black uppercase tracking-wider">{t('targetSystem')}</p>
-                    <motion.p
-                      initial={{ opacity: 0, scale: 0.5 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.3, type: "spring" }}
-                      className="text-3xl font-black text-white mt-1"
-                    >
-                      {stats.targetType}
-                    </motion.p>
-                    <p className="text-white/30 text-[10px] font-bold mt-1">{t('targetPackages')}</p>
-                  </div>
-                </div>
-
-                <div className="relative overflow-hidden rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-5 hover:bg-white/8 transition-all">
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-emerald-500/10 rounded-full -translate-y-8 translate-x-8 blur-xl" />
-                  <div className="relative z-10 flex items-start justify-between">
-                    <div className="p-2 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl shadow-lg"><DollarSign size={18} className="text-white" /></div>
-                    <span className="text-[10px] font-black text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-500/20">{t('salaryLabel')}</span>
-                  </div>
-                  <div className="mt-4">
-                    <p className="text-white/50 text-[10px] font-black uppercase tracking-wider">{t('salarySystem')}</p>
-                    <motion.p
-                      initial={{ opacity: 0, scale: 0.5 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.4, type: "spring" }}
-                      className="text-3xl font-black text-white mt-1"
-                    >
-                      {stats.salaryType}
-                    </motion.p>
-                    <p className="text-white/30 text-[10px] font-bold mt-1">{t('salaryPackages')}</p>
-                  </div>
-                </div>
-
-                <div className="relative overflow-hidden rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-5 hover:bg-white/8 transition-all">
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-amber-500/10 rounded-full -translate-y-8 translate-x-8 blur-xl" />
-                  <div className="relative z-10 flex items-start justify-between">
-                    <div className="p-2 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl shadow-lg"><Zap size={18} className="text-white" /></div>
-                    <span className="text-[10px] font-black text-amber-400 bg-amber-500/15 px-2 py-0.5 rounded-full border border-amber-500/20">{t('commissionLabel')}</span>
-                  </div>
-                  <div className="mt-4">
-                    <p className="text-white/50 text-[10px] font-black uppercase tracking-wider">{t('commissionSystem')}</p>
-                    <motion.p
-                      initial={{ opacity: 0, scale: 0.5 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.5, type: "spring" }}
-                      className="text-3xl font-black text-white mt-1"
-                    >
-                      {stats.commissionType}
-                    </motion.p>
-                    <p className="text-white/30 text-[10px] font-bold mt-1">{t('commissionPackages')}</p>
-                  </div>
+                <div className="mt-4 relative z-10">
+                  <p className="text-white/60 text-[10px] font-black uppercase tracking-wider">{stat.label}</p>
+                  <motion.p initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: stat.delay, type: "spring" }} className="text-3xl font-black text-white mt-1">{stat.value}</motion.p>
+                  <p className="text-white/40 text-[10px] font-bold mt-1">{stat.sub}</p>
                 </div>
               </div>
-            </div>
+            </motion.div>
+          ))}
+        </div>
 
-            <div className="relative z-10 px-6 py-4 border-b border-white/10">
+        {/* ══════════════════ CARD 3 — PACKAGES LIST ══════════════════ */}
+        <motion.div
+          variants={itemVariants}
+          className="relative overflow-hidden rounded-2xl bg-slate-800/95 border border-slate-600/40 shadow-xl"
+        >
+          {/* Search/filter bar */}
+          <div className="px-6 py-4 border-b border-white/8 bg-slate-900/40">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center shadow-lg">
-                  <Package className="text-white" size={20} />
+                <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center shadow-lg">
+                  <Package className="text-white" size={18} />
                 </div>
                 <div>
-                    <h3 className="text-white font-black">{t('packagesList')}</h3>
-                    <p className="text-white/40 text-xs font-bold">{filteredPackages.length} {t('packagesInList')}</p>
+                  <h3 className="text-white font-black text-sm">{t('packagesList')}</h3>
+                  <p className="text-white/40 text-[11px] font-bold">{filteredPackages.length} {t('packagesInList')}</p>
                 </div>
               </div>
-
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                <div className="relative flex-1 sm:min-w-[300px]">
-                    <Search className={cn("absolute top-1/2 -translate-y-1/2 text-white/30", isRTL ? "right-4" : "left-4")} size={18} />
-                    <input
-                      type="text"
-                      placeholder={t('searchByPackageName')}
-                      className={cn(
-                        "w-full py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm font-bold text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/40 transition-all",
-                        isRTL ? "pr-12 pl-4" : "pl-12 pr-4"
-                      )}
+                <div className="relative flex-1 sm:min-w-[280px]">
+                  <Search className={cn("absolute top-1/2 -translate-y-1/2 text-white/30", isRTL ? "right-4" : "left-4")} size={16} />
+                  <input
+                    type="text"
+                    placeholder={t('searchByPackageName')}
+                    className={cn(
+                      "w-full py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm font-bold text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/40 transition-all",
+                      isRTL ? "pr-10 pl-4" : "pl-10 pr-4"
+                    )}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
@@ -836,16 +782,17 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 text-white/60 hover:bg-white/10 transition-all font-bold text-xs border border-white/10"
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 text-white/60 hover:bg-white/10 transition-all font-bold text-xs border border-white/10"
                 >
-                  <Filter size={16} />
+                  <Filter size={14} />
                   {t('filter')}
                 </motion.button>
               </div>
             </div>
           </div>
 
-            <div className="relative z-10 p-6 border-b border-white/10">
+          {/* Packages grid */}
+          <div className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               <AnimatePresence>
                     {filteredPackages.map((pkg, index) => (
@@ -1054,34 +1001,38 @@ export function PackagesClient({ initialPackages, companyId }: PackagesClientPro
             </div>
           </div>
 
-            <div className="relative z-10 px-6 py-4 border-t border-white/10">
-              <div className="flex items-center justify-between text-xs font-bold text-white/40">
-                <span>{t('totalPackagesFooter')}: {filteredPackages.length}</span>
-                <div className="flex items-center gap-4">
-                  <span className="flex items-center gap-1">
-                    <Target size={14} className="text-blue-400" />
-                    {stats.targetType} {t('targetLabel')}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <DollarSign size={14} className="text-emerald-400" />
-                    {stats.salaryType} {t('salaryLabel')}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Zap size={14} className="text-amber-400" />
-                    {stats.commissionType} {t('commissionLabel')}
-                  </span>
-              </div>
+          {/* Packages card footer */}
+          <div className="px-6 py-4 border-t border-white/8 bg-slate-900/30 flex items-center justify-between text-xs font-bold text-white/40">
+            <span>{t('totalPackagesFooter')}: {filteredPackages.length}</span>
+            <div className="flex items-center gap-4">
+              <span className="flex items-center gap-1.5">
+                <Target size={13} className="text-blue-400" />
+                {stats.targetType} {t('targetLabel')}
+              </span>
+              <span className="flex items-center gap-1.5">
+                <DollarSign size={13} className="text-emerald-400" />
+                {stats.salaryType} {t('salaryLabel')}
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Zap size={13} className="text-amber-400" />
+                {stats.commissionType} {t('commissionLabel')}
+              </span>
             </div>
           </div>
         </motion.div>
 
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black text-white/30 uppercase tracking-widest pt-4">
+        {/* ══════════════════ FOOTER ══════════════════ */}
+        <motion.div
+          variants={itemVariants}
+          className="flex flex-col sm:flex-row justify-between items-center gap-3 py-4 px-5 rounded-2xl bg-slate-800/50 border border-slate-700/30 text-[10px] font-black text-white/30 uppercase tracking-widest"
+        >
           <div className="flex items-center gap-2">
             <Sparkles size={12} className="text-purple-400" />
             <span>{t('systemManagement')}</span>
           </div>
           <span>{t('allRightsReserved')} © {new Date().getFullYear()}</span>
-        </div>
+        </motion.div>
+
       </motion.div>
 
       <AnimatePresence>

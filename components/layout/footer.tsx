@@ -176,7 +176,7 @@ export function Footer() {
               >
                 <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
                   <span className={cn("text-[10px] font-bold", isDark ? "text-blue-400" : "text-black")}>
-                        {isRTL ? 'نسخة النظام الحالي 1.5' : 'System Version 1.5'}
+                        {isRTL ? 'نسخة النظام الحالي 1.6' : 'System Version 1.6'}
                 </span>
               </motion.div>
 

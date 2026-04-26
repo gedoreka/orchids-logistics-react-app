@@ -208,7 +208,7 @@ export function Sidebar({ userRole, permissions = {}, userType }: SidebarProps) 
             isRTL ? "left-0" : "right-0"
           )} />
       
-      <div className={`relative z-10 p-4 pb-5 border-b ${isDark ? 'border-white/5' : 'border-indigo-200/30'}`}>
+      <div className={`relative z-10 p-2 pb-3 border-b ${isDark ? 'border-white/5' : 'border-indigo-200/30'}`}>
         {mounted && (
             <motion.div 
               initial={{ opacity: 0, y: -10 }}

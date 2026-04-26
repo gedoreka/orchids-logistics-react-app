@@ -73,12 +73,12 @@ export async function updateCompanyFile(companyId: number, field: string, filePa
 
 export async function addBankAccount(companyId: number, data: any) {
   try {
-    await query(
+    const result: any = await query(
       "INSERT INTO company_bank_accounts (company_id, bank_beneficiary, bank_name, bank_account, bank_iban) VALUES (?, ?, ?, ?, ?)",
       [companyId, data.bank_beneficiary, data.bank_name, data.bank_account, data.bank_iban]
     );
     revalidatePath("/user_profile");
-    return { success: true };
+    return { success: true, id: result.insertId };
   } catch (error: any) {
     return { success: false, error: error.message };
   }
@@ -109,12 +109,12 @@ export async function deleteBankAccount(id: number, companyId: number) {
 
 export async function addLicense(companyId: number, data: any) {
   try {
-    await query(
+    const result: any = await query(
       "INSERT INTO company_licenses (company_id, license_number, license_type, start_date, end_date, license_image) VALUES (?, ?, ?, ?, ?, ?)",
       [companyId, data.license_number, data.license_type, data.start_date || null, data.end_date || null, data.license_image || null]
     );
     revalidatePath("/user_profile");
-    return { success: true };
+    return { success: true, id: result.insertId };
   } catch (error: any) {
     console.error("Add license error:", error);
     return { success: false, error: error.message };
